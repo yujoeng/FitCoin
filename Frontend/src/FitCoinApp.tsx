@@ -20,16 +20,24 @@ type PageType = 'mission' | 'exercise' | 'result' | 'coach';
 export default function FitCoinApp() {
   const [page, setPage]               = useState<PageType>('mission');
   const [currentMission, setCurrentMission] = useState<Exercise | null>(null);
-  const [dailyState,  setDailyState]  = useState<DailyState>(() => loadDailyState());
-  const [streak,      setStreak]      = useState<StreakState>(() => loadStreak());
-  const [totalPoints, setTotalPoints] = useState<number>(() => loadTotalPoints());
+  const [dailyState,  setDailyState]  = useState<DailyState>({ missionCount: 0 });
+  const [streak,      setStreak]      = useState<StreakState>({ count: 0, lastDate: '' });
+  const [totalPoints, setTotalPoints] = useState<number>(0);
   const [earnedPoint, setEarnedPoint] = useState<number>(0);
+  const [isMounted, setIsMounted]     = useState(false);
 
-  // 날짜 경계마다 daily state 동기화
+  // 날짜 경계마다 daily state 동기화 및 최초 하이드레이션
   useEffect(() => {
+    setIsMounted(true);
+    setDailyState(loadDailyState());
+    setStreak(loadStreak());
+    setTotalPoints(loadTotalPoints());
+
     const id = setInterval(() => setDailyState(loadDailyState()), 60_000);
     return () => clearInterval(id);
   }, []);
+
+  if (!isMounted) return null;
 
   const handleStart = (mission: Exercise) => {
     setCurrentMission(mission);
