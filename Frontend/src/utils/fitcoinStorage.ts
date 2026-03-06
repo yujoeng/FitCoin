@@ -12,6 +12,7 @@ function today(): string {
 
 // ── Daily State ──
 export function loadDailyState(): DailyState {
+  if (typeof window === 'undefined') return { missionCount: 0 };
   try {
     const raw = localStorage.getItem(KEY_DAILY);
     if (!raw) return { missionCount: 0 };
@@ -29,6 +30,7 @@ export function saveDailyState(state: DailyState): void {
 
 // ── Streak ──
 export function loadStreak(): StreakState {
+  if (typeof window === 'undefined') return { count: 0, lastDate: '' };
   try {
     const raw = localStorage.getItem(KEY_STREAK);
     if (!raw) return { count: 0, lastDate: '' };
@@ -52,6 +54,7 @@ export function updateStreak(): StreakState {
 
 // ── Points ──
 export function loadTotalPoints(): number {
+  if (typeof window === 'undefined') return 0;
   return parseInt(localStorage.getItem(KEY_POINTS) ?? '0', 10);
 }
 
@@ -63,6 +66,7 @@ export function addPoints(amount: number): number {
 
 // ── History ──
 export function loadHistory(): HistoryEntry[] {
+  if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(KEY_HISTORY);
     return raw ? (JSON.parse(raw) as HistoryEntry[]) : [];

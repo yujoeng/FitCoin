@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { AppTopBar, AppTabBar } from '@/components/AppShell';
-import FitCoinMissionPage  from '@/pages/FitCoinMissionPage';
-import FitCoinExercisePage from '@/pages/FitCoinExercisePage';
-import FitCoinResultPage   from '@/pages/FitCoinResultPage';
-import FitCoinCoachPage    from '@/pages/FitCoinCoachPage';
+import FitCoinMissionPage  from '@/views/FitCoinMissionPage';
+import FitCoinExercisePage from '@/views/FitCoinExercisePage';
+import FitCoinResultPage   from '@/views/FitCoinResultPage';
+import FitCoinCoachPage    from '@/views/FitCoinCoachPage';
 import { FITCOIN_EXERCISES, FITCOIN_POINT_POLICY } from '@/data/exercises';
 import {
   loadDailyState, saveDailyState,
