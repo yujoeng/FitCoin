@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class BackendApplication {
-	// jenkins test
+	// jenkins test2
 
 	public static void main(String[] args) {
 		SpringApplication.run(BackendApplication.class, args);
