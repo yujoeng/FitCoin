@@ -9,6 +9,7 @@
 export type FurnitureSlot =
     | 'wallpaper'   // 벽지
     | 'floor'       // 바닥
+    | 'window'      // 창문
     | 'leftItem'    // 좌측 아이템
     | 'rightItem'   // 우측 아이템
     | 'decoration'; // 장식품 (중앙/상단)
@@ -29,6 +30,7 @@ export interface FurnitureItem {
 export interface RoomConfig {
     wallpaper: FurnitureItem | null;
     floor: FurnitureItem | null;
+    window: FurnitureItem | null;
     leftItem: FurnitureItem | null;
     rightItem: FurnitureItem | null;
     decoration: FurnitureItem | null;
