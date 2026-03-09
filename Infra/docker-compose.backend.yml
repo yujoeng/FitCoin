@@ -1,0 +1,19 @@
+version: "3.8"
+
+networks:
+  a504-network:
+    external: true
+
+services:
+  api-server:
+    build:
+      context: ../Backend
+      dockerfile: Dockerfile
+    image: a504-api-server:latest
+    container_name: api-server
+    env_file: ../Backend/.env
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - a504-network
