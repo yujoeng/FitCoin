@@ -7,7 +7,7 @@ pipeline {
     
     stages {
         stage('Backend Build') {
-            steps {(대소문자 구별)
+            steps {
                 dir('Backend') {
                     sh 'chmod +x gradlew'
                     sh './gradlew clean build -x test' 
@@ -25,7 +25,6 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // 아까 작성하신 백엔드 전용 도면을 실행합니다.
                 sh "docker compose -f docker-compose.backend.yml up -d --build"
             }
         }
