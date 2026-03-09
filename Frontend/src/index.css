@@ -104,28 +104,29 @@
   --shadow-md: 0 4px 12px rgba(44, 62, 31, 0.12);
   --shadow-lg: 0 8px 24px rgba(44, 62, 31, 0.16);
 
-  /* ── 방 레이아웃 슬롯 비율 ── */
-  /* RoomView.tsx에서 참조, 디자이너 시안 변경 시 여기 수정 */
-  --room-floor-height: 30%;
-  /* 바닥이 차지하는 높이 */
-  --room-deco-width: 40%;
-  /* 장식품(창문) 너비 */
-  --room-deco-height: 34%;
-  /* 장식품(창문) 높이 */
-  --room-side-item-width: 22%;
-  /* 좌/우측 아이템 너비 */
-  --room-side-item-height: 28%;
-  /* 좌/우측 아이템 높이 */
-  --room-side-item-bottom: 28%;
-  /* 좌/우측 아이템 하단 위치 */
-  --room-side-item-inset: 4%;
-  /* 좌/우측 아이템 좌우 여백 */
-  --room-char-width: 36%;
-  /* 캐릭터 너비 */
+  /* ── 방 레이아웃 슬롯 비율 (세로형 기준) ── */
+  --room-floor-height: 45%;
+
+  /* 장식품 (상단 집중) */
+  --room-deco-top: 2%;
+  --room-deco-width: 70%;
+  --room-deco-height: 20%;
+
+  /* 창문 (중앙) */
+  --room-window-top: 26%;
+  --room-window-width: 65%;
+  --room-window-height: 38%;
+
+  /* 좌/우측 아이템 (바닥 맨 아래) */
+  --room-side-item-width: 38%;
+  --room-side-item-height: 32%;
+  --room-side-item-bottom: 2%;
+  --room-side-item-inset: 0%;
+
+  /* 캐릭터 (바닥 중앙 위) */
+  --room-char-width: 46%;
   --room-char-height: 40%;
-  /* 캐릭터 높이 */
-  --room-char-bottom: 24%;
-  /* 캐릭터 하단 위치 */
+  --room-char-bottom: 36%;
 
   /* ── 트랜지션 ── */
   --transition-fast: 0.15s ease;
