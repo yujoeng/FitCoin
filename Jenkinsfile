@@ -25,7 +25,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh "docker-compose -f ./Infra/docker-compose.backend.yml up -d --build"
+                sh "docker-compose -f ./Infra/docker-compose.backend.yml up -d"
             }
         }
         
