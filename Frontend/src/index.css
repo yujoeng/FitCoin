@@ -1,564 +1,357 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+/* ================================================================
+   src/index.css
+   돈땃쥐미 (FITCOIN) 글로벌 스타일
+   ================================================================
+   [구조]
+   1. Google Fonts 임포트 (Pretendard CDN + Gaegu)
+   2. CSS 변수 — 디자인 토큰
+   3. 기본 리셋
+   4. 타이포그래피 유틸 클래스
+   5. PWA / 모바일 최적화
+   6. 공통 애니메이션
+   7. 로고 유틸 클래스
+   ================================================================ */
 
-/* ── CSS Variables ── */
+
+/* ──────────────────────────────────────────
+   1. 폰트 임포트
+   - Pretendard: 본문/UI 전반 (한국어 최적화 고딕)
+   - Gaegu: 포인트 숫자, 강조 텍스트 (손글씨 느낌)
+   
+   ※ Pretendard는 Google Fonts 미지원이라 CDN 사용
+      네트워크 없을 시 시스템 폰트로 폴백됨
+────────────────────────────────────────── */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css');
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&display=swap');
+
+
+/* ──────────────────────────────────────────
+   2. CSS 변수 — 디자인 토큰
+   사용법: color: var(--color-primary);
+────────────────────────────────────────── */
 :root {
-  --font: 'Nunito', 'Outfit', sans-serif;
+  /* ── 컬러 ── */
+  --color-primary: #96B95B;
+  /* 메인 그린 — 버튼, 강조 */
+  --color-primary-dark: #7CA348;
+  /* 호버/액티브 상태 */
+  --color-primary-light: #F0F7E0;
+  /* 연한 그린 배경 */
 
-  /* Brand colors */
-  --primary:       #FF9F73;
-  --primary-dark:  #E07845;
-  --primary-light: #FFD4BC;
-  --primary-glow:  rgba(255, 159, 115, 0.30);
+  --color-bg: #FFF8E7;
+  /* 전체 앱 배경 (크림) */
+  --color-bg-card: #FFFFFF;
+  /* 카드 배경 */
+  --color-bg-dark: rgba(44, 62, 31, 0.88);
+  /* 스트릭 바 등 어두운 배경 */
 
-  --accent:        #9B80E8;
-  --accent-light:  #EDE5FF;
+  --color-text-primary: #2C3E1F;
+  /* 본문 텍스트 */
+  --color-text-secondary: #5C6B4F;
+  /* 보조 텍스트 */
+  --color-text-disabled: #9AA08A;
+  /* 비활성 텍스트 */
+  --color-text-inverse: #FFFFFF;
+  /* 어두운 배경 위 텍스트 */
 
-  --gold:          #F4A900;
-  --gold-light:    #FFF0CC;
+  --color-danger: #d4183d;
+  /* 에러, 경고, 근손실 */
+  --color-danger-light: #FDE8EE;
+  /* 연한 빨강 배경 */
 
-  /* Backgrounds */
-  --bg-main:     #FBF7F4;
-  --bg-card:     #FFFFFF;
-  --bg-card-alt: #FFF6F1;
-  --bg-overlay:  rgba(251, 247, 244, 0.96);
+  --color-coin: #F5C842;
+  /* 코인 골드 */
+  --color-point: #96B95B;
+  /* 포인트 = primary */
 
-  /* Surface */
-  --surface-1: #FFFFFF;
-  --surface-2: #FFF6F1;
-  --surface-3: #F5F0EC;
+  --color-border: rgba(150, 185, 91, 0.2);
+  /* 기본 테두리 */
+  --color-border-strong: rgba(150, 185, 91, 0.5);
+  /* 강조 테두리 */
 
-  /* Card */
-  --card-shadow:    0 2px 12px rgba(60,30,10,0.07), 0 1px 4px rgba(60,30,10,0.04);
-  --card-shadow-hv: 0 6px 24px rgba(60,30,10,0.11), 0 2px 8px rgba(60,30,10,0.06);
-  --card-border:    rgba(220, 200, 188, 0.50);
+  /* ── 폰트 ── */
+  --font-body: 'Pretendard Variable', 'Pretendard', -apple-system,
+    BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  --font-point: 'Gaegu', cursive;
+  /* 포인트 숫자, 강조 텍스트 */
 
-  /* Status */
-  --success:      #3EBC7A;
-  --success-bg:   rgba(62, 188, 122, 0.10);
-  --warning:      #F4A900;
-  --warning-bg:   rgba(244, 169, 0, 0.10);
-  --danger:       #F26B6B;
+  /* ── 폰트 크기 ── */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 30px;
 
-  /* Text */
-  --text-1: #1E140F;   /* primary */
-  --text-2: #6B5040;   /* secondary */
-  --text-3: #A8917F;   /* muted */
+  /* ── 간격 ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
 
-  /* Radius */
-  --r-xs: 8px;
-  --r-sm: 12px;
-  --r-md: 18px;
-  --r-lg: 24px;
-  --r-xl: 32px;
-  --r-full: 9999px;
+  /* ── 모서리 ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
 
-  /* App shell sizes */
-  --header-h: 64px;
-  --tab-h: 68px;
+  /* ── 그림자 ── */
+  --shadow-sm: 0 1px 4px rgba(44, 62, 31, 0.08);
+  --shadow-md: 0 4px 12px rgba(44, 62, 31, 0.12);
+  --shadow-lg: 0 8px 24px rgba(44, 62, 31, 0.16);
+
+  /* ── 방 레이아웃 슬롯 비율 (세로형 기준) ── */
+  --room-floor-height: 45%;
+
+  /* 장식품 (상단 집중) */
+  --room-deco-top: 2%;
+  --room-deco-width: 70%;
+  --room-deco-height: 20%;
+
+  /* 창문 (중앙) */
+  --room-window-top: 26%;
+  --room-window-width: 65%;
+  --room-window-height: 38%;
+
+  /* 좌/우측 아이템 (바닥 맨 아래) */
+  --room-side-item-width: 38%;
+  --room-side-item-height: 32%;
+  --room-side-item-bottom: 2%;
+  --room-side-item-inset: 0%;
+
+  /* 캐릭터 (바닥 중앙 위) */
+  --room-char-width: 46%;
+  --room-char-height: 40%;
+  --room-char-bottom: 36%;
+
+  /* ── 트랜지션 ── */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
+
+  /* ── PWA 안전 영역 ── */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* ── Reset ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; }
+
+/* ──────────────────────────────────────────
+   3. 기본 리셋
+────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* 모바일에서 폰트 크기 자동 조절 방지 */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
-  font-family: var(--font);
-  height: 100%;
-  background: #EDE8E3;
-  color: var(--text-1);
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden; /* prevent body scroll; app shell scrolls internally */
-}
-#root { height: 100%; display: flex; align-items: center; justify-content: center; }
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  line-height: 1.6;
 
-/* ── App Shell (Mobile-App Frame) ── */
+  /* 모바일 텍스트 렌더링 최적화 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 링크 기본 스타일 제거 */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 버튼 기본 스타일 제거 */
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* 이미지 기본 설정 */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* 입력 폼 폰트 통일 */
+input,
+textarea,
+select {
+  font-family: var(--font-body);
+}
+
+
+/* ──────────────────────────────────────────
+   4. 타이포그래피 유틸 클래스
+   사용법: <p className="fc-text-point">3,500</p>
+────────────────────────────────────────── */
+
+/* Gaegu 폰트 사용 — 포인트/코인 숫자, 강조 */
+.fc-font-point {
+  font-family: var(--font-point);
+}
+
+/* 텍스트 색상 */
+.fc-text-primary {
+  color: var(--color-text-primary);
+}
+
+.fc-text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.fc-text-disabled {
+  color: var(--color-text-disabled);
+}
+
+.fc-text-danger {
+  color: var(--color-danger);
+}
+
+.fc-text-green {
+  color: var(--color-primary);
+}
+
+
+/* ──────────────────────────────────────────
+   5. PWA / 모바일 최적화
+────────────────────────────────────────── */
+
+/* 탭 하이라이트 제거 (iOS Safari) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 스크롤바 숨기기 (모바일 PWA) */
+.fc-hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.fc-hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 앱 전체 컨테이너 — 모바일 뷰포트 고정 */
 .fc-app-shell {
-  position: relative;
   width: 100%;
   max-width: 430px;
-  height: 100vh;
-  max-height: 900px;
-  background: var(--bg-main);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 0;
-  box-shadow: 0 0 60px rgba(0,0,0,0.18);
-}
-
-/* Subtle animated background */
-.fc-app-shell::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(196,175,240,0.18) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 40% at 10% 90%, rgba(255,159,115,0.14) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ── Top Header Bar ── */
-.fc-topbar {
-  position: relative;
-  z-index: 20;
-  height: var(--header-h);
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  gap: 12px;
-  background: var(--surface-1);
-  border-bottom: 1px solid var(--card-border);
-  flex-shrink: 0;
-}
-.fc-topbar-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-}
-.fc-topbar-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary), #FFB38A);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 10px var(--primary-glow);
-}
-.fc-topbar-title {
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: var(--text-1);
-  letter-spacing: -0.3px;
-}
-.fc-topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* ── Scrollable Body ── */
-.fc-body {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  padding: 16px 16px calc(var(--tab-h) + 12px);
-}
-.fc-body::-webkit-scrollbar { display: none; }
-
-/* ── Bottom Tab Bar ── */
-.fc-tabbar {
-  position: relative;
-  z-index: 20;
-  height: var(--tab-h);
-  display: flex;
-  align-items: stretch;
-  background: var(--surface-1);
-  border-top: 1px solid var(--card-border);
-  flex-shrink: 0;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-.fc-tab {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  border: none;
-  background: transparent;
-  font-family: var(--font);
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: var(--text-3);
-  cursor: pointer;
-  transition: color 0.2s, background 0.2s;
-  position: relative;
-}
-.fc-tab.active { color: var(--primary-dark); }
-.fc-tab.active::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 20%; right: 20%;
-  height: 2.5px;
-  background: var(--primary);
-  border-radius: 0 0 var(--r-full) var(--r-full);
-}
-.fc-tab:hover:not(.active) { color: var(--text-2); background: var(--surface-2); }
-
-/* ── Stats Chip (in tab bar / top bar) ── */
-.fc-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: var(--r-full);
-  background: var(--surface-2);
-  border: 1px solid var(--card-border);
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--text-1);
-}
-
-/* ── Cards ── */
-.fc-card {
-  background: var(--surface-1);
-  border: 1px solid var(--card-border);
-  border-radius: var(--r-lg);
-  box-shadow: var(--card-shadow);
-}
-.fc-card-alt {
-  background: var(--surface-2);
-  border: 1px solid var(--card-border);
-  border-radius: var(--r-md);
-}
-.fc-card-soft {
-  background: var(--surface-1);
-  border: 1px solid var(--card-border);
-  border-radius: var(--r-md);
-  box-shadow: var(--card-shadow);
-}
-
-/* ── Section Label ── */
-.fc-section-label {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
-}
-
-/* ── List Item ── */
-.fc-list-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--surface-1);
-  border-bottom: 1px solid var(--card-border);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.fc-list-item:last-child { border-bottom: none; }
-.fc-list-item:hover { background: var(--surface-2); }
-.fc-list-item:active { background: var(--surface-3); }
-
-/* ── Progress Bar ── */
-.fc-progress-track {
-  width: 100%;
-  height: 6px;
-  background: var(--surface-3);
-  border-radius: var(--r-full);
-  overflow: hidden;
-}
-.fc-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--gold));
-  border-radius: var(--r-full);
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ── Segmented Progress (mission steps) ── */
-.fc-seg-track {
-  display: flex;
-  gap: 4px;
-}
-.fc-seg {
-  flex: 1;
-  height: 4px;
-  border-radius: var(--r-full);
-  background: var(--surface-3);
-  transition: background 0.4s ease;
-}
-.fc-seg.done {
-  background: var(--primary);
-}
-
-/* ── Icon Container ── */
-.fc-icon-box {
-  width: 44px; height: 44px;
-  border-radius: var(--r-sm);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-
-/* ── Buttons ── */
-.fc-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 14px 24px;
-  border: none;
-  border-radius: var(--r-full);
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  color: white;
-  font-family: var(--font);
-  font-size: 0.95rem;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 3px 14px var(--primary-glow);
-  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
-  letter-spacing: 0.01em;
-}
-.fc-btn-primary:hover  { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 6px 22px var(--primary-glow); }
-.fc-btn-primary:active { transform: scale(0.97); box-shadow: none; }
-.fc-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-.fc-btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 14px;
-  border-radius: var(--r-sm);
-  border: 1px solid var(--card-border);
-  background: var(--surface-1);
-  color: var(--text-2);
-  font-family: var(--font);
-  font-size: 0.87rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-.fc-btn-ghost:hover { background: var(--surface-2); color: var(--text-1); }
-
-.fc-btn-icon {
-  width: 36px; height: 36px;
-  border-radius: var(--r-sm);
-  border: 1px solid var(--card-border);
-  background: var(--surface-1);
-  color: var(--text-2);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.fc-btn-icon:hover { background: var(--surface-2); }
-
-/* ── Badge ── */
-.fc-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 10px;
-  border-radius: var(--r-full);
-  font-size: 0.73rem;
-  font-weight: 800;
-  background: var(--surface-2);
-  border: 1px solid var(--card-border);
-  color: var(--text-2);
-}
-.fc-badge-primary { background: rgba(255,159,115,0.12); border-color: rgba(255,159,115,0.30); color: var(--primary-dark); }
-.fc-badge-gold    { background: rgba(244,169,0,0.10);   border-color: rgba(244,169,0,0.28);   color: var(--gold); }
-.fc-badge-green   { background: var(--success-bg);      border-color: rgba(62,188,122,0.28);  color: #1a8c4e; }
-.fc-badge-warn    { background: var(--warning-bg);      border-color: rgba(244,169,0,0.28);   color: #9B6800; }
-
-/* ── Form Feedback ── */
-.fc-feedback-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
-  border-radius: var(--r-md);
-  margin-bottom: 10px;
-  transition: background 0.3s, border-color 0.3s;
-  animation: feedbackFadeIn 0.3s ease;
-}
-.fc-feedback-bar.good    { background: var(--success-bg); border: 1px solid rgba(62,188,122,0.28); }
-.fc-feedback-bar.warn    { background: var(--warning-bg); border: 1px solid rgba(244,169,0,0.28); }
-.fc-feedback-bar.neutral { background: var(--surface-2);  border: 1px solid var(--card-border); }
-
-.fc-feedback-icon {
-  width: 32px; height: 32px;
-  border-radius: var(--r-xs);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.fc-feedback-icon.good    { background: rgba(62,188,122,0.15);  color: var(--success); }
-.fc-feedback-icon.warn    { background: rgba(244,169,0,0.15);   color: var(--warning); }
-.fc-feedback-icon.neutral { background: var(--surface-3);       color: var(--text-3); }
-
-/* ── Canvas ── */
-.fc-canvas-wrap {
-  position: relative;
-  border-radius: var(--r-md);
-  overflow: hidden;
-  border: 1px solid var(--card-border);
-  box-shadow: var(--card-shadow);
-  background: #111;
-}
-.fc-canvas-wrap canvas { display: block; width: 100%; }
-.fc-canvas-overlay {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: rgba(251,247,244,0.92);
-  gap: 10px;
-}
-
-/* ── Stat Pills ── */
-.fc-stat-row {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: 10px 0;
-}
-.fc-stat-pill {
-  display: flex; align-items: center; gap: 6px;
-  padding: 7px 14px;
-  border-radius: var(--r-full);
-  background: var(--surface-1);
-  border: 1px solid var(--card-border);
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-2);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-.fc-stat-pill b { color: var(--text-1); font-weight: 800; }
-
-/* ── Count Display ── */
-.fc-count-display {
-  text-align: center;
-  padding: 14px 0 4px;
-}
-.fc-count-num {
-  font-size: 4.5rem;
-  font-weight: 900;
-  line-height: 1;
-  color: var(--primary-dark);
-  letter-spacing: -2px;
-}
-.fc-count-denom {
-  font-size: 1rem;
-  color: var(--text-3);
-  font-weight: 600;
-}
-
-/* ── Info Row ── */
-.fc-info-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: var(--r-sm);
-  background: var(--surface-2);
-  border: 1px solid var(--card-border);
-  font-size: 0.83rem;
-  color: var(--text-2);
-  font-weight: 600;
-}
-
-/* ── Divider ── */
-.fc-divider {
-  height: 1px;
-  background: var(--card-border);
-  margin: 12px 0;
-}
-
-/* ── Animations ── */
-@keyframes feedbackFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
-}
-@keyframes confetti {
-  0%   { transform: translateY(-10px) rotate(0deg);   opacity: 1; }
-  100% { transform: translateY(200px) rotate(540deg); opacity: 0; }
-}
-@keyframes countUp {
-  from { transform: scale(1.3); opacity: 0; }
-  to   { transform: scale(1);   opacity: 1; }
-}
-@keyframes spinOnce {
-  to { transform: rotate(360deg); }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
-}
-
-.fc-anim-fade  { animation: fadeIn  0.4s ease both; }
-.fc-anim-scale { animation: scaleIn 0.35s cubic-bezier(0.34,1.4,0.64,1) both; }
-.fc-spin-once  { animation: spinOnce 0.5s ease; }
-.fc-pulse      { animation: pulse 1.4s ease infinite; }
-
-/* ── Locked state ── */
-.fc-locked-state {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 12px; padding: 40px 24px; text-align: center;
-}
-
-/* ── Result hero ── */
-.fc-result-hero {
-  text-align: center;
-  padding: 24px 0 16px;
-}
-.fc-result-icon {
-  width: 72px; height: 72px;
-  border-radius: 22px;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 14px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-.fc-result-points {
-  font-size: 3.2rem;
-  font-weight: 900;
-  letter-spacing: -1px;
-  color: var(--primary-dark);
-  line-height: 1;
-}
-
-/* ── Full-width button row ── */
-.fc-btn-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-}
-.fc-btn-row > * { flex: 1; }
-
-/* ── Category tag ── */
-.fc-cat-tag {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 10px;
-  border-radius: var(--r-full);
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-
-/* ── Big exercise icon circle ── */
-.fc-ex-icon {
-  width: 80px; height: 80px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
+  /* 모바일 최대 너비 */
+  min-height: 100dvh;
+  /* dvh: 모바일 브라우저 주소창 고려 */
   margin: 0 auto;
+  position: relative;
+  overflow-x: hidden;
+  background-color: var(--color-bg);
+
+  /* iOS 안전 영역 대응 */
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
 }
 
-/* ── Camera hint ── */
-.fc-camera-hint {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 12px;
-  border-radius: var(--r-sm);
-  background: rgba(155,128,232,0.08);
-  border: 1px solid rgba(155,128,232,0.20);
-  color: var(--accent);
-  font-size: 0.82rem;
-  font-weight: 600;
+/* 드래그 방지 (이미지/캐릭터 영역) */
+.fc-no-drag {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-/* ── Responsive: full-height on small screens ── */
-@media (max-height: 700px) {
-  .fc-count-num { font-size: 3rem; }
-}
-@media (min-width: 500px) {
-  .fc-app-shell {
-    border-radius: 40px;
-    max-height: 880px;
+
+/* ──────────────────────────────────────────
+   6. 공통 애니메이션
+────────────────────────────────────────── */
+
+/* 페이드인 */
+@keyframes fc-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fc-fadeIn {
+  animation: fc-fadeIn 0.3s ease both;
+}
+
+/* 팝업 (모달, 보상 등) */
+@keyframes fc-popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  70% {
+    transform: scale(1.04);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fc-popIn {
+  animation: fc-popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* 포인트 획득 숫자 올라가기 */
+@keyframes fc-floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+}
+
+.fc-floatUp {
+  animation: fc-floatUp 0.8s ease forwards;
+}
+
+/* 버튼 누를 때 */
+.fc-pressable {
+  transition: transform var(--transition-fast);
+}
+
+.fc-pressable:active {
+  transform: scale(0.95);
+}
+
+
+/* ──────────────────────────────────────────
+   7. 로고 유틸 클래스
+   
+   현재: mix-blend-mode로 검정 배경 제거
+   TODO: 디자이너에게 투명 PNG 받은 후
+         이 클래스 제거하고 img src만 교체
+────────────────────────────────────────── */
+.fc-logo {
+  /* 검정 배경을 곱셈 방식으로 배경색과 합성 → 검정이 투명처럼 보임 */
+  mix-blend-mode: multiply;
+  /* 밝은 배경(#FFF8E7)에서 회색 로고가 잘 보이도록 대비 약간 강화 */
+  filter: contrast(1.1);
 }

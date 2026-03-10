@@ -1,0 +1,282 @@
+// src/views/HomeView.tsx
+'use client';
+
+import RoomView from '@/components/RoomView';
+import StreakBar from '@/components/StreakBar';
+import type { HomePageState } from '@/types/home';
+
+interface CircleButtonProps {
+    emoji: string;
+    onClick: () => void;
+    label: string;
+}
+
+function CircleButton({ emoji, onClick, label }: CircleButtonProps) {
+    return (
+        <button
+            onClick={onClick}
+            aria-label={label}
+            className="fc-pressable"
+            style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.85)',
+                border: '1.5px solid rgba(150, 185, 91, 0.4)',
+                backdropFilter: 'blur(4px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            }}
+        >
+            {emoji}
+        </button>
+    );
+}
+
+interface HomeViewProps {
+    state: HomePageState;
+    onGoMission: () => void;
+    onEditRoom: () => void;
+    onWatchAd: () => void;
+    onGoExchange: () => void;
+    onGoStore: () => void;
+    onGoSettings: () => void;
+    onViewCalendar: () => void;
+}
+
+export default function HomeView({
+    state,
+    onGoMission,
+    onEditRoom,
+    onWatchAd,
+    onGoExchange,
+    onGoStore,
+    onGoSettings,
+    onViewCalendar,
+}: HomeViewProps) {
+    const { points, coins, streakCount, streakDays, character, roomConfig } = state;
+    const expPercent = character ? (character.exp / 10) * 100 : 0;
+
+    return (
+        <div
+            className="fc-hide-scrollbar"
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'var(--color-bg)',
+                maxWidth: '430px',
+                margin: '0 auto',
+                width: '100%',
+            }}
+        >
+            {/* ── 상단: 스트릭바 + 포인트/코인 ── */}
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                    padding: 'var(--space-3) var(--space-3) 0',
+                }}
+            >
+                {/* 스트릭바 */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <StreakBar
+                        streakCount={streakCount}
+                        streakDays={streakDays}
+                        onViewCalendar={onViewCalendar}
+                    />
+                </div>
+
+                {/* 포인트 + 코인 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', flexShrink: 0 }}>
+                    {/* 포인트 */}
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '6px 12px',
+                            borderRadius: 'var(--radius-lg)',
+                            background: 'var(--color-primary-light)',
+                            border: '1px solid var(--color-border)',
+                        }}
+                    >
+                        {/* TODO: 포인트 아이콘 이미지로 교체 */}
+                        <span style={{ fontSize: '14px' }}>🏆</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+                            <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)' }}>
+                                포인트
+                            </span>
+                            <span
+                                className="fc-font-point"
+                                style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-text-primary)' }}
+                            >
+                                {points.toLocaleString()}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* 코인 */}
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '6px 12px',
+                            borderRadius: 'var(--radius-lg)',
+                            background: 'var(--color-primary-light)',
+                            border: '1px solid var(--color-border)',
+                        }}
+                    >
+                        {/* TODO: 코인 아이콘 이미지로 교체 */}
+                        <span style={{ fontSize: '14px' }}>🪙</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+                            <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)' }}>
+                                코인
+                            </span>
+                            <span
+                                className="fc-font-point"
+                                style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-text-primary)' }}
+                            >
+                                {coins.toLocaleString()}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── 중단: 방 + 오버레이 버튼 ── */}
+            <div style={{ padding: 'var(--space-3)' }}>
+                <div style={{ position: 'relative' }}>
+                    <RoomView
+                        roomConfig={roomConfig}
+                        character={character}
+                        onEditRoom={onEditRoom}
+                        hideEditButton
+                    />
+
+                    {/* 왼쪽 버튼 2개 — left를 음수로 줘서 방 경계 안쪽에 걸치게 */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: '10px',   // ← 방 왼쪽 테두리에 절반씩 걸치게
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 'var(--space-2)',
+                            zIndex: 10,
+                        }}
+                    >
+                        <CircleButton emoji="🔄" onClick={onGoExchange} label="환전소" />
+                        <CircleButton emoji="🛍️" onClick={onGoStore} label="상점/인벤토리" />
+                    </div>
+
+                    {/* 오른쪽 버튼 4개 — right를 음수로 줘서 방 경계 안쪽에 걸치게 */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            right: '10px',  // ← 방 오른쪽 테두리에 절반씩 걸치게
+                            top: '50%',
+                            transform: 'translateY(-60%)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 'var(--space-2)',
+                            zIndex: 10,
+                        }}
+                    >
+                        <CircleButton emoji="⚙️" onClick={onGoSettings} label="설정" />
+                        <CircleButton emoji="📺" onClick={onWatchAd} label="광고 시청" />
+                        <CircleButton emoji="🏃" onClick={onGoMission} label="미션 수행" />
+                        <CircleButton emoji="🛋️" onClick={onEditRoom} label="가구 변경" />
+                    </div>
+                </div>
+            </div>
+            {/* ── 하단: 경험치 바 카드 ── */}
+            {character && (
+                <div style={{ padding: '0 var(--space-3) var(--space-3)' }}>
+                    <div
+                        style={{
+                            borderRadius: 'var(--radius-xl)',
+                            padding: 'var(--space-4)',
+                            background: 'var(--color-bg-card)',
+                            boxShadow: 'var(--shadow-sm)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-3)',
+                        }}
+                    >
+                        {/* Lv. 박스 */}
+                        <div
+                            style={{
+                                width: '52px',
+                                height: '52px',
+                                borderRadius: 'var(--radius-lg)',
+                                background: 'var(--color-primary)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                            }}
+                        >
+                            <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontFamily: 'var(--font-body)' }}>
+                                Lv.
+                            </span>
+                            <span
+                                className="fc-font-point"
+                                style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: '#fff', lineHeight: 1 }}
+                            >
+                                {character.stage}
+                            </span>
+                        </div>
+
+                        {/* 경험치 바 */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 'var(--space-1)',
+                                }}
+                            >
+                                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)' }}>
+                                    경험치
+                                </span>
+                                <span
+                                    className="fc-font-point"
+                                    style={{ fontSize: 'var(--text-sm)', color: 'var(--color-primary)', fontWeight: 700 }}
+                                >
+                                    {character.exp} / 100
+                                </span>
+                            </div>
+                            <div
+                                style={{
+                                    height: '10px',
+                                    width: '100%',
+                                    borderRadius: 'var(--radius-full)',
+                                    background: 'var(--color-primary-light)',
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        height: '100%',
+                                        width: `${expPercent}%`,
+                                        borderRadius: 'var(--radius-full)',
+                                        background: 'linear-gradient(90deg, var(--color-primary), var(--color-primary-dark))',
+                                        transition: 'width var(--transition-slow)',
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
