@@ -5,13 +5,13 @@ pipeline {
         DOCKER_IMAGE = "a504-api-server"
     }
 
-    stage('Frontend Build & Deploy') {
-        steps {
-            sh "docker-compose -f ./Infra/docker-compose.frontend.yml up -d --build"
-        }
-    }
-
     stages {
+        stage('Frontend Build & Deploy') {
+            steps {
+                sh "docker-compose -f ./Infra/docker-compose.frontend.yml up -d --build"
+            }
+        }
+
         stage('Backend Build') {
             steps {
                 dir('Backend') {
