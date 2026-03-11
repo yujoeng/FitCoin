@@ -5,9 +5,7 @@ networks:
 services:
   nextjs_app:
     container_name: nextjs_app
-    build:
-      context: ../Frontend
-      dockerfile: Dockerfile
+    image: nextjs_app:latest
     ports:
       - "3000:3000"
     networks:
