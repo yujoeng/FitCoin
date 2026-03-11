@@ -8,10 +8,7 @@ pipeline {
     stages {
         stage('Frontend Docker Build') {
             steps {
-                // ⚠️ 주의: 'Frontend' 폴더 이름이 맞는지 확인해 주십쇼!
-                dir('Frontend') { 
-                    sh "docker build -t nextjs_app:latest ."
-                }
+                sh "docker build -f Frontend/Dockerfile -t nextjs_app:latest ."
             }
         }
 
