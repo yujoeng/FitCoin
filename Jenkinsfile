@@ -6,9 +6,18 @@ pipeline {
     }
 
     stages {
-        stage('Frontend Build & Deploy') {
+        stage('Frontend Docker Build') {
             steps {
-                sh "docker-compose -f ./Infra/docker-compose.frontend.yml up -d --build"
+                // ⚠️ 주의: 'Frontend' 폴더 이름이 맞는지 확인해 주십쇼!
+                dir('Frontend') { 
+                    sh "docker build -t nextjs_app:latest ."
+                }
+            }
+        }
+
+        stage('Frontend Deploy') {
+            steps {
+                sh "docker-compose -f ./Infra/docker-compose.frontend.yml up -d"
             }
         }
 
