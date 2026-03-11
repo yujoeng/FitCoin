@@ -1,10 +1,10 @@
-package a504.Backend;
+package org.a504.fitCoin;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BackendApplicationTests {
+class FitCoinApplicationTests {
 
 	@Test
 	void contextLoads() {
