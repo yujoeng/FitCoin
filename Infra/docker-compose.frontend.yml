@@ -1,0 +1,15 @@
+networks:
+  a504-network:
+    external: true
+
+services:
+  nextjs_app:
+    container_name: nextjs_app
+    build:
+      context: ../Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - a504-network
+    restart: always
