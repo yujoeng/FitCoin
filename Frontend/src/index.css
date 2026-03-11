@@ -105,7 +105,7 @@
   --shadow-lg: 0 8px 24px rgba(44, 62, 31, 0.16);
 
   /* ── 방 레이아웃 슬롯 비율 (세로형 기준) ── */
-  --room-floor-height: 45%;
+  --room-floor-height: 30%;
 
   /* 장식품 (상단 집중) */
   --room-deco-top: 2%;

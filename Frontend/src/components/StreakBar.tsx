@@ -55,7 +55,7 @@ export default function StreakBar({ streakCount, streakDays, onViewCalendar }: S
                 }}
                 aria-label="전체 달력 보기"
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                     <span style={{ fontSize: '18px' }}>💧</span>
                     <span
                         style={{
@@ -68,7 +68,7 @@ export default function StreakBar({ streakCount, streakDays, onViewCalendar }: S
                         연속 학습{' '}
                         <span style={{ color: 'var(--color-primary)' }}>{streakCount}일</span>
                     </span>
-                </div>
+                </span>
                 <span style={{ color: 'var(--color-text-disabled)', fontSize: '16px' }}>›</span>
             </button>
 
