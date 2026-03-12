@@ -19,6 +19,27 @@ export function getDistance(a, b) {
 }
 
 /**
+ * 두 랜드마크 간 X축 거리 (절댓값)
+ */
+export function getDistanceX(a, b) {
+  return Math.abs(a.x - b.x);
+}
+
+/**
+ * 두 랜드마크 간 Y축 거리 (절댓값)
+ */
+export function getDistanceY(a, b) {
+  return Math.abs(a.y - b.y);
+}
+
+/**
+ * 두 랜드마크 사이의 중점 좌표 계산
+ */
+export function getCenterPoint(a, b) {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+/**
  * 상태 텍스트 한국어 변환
  */
 export const STATE_LABELS = {
