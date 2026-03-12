@@ -4,14 +4,28 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.a504.fitCoin.global.entity.BaseTimeEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Item {
+public class Item extends BaseTimeEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String name;
 
+    @Column(nullable = false)
+    private int price;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PurchaseType type;
+
+    public enum PurchaseType {
+        COIN, POINT
+    }
 }
