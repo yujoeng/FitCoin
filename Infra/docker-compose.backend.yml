@@ -7,7 +7,7 @@ networks:
 services:
   api-server:
     build:
-      context: ../Backend
+      context: ../Backend/fitCoin
       dockerfile: Dockerfile
     image: a504-api-server:latest
     container_name: api-server
