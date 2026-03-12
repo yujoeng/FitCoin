@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Frontend Docker Build') {
             steps {
-                sh "docker build -f Frontend/Dockerfile -t nextjs_app:latest ."
+                sh "docker build -f Frontend/fitCoin/Dockerfile -t nextjs_app:latest ."
             }
         }
 
