@@ -11,15 +11,25 @@ export const FITCOIN_EXERCISE_PLANK = {
   category: '코어',
 };
 
+const PLANK_THRESHOLD = {
+  UP_ANGLE: 155,
+  DOWN_ANGLE: 140,
+  HOLD_TIME_MS: 2000,
+};
+
 // 어깨(11), 엉덩이(23), 발목(27) 각도 — 일직선이면 ~180°
 // 자세 잡힘: 각도 > 155° → 'up', 1초 유지 후 카운트
 let plankTimer = null;
 let plankHolding = false;
 
 export function detectPlank(landmarks, state, setCount, setState) {
-  const angle = getAngle(landmarks[11], landmarks[23], landmarks[27]);
+  const angle = getAngle(
+    landmarks[11], // LEFT_SHOULDER
+    landmarks[23], // LEFT_HIP
+    landmarks[27]  // LEFT_ANKLE
+  );
 
-  if (angle > 155 && state === 'down') {
+  if (angle > PLANK_THRESHOLD.UP_ANGLE && state === 'down') {
     setState('up');
     plankHolding = true;
     if (!plankTimer) {
@@ -30,9 +40,9 @@ export function detectPlank(landmarks, state, setCount, setState) {
         plankTimer = null;
         plankHolding = false;
         setState('down');
-      }, 2000); // 2초 유지해야 1카운트
+      }, PLANK_THRESHOLD.HOLD_TIME_MS); // 2초 유지해야 1카운트
     }
-  } else if (angle < 140 && state === 'up') {
+  } else if (angle < PLANK_THRESHOLD.DOWN_ANGLE && state === 'up') {
     setState('down');
     plankHolding = false;
     if (plankTimer) { clearTimeout(plankTimer); plankTimer = null; }

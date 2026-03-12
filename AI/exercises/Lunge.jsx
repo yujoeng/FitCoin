@@ -11,16 +11,29 @@ export const FITCOIN_EXERCISE_LUNGE = {
   category: '하체',
 };
 
+const LUNGE_THRESHOLD = {
+  DOWN_ANGLE: 110,
+  UP_ANGLE: 160,
+};
+
 // 앞발 엉덩이(23), 무릎(25), 발목(27) 각도
 // 내려갈 때: 무릎 각도 < 110° → 'down'
 // 올라올 때: 무릎 각도 > 160° → 카운트
 export function detectLunge(landmarks, state, setCount, setState) {
-  const leftAngle = getAngle(landmarks[23], landmarks[25], landmarks[27]);
-  const rightAngle = getAngle(landmarks[24], landmarks[26], landmarks[28]);
+  const leftAngle = getAngle(
+    landmarks[23], // LEFT_HIP
+    landmarks[25], // LEFT_KNEE
+    landmarks[27]  // LEFT_ANKLE
+  );
+  const rightAngle = getAngle(
+    landmarks[24], // RIGHT_HIP
+    landmarks[26], // RIGHT_KNEE
+    landmarks[28]  // RIGHT_ANKLE
+  );
   const angle = Math.min(leftAngle, rightAngle); // 굽힌 쪽 기준
 
-  if (angle < 110 && state === 'up') setState('down');
-  else if (angle > 160 && state === 'down') {
+  if (angle < LUNGE_THRESHOLD.DOWN_ANGLE && state === 'up') setState('down');
+  else if (angle > LUNGE_THRESHOLD.UP_ANGLE && state === 'down') {
     setState('up');
     setCount((p) => p + 1);
   }

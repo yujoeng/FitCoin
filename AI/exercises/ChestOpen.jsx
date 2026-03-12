@@ -1,3 +1,5 @@
+import { getDistanceX } from './fitcoinUtils';
+
 export const FITCOIN_EXERCISE_CHEST_OPEN = {
   id: 'chestOpen',
   name: '가슴 펴기',
@@ -9,18 +11,29 @@ export const FITCOIN_EXERCISE_CHEST_OPEN = {
   category: '스트레칭',
 };
 
+const CHEST_OPEN_THRESHOLD = {
+  OPEN_RATIO: 1.3,
+  CLOSED_RATIO: 1.05,
+};
+
 // 양 손목(15,16) 거리 / 양 어깨(11,12) 거리 비율
 // 손목이 어깨너비보다 훨씬 벌어지면 → 가슴 열기 실패
 // 손목이 어깨 뒤로 가면 손목 X 좌표가 어깨 바깥으로 나감
 // ratio가 크면 팔이 넓게 벌어짐 = 가슴 열림
 // 완화: 1.3 / 1.05
 export function detectChestOpen(landmarks, state, setCount, setState) {
-  const wristDist = Math.abs(landmarks[15].x - landmarks[16].x);
-  const shoulderDist = Math.abs(landmarks[11].x - landmarks[12].x) || 0.01;
+  const wristDist = getDistanceX(
+    landmarks[15], // LEFT_WRIST
+    landmarks[16]  // RIGHT_WRIST
+  );
+  const shoulderDist = getDistanceX(
+    landmarks[11], // LEFT_SHOULDER
+    landmarks[12]  // RIGHT_SHOULDER
+  ) || 0.01;
   const ratio = wristDist / shoulderDist;
 
-  if (ratio > 1.3 && state === 'closed') setState('open');
-  else if (ratio < 1.05 && state === 'open') {
+  if (ratio > CHEST_OPEN_THRESHOLD.OPEN_RATIO && state === 'closed') setState('open');
+  else if (ratio < CHEST_OPEN_THRESHOLD.CLOSED_RATIO && state === 'open') {
     setState('closed');
     setCount((p) => p + 1);
   }
