@@ -2,13 +2,13 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Webcam from 'react-webcam';
-import { Pose } from '@mediapipe/pose';
+import { Pose, POSE_CONNECTIONS } from '@mediapipe/pose';
 import * as cam from '@mediapipe/camera_utils';
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
 import {
   Activity, RotateCcw, CheckCircle, AlertTriangle, ArrowDown, Camera,
 } from 'lucide-react';
-import { STATE_LABELS, FEEDBACK_MESSAGES } from '../../../AI/exercises/fitcoinUtils';
+import { STATE_LABELS, FEEDBACK_MESSAGES } from '@/AI/exercises/fitcoinUtils';
 import type { Exercise } from '@/types';
 
 // 피드백 UI 설정
@@ -39,7 +39,7 @@ function FormFeedback({ feedbackKey }: { feedbackKey: string }) {
 
 interface FitCoinPoseDetectorProps {
   exercise: Exercise;
-  detectFn: (landmarks: unknown, status: string, syncCount: (updater: ((prev: number) => number) | number) => void, syncStatus: (val: string) => void) => { angle?: number; feedback?: string } | number;
+  detectFn: Exercise['detectFn'];
   onComplete: () => void;
   onFeedback?: (key: string) => void;
 }
@@ -58,7 +58,11 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
   const completedRef = useRef(false);
   const throttleRef = useRef(0);
 
-  const syncStatus = (val: string) => { statusRef.current = val; setStatus(val); };
+  const syncStatus: import('react').Dispatch<import('react').SetStateAction<string>> = (valOrUpdater) => {
+    const val = typeof valOrUpdater === 'function' ? valOrUpdater(statusRef.current) : valOrUpdater;
+    statusRef.current = val;
+    setStatus(val);
+  };
   const syncCount = useCallback((updater: ((prev: number) => number) | number) => {
     setCount((prev) => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
@@ -89,23 +93,24 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
       if (results.poseLandmarks) {
-        drawConnectors(ctx, results.poseLandmarks, Pose.POSE_CONNECTIONS,
+        drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS,
           { color: 'rgba(255,159,115,0.7)', lineWidth: 2 });
         drawLandmarks(ctx, results.poseLandmarks,
           { color: '#E07845', fillColor: 'rgba(224,120,69,0.4)', lineWidth: 1, radius: 3.5 });
 
-        const result = detectFn(results.poseLandmarks, statusRef.current, syncCount, syncStatus);
+        const result = detectFn(results.poseLandmarks, statusRef.current, syncCount, syncStatus) as unknown;
         if (result && typeof result === 'object') {
-          setAngle(result.angle ?? 0);
+          const r = result as { angle?: number; feedback?: string };
+          setAngle(r.angle ?? 0);
           const now = Date.now();
           if (now - throttleRef.current > 350) {
             throttleRef.current = now;
-            const key = result.feedback ?? 'good';
+            const key = r.feedback ?? 'good';
             setFeedbackKey(key);
             onFeedback?.(key);
           }
-        } else {
-          setAngle(result as number ?? 0);
+        } else if (typeof result === 'number') {
+          setAngle(result);
         }
       } else {
         setFeedbackKey('no_pose');
@@ -120,7 +125,7 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
       width: 640, height: 480,
     });
     camera.start();
-    return () => camera.stop();
+    return () => { camera.stop(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exercise.id]);
 

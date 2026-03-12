@@ -1,4 +1,8 @@
+// src/types/index.ts
+
 // ── 공통 타입 정의 ──
+
+import { Dispatch, SetStateAction } from 'react';
 
 export interface Exercise {
   id: string;
@@ -8,7 +12,14 @@ export interface Exercise {
   icon: string;
   targetCount: number;
   camera: 'full' | 'upper';
-  detectFn: (landmarks: unknown) => string;
+  initialState: string;
+  hasFeedback?: boolean;
+  detectFn: (
+    landmarks: unknown,
+    state: string,
+    setCount: Dispatch<SetStateAction<number>>,
+    setState: Dispatch<SetStateAction<string>>
+  ) => void;
 }
 
 export interface HistoryEntry {
