@@ -12,29 +12,57 @@ export const FITCOIN_EXERCISE_SQUAT = {
   hasFeedback: true,
 };
 
+const SQUAT_THRESHOLD = {
+  UP_ANGLE: 160,
+};
+
 // 관절: 엉덩이(23), 무릎(25), 발목(27) — 왼쪽 기준
 // 내려갈 때: 무릎 각도 < 100° → 'down'
 // 올라올 때: 무릎 각도 > 160° → 카운트
 export function detectSquat(landmarks, state, setCount, setState) {
   const T = SQUAT_FEEDBACK;
 
-  const leftAngle = getAngle(landmarks[23], landmarks[25], landmarks[27]);
-  const rightAngle = getAngle(landmarks[24], landmarks[26], landmarks[28]);
+  const leftAngle = getAngle(
+    landmarks[23], // LEFT_HIP
+    landmarks[25], // LEFT_KNEE
+    landmarks[27]  // LEFT_ANKLE
+  );
+  const rightAngle = getAngle(
+    landmarks[24], // RIGHT_HIP
+    landmarks[26], // RIGHT_KNEE
+    landmarks[28]  // RIGHT_ANKLE
+  );
   const angle = (leftAngle + rightAngle) / 2; // 양발 평균으로 안정성↑
 
   // 고관절 각도: 어깨(11)-엉덩이(23)-무릎(25)
-  const leftHipAngle = getAngle(landmarks[11], landmarks[23], landmarks[25]);
-  const rightHipAngle = getAngle(landmarks[12], landmarks[24], landmarks[26]);
+  const leftHipAngle = getAngle(
+    landmarks[11], // LEFT_SHOULDER
+    landmarks[23], // LEFT_HIP
+    landmarks[25]  // LEFT_KNEE
+  );
+  const rightHipAngle = getAngle(
+    landmarks[12], // RIGHT_SHOULDER
+    landmarks[24], // RIGHT_HIP
+    landmarks[26]  // RIGHT_KNEE
+  );
   const hipAngle = (leftHipAngle + rightHipAngle) / 2;
 
   // 발목 각도: 무릎(25)-발목(27)-발뒤꿈치(29)
-  const leftAnkleAngle = getAngle(landmarks[25], landmarks[27], landmarks[29]);
-  const rightAnkleAngle = getAngle(landmarks[26], landmarks[28], landmarks[30]);
+  const leftAnkleAngle = getAngle(
+    landmarks[25], // LEFT_KNEE
+    landmarks[27], // LEFT_ANKLE
+    landmarks[29]  // LEFT_HEEL
+  );
+  const rightAnkleAngle = getAngle(
+    landmarks[26], // RIGHT_KNEE
+    landmarks[28], // RIGHT_ANKLE
+    landmarks[30]  // RIGHT_HEEL
+  );
   const ankleAngle = (leftAnkleAngle + rightAnkleAngle) / 2;
 
   // 상태 감지
   if (angle < T.KNEE_DOWN_THRESHOLD && state === 'up') setState('down');
-  else if (angle > 160 && state === 'down') {
+  else if (angle > SQUAT_THRESHOLD.UP_ANGLE && state === 'down') {
     setState('up');
     setCount((p) => p + 1);
   }

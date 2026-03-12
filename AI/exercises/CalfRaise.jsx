@@ -11,16 +11,29 @@ export const FITCOIN_EXERCISE_CALF_RAISE = {
   category: '하체',
 };
 
+const CALF_RAISE_THRESHOLD = {
+  UP_ANGLE: 75,
+  DOWN_ANGLE: 95,
+};
+
 // 무릎(25), 발목(27), 발가락(31) — 발목 각도 변화로 감지
 // 올라갈 때: 발목 각도 < 75° → 'up'
 // 내려올 때: 발목 각도 > 95° → 카운트
 export function detectCalfRaise(landmarks, state, setCount, setState) {
-  const leftAngle = getAngle(landmarks[25], landmarks[27], landmarks[31]);
-  const rightAngle = getAngle(landmarks[26], landmarks[28], landmarks[32]);
+  const leftAngle = getAngle(
+    landmarks[25], // LEFT_KNEE
+    landmarks[27], // LEFT_ANKLE
+    landmarks[31]  // LEFT_FOOT_INDEX
+  );
+  const rightAngle = getAngle(
+    landmarks[26], // RIGHT_KNEE
+    landmarks[28], // RIGHT_ANKLE
+    landmarks[32]  // RIGHT_FOOT_INDEX
+  );
   const angle = (leftAngle + rightAngle) / 2;
 
-  if (angle < 75 && state === 'down') setState('up');
-  else if (angle > 95 && state === 'up') {
+  if (angle < CALF_RAISE_THRESHOLD.UP_ANGLE && state === 'down') setState('up');
+  else if (angle > CALF_RAISE_THRESHOLD.DOWN_ANGLE && state === 'up') {
     setState('down');
     setCount((p) => p + 1);
   }

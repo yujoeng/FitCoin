@@ -11,16 +11,29 @@ export const FITCOIN_EXERCISE_WRIST_STRETCH = {
   category: '스트레칭',
 };
 
+const WRIST_STRETCH_THRESHOLD = {
+  BENT_ANGLE: 150,
+  CENTER_ANGLE: 170,
+};
+
 // 팔꿈치(13), 손목(15), 검지 끝(19)  각도
 // 꺾임: 각도 < 150° → 'bent'
 // 펴짐: 각도 > 170° → 카운트
 export function detectWristStretch(landmarks, state, setCount, setState) {
-  const leftAngle = getAngle(landmarks[13], landmarks[15], landmarks[19]);
-  const rightAngle = getAngle(landmarks[14], landmarks[16], landmarks[20]);
+  const leftAngle = getAngle(
+    landmarks[13], // LEFT_ELBOW
+    landmarks[15], // LEFT_WRIST
+    landmarks[19]  // LEFT_INDEX
+  );
+  const rightAngle = getAngle(
+    landmarks[14], // RIGHT_ELBOW
+    landmarks[16], // RIGHT_WRIST
+    landmarks[20]  // RIGHT_INDEX
+  );
   const angle = Math.min(leftAngle, rightAngle);
 
-  if (angle < 150 && state === 'center') setState('bent');
-  else if (angle > 170 && state === 'bent') {
+  if (angle < WRIST_STRETCH_THRESHOLD.BENT_ANGLE && state === 'center') setState('bent');
+  else if (angle > WRIST_STRETCH_THRESHOLD.CENTER_ANGLE && state === 'bent') {
     setState('center');
     setCount((p) => p + 1);
   }
