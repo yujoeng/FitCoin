@@ -6,6 +6,17 @@ pipeline {
     }
 
     stages {
+        stage('Prepare Env Files') {
+            steps {
+                withCredentials([file(credentialsId: 'backend_env', variable: 'BACKEND_ENV')]) {
+                    sh "cp \$BACKEND_ENV Backend/fitCoin/.env"
+                }
+                withCredentials([file(credentialsId: 'frontend_env', variable: 'FRONTEND_ENV')]) {
+                    sh "cp \$FRONTEND_ENV Frontend/fitCoin/.env"
+                }
+            }
+        }
+
         stage('Frontend Docker Build') {
             steps {
                 sh "docker build -f Frontend/fitCoin/Dockerfile -t nextjs_app:latest ."
@@ -14,7 +25,7 @@ pipeline {
 
         stage('Frontend Deploy') {
             steps {
-                sh "docker-compose -f ./Infra/docker-compose.frontend.yml up -d"
+                sh "docker compose -f ./Infra/docker-compose.frontend.yml up -d"
             }
         }
 
@@ -28,10 +39,10 @@ pipeline {
 
         stage('Backend Deploy') {
             steps {
-                sh "docker-compose -f ./Infra/docker-compose.backend.yml up -d"
+                sh "docker compose -f ./Infra/docker-compose.backend.yml up -d"
             }
         }
-        
+
         stage('Cleanup') {
             steps {
                 sh "docker image prune -f"
@@ -39,5 +50,3 @@ pipeline {
         }
     }
 }
-
-// pipeline test: 2
