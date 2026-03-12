@@ -45,12 +45,14 @@ services:
       - a504-network
 
   jenkins:
-    image: jenkins/jenkins:lts
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
     container_name: jenkins
     user: root
     ports:
-      - "8080:8080"   # 젠킨스 웹 UI 접근용
-      - "50000:50000" # 젠킨스 에이전트 연결용
+      - "8080:8080"
+      - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
