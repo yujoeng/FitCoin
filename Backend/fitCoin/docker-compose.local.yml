@@ -1,0 +1,46 @@
+networks:
+  fitcoin-network:
+    driver: bridge
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: fitcoin-mysql-local
+    restart: always
+    ports:
+      - "${DATABASE_PORT}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      TZ: ${TZ}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - fitcoin-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: fitcoin-redis-local
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes --bind 0.0.0.0
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - fitcoin-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

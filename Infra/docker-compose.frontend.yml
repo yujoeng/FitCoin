@@ -6,8 +6,7 @@ services:
   nextjs_app:
     container_name: nextjs_app
     image: nextjs_app:latest
-    ports:
-      - "3000:3000"
+    env_file: ../Frontend/fitCoin/.env
     networks:
       - a504-network
     restart: always
