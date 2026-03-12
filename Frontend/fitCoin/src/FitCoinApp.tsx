@@ -6,20 +6,20 @@ import FitCoinMissionPage  from '@/views/FitCoinMissionPage';
 import FitCoinExercisePage from '@/views/FitCoinExercisePage';
 import FitCoinResultPage   from '@/views/FitCoinResultPage';
 import FitCoinCoachPage    from '@/views/FitCoinCoachPage';
-import { FITCOIN_EXERCISES, FITCOIN_POINT_POLICY } from '@/data/exercises';
+import { FITCOIN_POINT_POLICY } from '@/data/exercises';
 import {
   loadDailyState, saveDailyState,
   loadStreak, updateStreak,
   loadTotalPoints, addPoints,
   addHistoryEntry,
 } from '@/utils/fitcoinStorage';
-import type { Exercise, DailyState, StreakState } from '@/types';
+import type { MissionCandidate, DailyState, StreakState } from '@/types';
 
 type PageType = 'mission' | 'exercise' | 'result' | 'coach';
 
 export default function FitCoinApp() {
   const [page, setPage]               = useState<PageType>('mission');
-  const [currentMission, setCurrentMission] = useState<Exercise | null>(null);
+  const [currentMission, setCurrentMission] = useState<MissionCandidate | null>(null);
   const [dailyState,  setDailyState]  = useState<DailyState>({ missionCount: 0 });
   const [streak,      setStreak]      = useState<StreakState>({ count: 0, lastDate: '' });
   const [totalPoints, setTotalPoints] = useState<number>(0);
@@ -39,7 +39,7 @@ export default function FitCoinApp() {
 
   if (!isMounted) return null;
 
-  const handleStart = (mission: Exercise) => {
+  const handleStart = (mission: MissionCandidate) => {
     setCurrentMission(mission);
     setPage('exercise');
   };
@@ -59,12 +59,13 @@ export default function FitCoinApp() {
     if (prev === 0) setStreak(updateStreak());
 
     // 운동 이력 저장 (AI Coach용)
+    // 확인 필요: MissionCandidate에 category 없음 → 백엔드 연동 후 수정 필요
     if (currentMission) {
       addHistoryEntry({
-        exerciseId:   currentMission.id,
+        exerciseId:   String(currentMission.id),
         exerciseName: currentMission.name,
-        count:        currentMission.targetCount,
-        category:     currentMission.category,
+        count:        currentMission.count[0] ?? 0, // 확인 필요: userLevel 반영 필요
+        category:     '',                            // 확인 필요: MissionCandidate에 없음
         feedbackKeys: feedbacks,
       });
     }
@@ -78,7 +79,7 @@ export default function FitCoinApp() {
     <div className="fc-app-shell">
       <AppTopBar
         page={page}
-        mission={currentMission}
+        mission={currentMission as any}
         streak={streak}
         totalPoints={totalPoints}
         onBack={() => setPage('mission')}
@@ -87,21 +88,21 @@ export default function FitCoinApp() {
       <div className="fc-body">
         {page === 'mission' && (
           <FitCoinMissionPage
-            exercises={FITCOIN_EXERCISES}
+            candidates={[] /* TODO: MissionContext 연동 후 교체 */}
             dailyMissionCount={dailyState.missionCount}
             onStart={handleStart}
           />
         )}
         {page === 'exercise' && currentMission && (
           <FitCoinExercisePage
-            mission={currentMission}
+            mission={currentMission as any}
             onComplete={handleComplete}
             onBack={() => setPage('mission')}
           />
         )}
         {page === 'result' && (
           <FitCoinResultPage
-            mission={currentMission}
+            mission={currentMission as any}
             missionCount={dailyState.missionCount}
             earnedPoint={earnedPoint}
             totalPoints={totalPoints}
