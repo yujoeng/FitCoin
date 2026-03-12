@@ -35,3 +35,9 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### 환경 설정 ###
+/src/main/resources/application-local.yml
+
+### docker backup ###
+/data

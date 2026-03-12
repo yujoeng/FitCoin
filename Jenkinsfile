@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "a504-api-server"
+        DOCKER_IMAGE = "api-server"
     }
 
     stages {
@@ -18,24 +18,15 @@ pipeline {
             }
         }
 
-        stage('Backend Build') {
+        stage('Backend Docker Build') {
             steps {
-                dir('Backend') {
-                    sh 'chmod +x gradlew'
-                    sh './gradlew clean build -x test' 
-                }
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                dir('Backend') {
+                dir('Backend/fitCoin') {
                     sh "docker build -t ${DOCKER_IMAGE}:latest ."
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Backend Deploy') {
             steps {
                 sh "docker-compose -f ./Infra/docker-compose.backend.yml up -d"
             }
@@ -46,11 +37,5 @@ pipeline {
                 sh "docker image prune -f"
             }
         }
-
-        // stage('Clone') {
-        //     steps {
-        //         git branch: 'develop', credentialsId: 'dabinchi388', url: 'https://lab.ssafy.com/s14-fintech-finance-sub1/S14P21A504.git'
-        //     }
-        // }
     }
 }
