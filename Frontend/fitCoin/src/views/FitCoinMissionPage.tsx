@@ -2,12 +2,9 @@
 
 import React, { useState } from 'react';
 import {
-  RefreshCw, Play, Check, Lock,
-  Dumbbell, Activity, Heart, Zap, MoveVertical, User,
-  RotateCcw, ArrowUp, Info, Camera, Eye,
+  RefreshCw, Play, Check, Activity, Info,
 } from 'lucide-react';
-import ExerciseDemoModal from '@/components/ExerciseDemoModal';
-import type { Exercise } from '@/types';
+import type { MissionCandidate } from '@/types';
 
 // 백드롭 페이드인 keyframe 주입 (한 번만, 브라우저 환경 체크)
 if (typeof document !== 'undefined' && !document.getElementById('sq-demo-style')) {
@@ -22,52 +19,35 @@ if (typeof document !== 'undefined' && !document.getElementById('sq-demo-style')
   document.head.appendChild(st);
 }
 
-// 카테고리 정보
-const CATEGORY_STYLE: Record<string, { color: string; bg: string; border: string; Icon: React.ElementType }> = {
-  '하체':     { color: '#7B5CE8', bg: 'rgba(123,92,232,0.08)',  border: 'rgba(123,92,232,0.18)', Icon: MoveVertical },
-  '팔':       { color: '#2D8FF5', bg: 'rgba(45,143,245,0.08)',  border: 'rgba(45,143,245,0.18)', Icon: Activity    },
-  '코어':     { color: '#1E9E60', bg: 'rgba(30,158,96,0.08)',   border: 'rgba(30,158,96,0.18)',  Icon: Zap         },
-  '어깨':     { color: '#C07A00', bg: 'rgba(192,122,0,0.08)',   border: 'rgba(192,122,0,0.18)',  Icon: Dumbbell    },
-  '유산소':   { color: '#D94E4E', bg: 'rgba(217,78,78,0.08)',   border: 'rgba(217,78,78,0.18)',  Icon: Heart       },
-  '스트레칭': { color: '#1A8EA8', bg: 'rgba(26,142,168,0.08)',  border: 'rgba(26,142,168,0.18)', Icon: User        },
-};
 
-const ICON_MAP: Record<string, React.ElementType> = {
-  PersonStanding: User, MoveVertical, AlignHorizontalJustifyCenter: Dumbbell,
-  ArrowUpFromLine: ArrowUp, MoveUp: ArrowUp, RefreshCw, Dumbbell, RotateCcw,
-  ArrowUpToLine: ArrowUp, ChevronsUp: ArrowUp, ArrowLeftRight: Activity,
-  ArrowUpDown: MoveVertical, MoveHorizontal: Activity, Expand: Activity, Hand: Heart,
-};
 
 interface FitCoinMissionPageProps {
-  exercises: Exercise[];
+  candidates: MissionCandidate[];
   dailyMissionCount: number;
-  onStart: (mission: Exercise) => void;
+  onStart: (mission: MissionCandidate) => void;
+  userLevel?: number; // 0: 초급, 1: 중급, 2: 고급
 }
 
-export default function FitCoinMissionPage({ exercises, dailyMissionCount, onStart }: FitCoinMissionPageProps) {
-  const [mission, setMission] = useState<Exercise>(() => exercises[Math.floor(Math.random() * exercises.length)]);
+export default function FitCoinMissionPage({ candidates, dailyMissionCount, onStart, userLevel = 0 }: FitCoinMissionPageProps) {
+  const [mission, setMission] = useState<MissionCandidate>(() => candidates[Math.floor(Math.random() * candidates.length)]);
   const [spinning, setSpinning] = useState(false);
-  const [showDemo, setShowDemo] = useState(false);
 
   const handleRefresh = () => {
     setSpinning(true);
     setTimeout(() => {
-      let next: Exercise;
-      do { next = exercises[Math.floor(Math.random() * exercises.length)]; }
-      while (next.id === mission.id && exercises.length > 1);
+      let next: MissionCandidate;
+      do { next = candidates[Math.floor(Math.random() * candidates.length)]; }
+      while (next.id === mission.id && candidates.length > 1);
       setMission(next);
       setSpinning(false);
     }, 380);
   };
 
   const isLocked = dailyMissionCount >= 3;
-  const cat = CATEGORY_STYLE[mission.category] || CATEGORY_STYLE['스트레칭'];
-  const ExIcon = ICON_MAP[mission.icon] ?? Dumbbell;
-  const CatIcon = cat.Icon;
+  const targetCount = mission.count[userLevel] ?? mission.count[0];
 
   return (
-    <div className="fc-anim-fade">
+    <div className="fc-anim-fade" style={{ padding: '16px 16px 0' }}>
       {/* ── Daily Progress ── */}
       <div style={{ marginBottom: 16 }}>
         <div className="fc-section-label">오늘의 달성</div>
@@ -104,20 +84,13 @@ export default function FitCoinMissionPage({ exercises, dailyMissionCount, onSta
         </div>
       ) : (
         <div className="fc-card fc-anim-scale">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 0' }}>
-            <span className="fc-cat-tag" style={{ background: cat.bg, border: `1px solid ${cat.border}`, color: cat.color }}>
-              <CatIcon size={12} strokeWidth={2.5} />
-              {mission.category}
-            </span>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '14px 16px 0' }}>
             <button className="fc-btn-icon" onClick={handleRefresh} title="다른 운동">
               <RefreshCw size={15} className={spinning ? 'fc-spin-once' : ''} />
             </button>
           </div>
 
           <div style={{ textAlign: 'center', padding: '20px 16px 16px' }}>
-            <div className="fc-ex-icon" style={{ background: cat.bg, border: `1.5px solid ${cat.border}`, marginBottom: 14 }}>
-              <ExIcon size={36} color={cat.color} strokeWidth={1.8} />
-            </div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: 6, color: 'var(--text-1)' }}>
               {mission.name}
             </h2>
@@ -133,9 +106,9 @@ export default function FitCoinMissionPage({ exercises, dailyMissionCount, onSta
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-3)', fontWeight: 600 }}>목표</span>
               </div>
               <span style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--text-1)' }}>
-                {mission.targetCount}
+                {targetCount}
                 <span style={{ fontSize: '0.82rem', color: 'var(--text-3)', fontWeight: 600, marginLeft: 3 }}>
-                  {mission.id === 'plank' ? '세트' : '회'}
+                  회
                 </span>
               </span>
               <div className="fc-badge fc-badge-gold">
@@ -144,27 +117,12 @@ export default function FitCoinMissionPage({ exercises, dailyMissionCount, onSta
             </div>
           </div>
 
-          <div className="fc-camera-hint" style={{ margin: '10px 16px' }}>
-            <Camera size={14} strokeWidth={2} />
-            <span>{mission.camera === 'full' ? '전신이 보이도록 카메라를 배치해 주세요' : '상체만 보여도 됩니다'}</span>
-          </div>
 
-          <div style={{ padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+          <div style={{ padding: '12px 16px 16px' }}>
             <button
               className="fc-btn-primary"
-              style={{ width: '100%', background: 'linear-gradient(135deg, #7b5ce8 0%, #9b6cf8 100%)' }}
-              onClick={() => setShowDemo(true)}
-            >
-              <Eye size={15} />
-              동작 미리보기
-            </button>
-            <button
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: 6, padding: '11px 0', borderRadius: 12, border: '1.5px solid var(--card-border)',
-                background: 'transparent', color: 'var(--text-2)', fontSize: '0.88rem',
-                fontWeight: 700, cursor: 'pointer',
-              }}
+              style={{ width: '100%' }}
               onClick={() => onStart(mission)}
             >
               <Play size={14} />
@@ -173,6 +131,73 @@ export default function FitCoinMissionPage({ exercises, dailyMissionCount, onSta
           </div>
         </div>
       )}
+
+      {/* ── Mission Slots ── */}
+      <div style={{ marginTop: 20 }}>
+        <div className="fc-section-label">미션 슬롯</div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          {[0, 1, 2].map((i) => {
+            const isDone = i < dailyMissionCount;
+            return (
+              <div
+                key={i}
+                className="fc-card"
+                style={{
+                  flex: 1,
+                  padding: '14px 8px',
+                  textAlign: 'center',
+                  opacity: isDone ? 1 : 0.5,
+                  position: 'relative',
+                }}
+              >
+                {isDone ? (
+                  <>
+                    <div style={{
+                      position: 'absolute',
+                      top: 6, left: 6, right: 6, bottom: 6,
+                      border: '2px solid var(--color-primary)',
+                      borderRadius: 10,
+                      pointerEvents: 'none',
+                    }} />
+                    <div style={{
+                      fontSize: '0.65rem',
+                      fontWeight: 900,
+                      color: 'var(--color-primary)',
+                      letterSpacing: 1,
+                      border: '2px solid var(--color-primary)',
+                      borderRadius: 4,
+                      padding: '2px 4px',
+                      display: 'inline-block',
+                      marginBottom: 6,
+                    }}>
+                      FINISHED
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-2)', fontWeight: 600 }}>
+                      {i === 0 ? '1,000 P' : '500 P'}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{
+                      width: 32, height: 32,
+                      borderRadius: '50%',
+                      background: 'var(--surface-2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      margin: '0 auto 6px',
+                      fontSize: '0.9rem', fontWeight: 900, color: 'var(--text-3)',
+                    }}>
+                      {i + 1}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-3)' }}>
+                      {i === 0 ? '1,000 P' : '500 P'}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {!isLocked && (
         <div className="fc-info-row" style={{ marginTop: 14 }}>
@@ -183,13 +208,7 @@ export default function FitCoinMissionPage({ exercises, dailyMissionCount, onSta
         </div>
       )}
 
-      {showDemo && (
-        <ExerciseDemoModal
-          exercise={mission}
-          onStart={() => { setShowDemo(false); onStart(mission); }}
-          onClose={() => setShowDemo(false)}
-        />
-      )}
+
     </div>
   );
 }

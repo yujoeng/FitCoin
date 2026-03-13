@@ -13,7 +13,8 @@ import {
   loadTotalPoints, addPoints,
   addHistoryEntry,
 } from '@/utils/fitcoinStorage';
-import type { Exercise, DailyState, StreakState } from '@/types';
+import { mergeWithExercise } from '@/features/mission/missionUtils';
+import type { MissionCandidate, Exercise, DailyState, StreakState } from '@/types';
 
 type PageType = 'mission' | 'exercise' | 'result' | 'coach';
 
@@ -39,8 +40,14 @@ export default function FitCoinApp() {
 
   if (!isMounted) return null;
 
-  const handleStart = (mission: Exercise) => {
-    setCurrentMission(mission);
+  const handleStart = (mission: MissionCandidate) => {
+    // TODO: userLevel은 현재 0(초급) 고정. 추후 사용자 설정 반영 시 수정 필요
+    const exercise = mergeWithExercise(mission, FITCOIN_EXERCISES, 0);
+    if (!exercise) {
+      alert('해당 미션을 찾을 수 없습니다.');
+      return;
+    }
+    setCurrentMission(exercise);
     setPage('exercise');
   };
 
@@ -87,7 +94,7 @@ export default function FitCoinApp() {
       <div className="fc-body">
         {page === 'mission' && (
           <FitCoinMissionPage
-            exercises={FITCOIN_EXERCISES}
+            candidates={[] /* TODO: MissionContext 연동 후 교체 */}
             dailyMissionCount={dailyState.missionCount}
             onStart={handleStart}
           />
