@@ -18,7 +18,7 @@ public class CharacterDetail extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "character_id", nullable = false)
-    private Character character;
+    private Characters characters;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
