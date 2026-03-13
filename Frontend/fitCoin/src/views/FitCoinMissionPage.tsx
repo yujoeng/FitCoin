@@ -47,7 +47,7 @@ export default function FitCoinMissionPage({ candidates, dailyMissionCount, onSt
   const targetCount = mission.count[userLevel] ?? mission.count[0];
 
   return (
-    <div className="fc-anim-fade">
+    <div className="fc-anim-fade" style={{ padding: '16px 16px 0' }}>
       {/* ── Daily Progress ── */}
       <div style={{ marginBottom: 16 }}>
         <div className="fc-section-label">오늘의 달성</div>
@@ -122,7 +122,7 @@ export default function FitCoinMissionPage({ candidates, dailyMissionCount, onSt
           <div style={{ padding: '12px 16px 16px' }}>
             <button
               className="fc-btn-primary"
-              style={{ width: '100%', background: 'linear-gradient(135deg, #7b5ce8 0%, #9b6cf8 100%)' }}
+              style={{ width: '100%' }}
               onClick={() => onStart(mission)}
             >
               <Play size={14} />
@@ -131,6 +131,73 @@ export default function FitCoinMissionPage({ candidates, dailyMissionCount, onSt
           </div>
         </div>
       )}
+
+      {/* ── Mission Slots ── */}
+      <div style={{ marginTop: 20 }}>
+        <div className="fc-section-label">미션 슬롯</div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          {[0, 1, 2].map((i) => {
+            const isDone = i < dailyMissionCount;
+            return (
+              <div
+                key={i}
+                className="fc-card"
+                style={{
+                  flex: 1,
+                  padding: '14px 8px',
+                  textAlign: 'center',
+                  opacity: isDone ? 1 : 0.5,
+                  position: 'relative',
+                }}
+              >
+                {isDone ? (
+                  <>
+                    <div style={{
+                      position: 'absolute',
+                      top: 6, left: 6, right: 6, bottom: 6,
+                      border: '2px solid var(--color-primary)',
+                      borderRadius: 10,
+                      pointerEvents: 'none',
+                    }} />
+                    <div style={{
+                      fontSize: '0.65rem',
+                      fontWeight: 900,
+                      color: 'var(--color-primary)',
+                      letterSpacing: 1,
+                      border: '2px solid var(--color-primary)',
+                      borderRadius: 4,
+                      padding: '2px 4px',
+                      display: 'inline-block',
+                      marginBottom: 6,
+                    }}>
+                      FINISHED
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-2)', fontWeight: 600 }}>
+                      {i === 0 ? '1,000 P' : '500 P'}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{
+                      width: 32, height: 32,
+                      borderRadius: '50%',
+                      background: 'var(--surface-2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      margin: '0 auto 6px',
+                      fontSize: '0.9rem', fontWeight: 900, color: 'var(--text-3)',
+                    }}>
+                      {i + 1}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-3)' }}>
+                      {i === 0 ? '1,000 P' : '500 P'}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {!isLocked && (
         <div className="fc-info-row" style={{ marginTop: 14 }}>
