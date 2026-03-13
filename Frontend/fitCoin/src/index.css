@@ -166,6 +166,10 @@ body {
   /* 모바일 텍스트 렌더링 최적화 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
 }
 
 /* 링크 기본 스타일 제거 */
@@ -249,15 +253,16 @@ select {
 
 /* 앱 전체 컨테이너 — 모바일 뷰포트 고정 */
 .fc-app-shell {
-  width: 100%;
-  max-width: 430px;
+  width: 412px;
+  max-width: 412px;
   /* 모바일 최대 너비 */
-  min-height: 100dvh;
+  min-height: 915px;
   /* dvh: 모바일 브라우저 주소창 고려 */
   margin: 0 auto;
   position: relative;
   overflow-x: hidden;
   background-color: var(--color-bg);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
 
   /* iOS 안전 영역 대응 */
   padding-top: var(--safe-top);
