@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { AppTabBar } from '@/components/AppShell';
 import '@/index.css';
+
 
 export const metadata: Metadata = {
   title: 'FitCoin',
@@ -14,7 +16,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <div className="fc-app-shell">
+          <main style={{ paddingBottom: '80px' }}>
+            {children}
+          </main>
+          <AppTabBar />
+        </div>
+      </body>
     </html>
   );
 }
