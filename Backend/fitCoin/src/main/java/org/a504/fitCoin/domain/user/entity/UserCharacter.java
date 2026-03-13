@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.a504.fitCoin.domain.character.entity.Character;
+import org.a504.fitCoin.domain.character.entity.Characters;
 import org.a504.fitCoin.domain.user.value.UserCharacterStatus;
 
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public class UserCharacter {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "character_id", nullable = false)
-    private Character character;
+    private Characters characters;
 
     @Column(name = "exp", nullable = false, columnDefinition = "INT DEFAULT 0")
     private int exp;
