@@ -355,3 +355,168 @@ select {
   /* 밝은 배경(#FFF8E7)에서 회색 로고가 잘 보이도록 대비 약간 강화 */
   filter: contrast(1.1);
 }
+
+/* ──────────────────────────────────────────
+   8. 미션 페이지 전용 UI 컴포넌트 클래스 추가
+────────────────────────────────────────── */
+
+/* ── 카드 (fc-card, fc-card-alt) ── */
+.fc-card {
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.fc-card-alt {
+  background-color: rgba(150, 185, 91, 0.05); /* 연한 Primary 배경 */
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+/* ── 뱃지 (fc-badge, fc-badge-green, fc-badge-gold) ── */
+.fc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  color: var(--color-text-secondary);
+}
+
+.fc-badge-green {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.fc-badge-gold {
+  background-color: rgba(245, 200, 66, 0.15); /* 코인 골드 계열 */
+  color: #D4A017; /* 짙은 골드 */
+}
+
+/* ── 프로그레스 바 (fc-seg-track, fc-seg) ── */
+.fc-seg-track {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.fc-seg {
+  flex: 1;
+  height: 8px;
+  background-color: rgba(44, 62, 31, 0.08); /* 빈 칸 */
+  border-radius: var(--radius-sm);
+  transition: var(--transition-normal);
+}
+
+.fc-seg.done {
+  background-color: var(--color-primary); /* 채워진 칸 */
+}
+
+/* ── 버튼 (fc-btn-primary, fc-btn-icon) ── */
+.fc-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 0;
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary); /* 디자인 시스템 Primary */
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(150, 185, 91, 0.3);
+}
+
+.fc-btn-primary:active {
+  transform: scale(0.96);
+}
+
+.fc-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(44, 62, 31, 0.05); /* 투명한 어두운 배경 */
+  color: var(--color-text-secondary);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.fc-btn-icon:active {
+  background-color: rgba(44, 62, 31, 0.1);
+}
+
+/* ── 섹션 라벨 & 안내 문구 (fc-section-label, fc-info-row) ── */
+.fc-section-label {
+  font-size: var(--text-lg);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+  padding: 0 4px;
+}
+
+.fc-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background-color: rgba(44, 62, 31, 0.03); /* 아주 옅은 텍스트 컬러 배경 */
+}
+
+/* ── 모달/화면 상태 (fc-locked-state) ── */
+.fc-locked-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 16px;
+  gap: 12px;
+}
+
+/* ── 추가 애니메이션 (fc-anim-fade, fc-anim-scale, fc-spin-once) ── */
+@keyframes fc-anim-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.fc-anim-fade {
+  animation: fc-anim-fade 0.4s ease forwards;
+}
+
+@keyframes fc-anim-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.fc-anim-scale {
+  animation: fc-anim-scale 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes fc-spin-once {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.fc-spin-once {
+  animation: fc-spin-once 0.4s ease forwards;
+}

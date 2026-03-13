@@ -13,12 +13,12 @@ import type { Exercise } from '@/types';
 
 // 피드백 UI 설정
 const FEEDBACK_CONFIG: Record<string, { cls: string; Icon: React.ElementType; label: string }> = {
-  good:         { cls: 'good',    Icon: CheckCircle,   label: '자세 좋아요' },
-  not_deep:     { cls: 'warn',    Icon: ArrowDown,     label: '조금 더 내려가세요' },
-  lean_forward: { cls: 'warn',   Icon: AlertTriangle,  label: '상체를 더 숙여 보세요' },
-  heel_rise:    { cls: 'warn',   Icon: AlertTriangle,  label: '발뒤꿈치가 들렸어요' },
-  ready:        { cls: 'neutral', Icon: Activity,      label: '준비 자세' },
-  no_pose:      { cls: 'neutral', Icon: Camera,        label: '포즈 감지 중' },
+  good: { cls: 'good', Icon: CheckCircle, label: '자세 좋아요' },
+  not_deep: { cls: 'warn', Icon: ArrowDown, label: '조금 더 내려가세요' },
+  lean_forward: { cls: 'warn', Icon: AlertTriangle, label: '상체를 더 숙여 보세요' },
+  heel_rise: { cls: 'warn', Icon: AlertTriangle, label: '발뒤꿈치가 들렸어요' },
+  ready: { cls: 'neutral', Icon: Activity, label: '준비 자세' },
+  no_pose: { cls: 'neutral', Icon: Camera, label: '포즈 감지 중' },
 };
 
 function FormFeedback({ feedbackKey }: { feedbackKey: string }) {
@@ -42,9 +42,10 @@ interface FitCoinPoseDetectorProps {
   detectFn: Exercise['detectFn'];
   onComplete: () => void;
   onFeedback?: (key: string) => void;
+  onCountChange?: (count: number) => void;
 }
 
-export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, onFeedback }: FitCoinPoseDetectorProps) {
+export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, onFeedback, onCountChange }: FitCoinPoseDetectorProps) {
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [count, setCount] = useState(0);
@@ -67,13 +68,14 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
     setCount((prev) => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
       countRef.current = next;
+      onCountChange?.(next);
       if (next >= exercise.targetCount && !completedRef.current) {
         completedRef.current = true;
         setTimeout(() => onComplete(), 600);
       }
       return next;
     });
-  }, [exercise.targetCount, onComplete]);
+  }, [exercise.targetCount, onComplete, onCountChange]);
 
   useEffect(() => {
     if (!webcamRef.current) return;
@@ -169,17 +171,9 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
       {/* Count + Progress */}
       <div className="fc-card-soft" style={{ padding: '14px 16px' }}>
         <div className="fc-count-display">
-          <span className="fc-count-num">{count}</span>
-          <span className="fc-count-denom"> / {exercise.targetCount}</span>
+          ...
         </div>
-        <div className="fc-progress-track" style={{ marginTop: 10 }}>
-          <div className="fc-progress-fill" style={{ width: `${progress}%` }} />
-        </div>
-        <div style={{ marginTop: 6, display: 'flex', justifyContent: 'flex-end' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-3)', fontWeight: 600 }}>
-            {Math.round(progress)}%
-          </span>
-        </div>
+        ...
       </div>
     </div>
   );

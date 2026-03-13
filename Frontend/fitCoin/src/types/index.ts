@@ -14,6 +14,7 @@ export interface Exercise {
   camera: 'full' | 'upper';
   initialState: string;
   hasFeedback?: boolean;
+  missionId?: number;
   detectFn: (
     landmarks: unknown,
     state: string,
