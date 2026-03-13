@@ -2,7 +2,8 @@
 
 // ── AppShell: TopBar + TabBar UI 컴포넌트 ──
 import React from 'react';
-import { Zap, ChevronLeft, Home, Activity, Trophy, Coins, Brain } from 'lucide-react';
+import { Zap, ChevronLeft, Home, Activity, Trophy, Coins, Brain, BookOpen, BookMarked, Wallet, Settings } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
 import type { Exercise, StreakState } from '@/types';
 
 // ── 상단 헤더바 ──
@@ -59,30 +60,36 @@ export function AppTopBar({ page, mission, streak, totalPoints, onBack }: AppTop
 
 // ── 하단 탭바 ──
 const TABS = [
-  { key: 'mission',  label: '홈',     Icon: Home     },
-  { key: 'exercise', label: '운동',   Icon: Activity },
-  { key: 'coach',    label: 'AI 코치', Icon: Brain   },
-  { key: 'result',   label: '결과',   Icon: Trophy   },
+  { key: 'character', label: '캐릭터\n도감', Icon: BookOpen, href: '/character' },
+  { key: 'room', label: '테마/가구\n도감', Icon: BookMarked, href: '/room' },
+  { key: 'home', label: '홈', Icon: Home, href: '/home' },
+  { key: 'wallet', label: '지갑', Icon: Wallet, href: '/wallet' },
+  { key: 'my', label: '마이페이지', Icon: Settings, href: '/my' },
 ];
 
 interface AppTabBarProps {
-  active: string;
-  onNavigate: (page: string) => void;
+  active?: string; // 더 이상 필수 아님, usePathname으로 자동 감지
 }
 
-export function AppTabBar({ active, onNavigate }: AppTabBarProps) {
+export function AppTabBar({ active }: AppTabBarProps = {}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
     <nav className="fc-tabbar">
-      {TABS.map(({ key, label, Icon }) => (
-        <button
-          key={key}
-          className={`fc-tab${active === key ? ' active' : ''}`}
-          onClick={() => onNavigate(key === 'exercise' ? 'mission' : key)}
-        >
-          <Icon size={20} strokeWidth={active === key ? 2.5 : 1.8} />
-          <span>{label}</span>
-        </button>
-      ))}
+      {TABS.map(({ key, label, Icon, href }) => {
+        const isActive = active ? active === key : pathname?.startsWith(href);
+        return (
+          <button
+            key={key}
+            className={`fc-tab${isActive ? ' active' : ''}`}
+            onClick={() => router.push(href)}
+          >
+            <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+            <span style={{ whiteSpace: 'pre-line' }}>{label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 }
