@@ -1,13 +1,4 @@
 "use client";
-/**
- * 파일 경로: src/app/(auth)/password-reset/page.tsx
- *
- * 비밀번호 재설정 화면.
- * 이메일 입력 → 재설정 링크 발송 요청 → 안내 문구 표시
- *
- * 연관 파일:
- *  - src/features/auth/services/authApi.ts (requestPasswordReset 함수)
- */
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
