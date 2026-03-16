@@ -9,7 +9,6 @@ import { useAICoach } from '@/hooks/useAICoach';
 import { loadHistory } from '@/utils/fitcoinStorage';
 import type { AIRecommendation, HistoryEntry } from '@/types';
 
-// 피드백 키 → 한국어 라벨
 const FEEDBACK_LABEL: Record<string, string> = {
   good: '자세 좋음', not_deep: '더 내려가야 함',
   lean_forward: '상체 미굽힘', heel_rise: '발뒤꿈치 들림',
