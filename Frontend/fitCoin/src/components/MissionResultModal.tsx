@@ -58,7 +58,7 @@ export default function MissionResultModal({
           fontSize: '0.85rem',
           marginBottom: 24,
         }}>
-          오늘도 잘 했어요 💪
+          오늘도 잘 했어요
         </div>
 
         <div style={{
