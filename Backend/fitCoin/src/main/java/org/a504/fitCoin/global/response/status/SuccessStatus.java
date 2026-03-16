@@ -9,15 +9,18 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum SuccessStatus implements BaseCode {
 
-    OK(HttpStatus.OK, "요청 응답에 성공했습니다."),
-    CREATED(HttpStatus.CREATED, "생성에 성공했습니다."),
+    OK(HttpStatus.OK, "GLOBAL-200", "요청 응답에 성공했습니다."),
+    CREATED(HttpStatus.CREATED, "GLOBAL-201", "생성에 성공했습니다."),
     ;
 
     private final HttpStatus httpStatus;
+    private final String code;
     private final String message;
 
     @Override
     public boolean isSuccess() {
         return true;
     }
+
+
 }
