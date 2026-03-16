@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.a504.fitCoin.domain.wallet.value.GifticonType;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -27,6 +28,12 @@ public class Gifticon {
      */
     @Column(nullable = false, columnDefinition = "TINYINT DEFAULT 1")
     private int status;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
 
 }
