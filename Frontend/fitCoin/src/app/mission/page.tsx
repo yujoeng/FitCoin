@@ -6,8 +6,15 @@ import FitCoinMissionPage from '@/views/FitCoinMissionPage';
 import FitCoinExercisePage from '@/views/FitCoinExercisePage';
 import ExerciseDemoModal from '@/components/ExerciseDemoModal';
 import { mergeWithExercise } from '@/features/mission/missionUtils';
-import { FITCOIN_EXERCISES } from '@/data/exercises';
-import type { MissionCandidate, Exercise } from '@/types';
+import { FITCOIN_EXERCISES, FITCOIN_POINT_POLICY } from '@/data/exercises';
+import {
+  loadDailyState, saveDailyState,
+  loadStreak, updateStreak,
+  loadTotalPoints, addPoints,
+  addHistoryEntry,
+} from '@/utils/fitcoinStorage';
+import MissionResultModal from '@/components/MissionResultModal';
+import type { MissionCandidate, Exercise, DailyState, StreakState } from '@/types';
 
 // MissionProvider 안에서 훅을 사용하기 위해 내부 컴포넌트로 분리
 function MissionPageContent() {
@@ -25,11 +32,26 @@ function MissionPageContent() {
   const [currentPage, setCurrentPage] = useState<'mission' | 'exercise'>('mission');
   const [currentMission, setCurrentMission] = useState<Exercise | null>(null);
   const [showDemo, setShowDemo] = useState(false);
+  const [dailyState, setDailyState] = useState<DailyState>({ missionCount: 0 });
+  const [streak, setStreak] = useState<StreakState>({ count: 0, lastDate: '' });
+  const [totalPoints, setTotalPoints] = useState<number>(0);
+  const [earnedPoint, setEarnedPoint] = useState<number>(0);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     fetchAvailability();
     fetchCandidates();
   }, [fetchAvailability, fetchCandidates]);
+
+  useEffect(() => {
+    setIsMounted(true);
+    setDailyState(loadDailyState());
+    setStreak(loadStreak());
+    setTotalPoints(loadTotalPoints());
+    const id = setInterval(() => setDailyState(loadDailyState()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleStart = async (mission: MissionCandidate) => {
     await startMission(mission.id);
@@ -44,10 +66,34 @@ function MissionPageContent() {
   };
 
   const handleMissionComplete = (feedbacks: string[]) => {
-    console.log('미션 완료 피드백:', feedbacks);
-    // TODO: 백엔드 /missions/complete API 연결 후 실제 포인트 적립 처리로 교체
+    const prev = dailyState.missionCount;
+    const newCount = prev + 1;
+    const newDaily: DailyState = { missionCount: newCount };
+    saveDailyState(newDaily);
+    setDailyState(newDaily);
+
+    const earned = prev === 0 ? FITCOIN_POINT_POLICY.first : FITCOIN_POINT_POLICY.bonus;
+    const newTotal = addPoints(earned);
+    setEarnedPoint(earned);
+    setTotalPoints(newTotal);
+
+    if (prev === 0) setStreak(updateStreak());
+
+    if (currentMission) {
+      addHistoryEntry({
+        exerciseId: currentMission.id,
+        exerciseName: currentMission.name,
+        count: currentMission.targetCount,
+        category: currentMission.category,
+        feedbackKeys: feedbacks,
+      });
+    }
+
     setCurrentPage('mission');
+    setModalVisible(true);
   };
+
+  if (!isMounted) return null;
 
   if (isLoading) {
     return <div style={{ padding: 24, textAlign: 'center' }}>로딩 중...</div>;
@@ -78,7 +124,7 @@ function MissionPageContent() {
     <>
       <FitCoinMissionPage
         candidates={candidates}
-        dailyMissionCount={availability?.todayCompletedMissionCount ?? 0}
+        dailyMissionCount={dailyState.missionCount}
         onStart={handleStart}
       />
       {showDemo && currentMission && (
@@ -89,6 +135,13 @@ function MissionPageContent() {
             setCurrentPage('exercise');
           }}
           onClose={() => setShowDemo(false)}
+        />
+      )}
+      {modalVisible && (
+        <MissionResultModal
+          rewardPoint={earnedPoint}
+          totalPoint={totalPoints}
+          onConfirm={() => setModalVisible(false)}
         />
       )}
     </>

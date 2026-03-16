@@ -5,7 +5,6 @@ import {
   RefreshCw, Play, Check, Activity, Info,
 } from 'lucide-react';
 import type { MissionCandidate } from '@/types';
-
 // 백드롭 페이드인 keyframe 주입 (한 번만, 브라우저 환경 체크)
 if (typeof document !== 'undefined' && !document.getElementById('sq-demo-style')) {
   const st = document.createElement('style');
@@ -207,8 +206,6 @@ export default function FitCoinMissionPage({ candidates, dailyMissionCount, onSt
           </span>
         </div>
       )}
-
-
     </div>
   );
 }
