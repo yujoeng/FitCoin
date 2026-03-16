@@ -171,9 +171,28 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
       {/* Count + Progress */}
       <div className="fc-card-soft" style={{ padding: '14px 16px' }}>
         <div className="fc-count-display">
-          ...
+          <span className="fc-font-point" style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-primary)' }}>
+            {count}
+          </span>
+          <span style={{ fontSize: '1rem', color: 'var(--color-text-secondary)' }}>
+            &nbsp;/ {exercise.targetCount}
+          </span>
         </div>
-        ...
+        <div style={{
+          width: '100%',
+          height: '8px',
+          borderRadius: 'var(--radius-full)',
+          backgroundColor: 'rgba(44,62,31,0.08)',
+          marginTop: '10px'
+        }}>
+          <div style={{
+            width: `${progress}%`,
+            height: '100%',
+            borderRadius: 'var(--radius-full)',
+            backgroundColor: 'var(--color-primary)',
+            transition: 'width var(--transition-normal)'
+          }} />
+        </div>
       </div>
     </div>
   );
