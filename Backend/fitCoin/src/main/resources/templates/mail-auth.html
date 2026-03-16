@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>이메일 인증 코드</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f0eb; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;">
+
+<div style="background-color: #f5f0eb; padding: 40px 0;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #fffdf9; border-radius: 10px; overflow: hidden; border: 0.5px solid #e8dfd4;">
+
+        <div style="background-color: #c8a882; padding: 30px; text-align: center;">
+            <h1 style="color: #fffdf9; margin: 0; font-size: 26px; font-weight: 500; letter-spacing: 1px;">FitCoin</h1>
+        </div>
+
+        <div style="padding: 44px 36px; text-align: center; color: #5a4a3a;">
+
+            <h2 style="font-size: 20px; font-weight: 500; margin: 0 0 20px; color: #3a2d22;">
+                인증 코드를 확인해주세요
+            </h2>
+
+            <p style="font-size: 15px; line-height: 1.8; color: #7a6455; margin: 0 0 8px;">
+                안녕하세요!<br>
+                FitCoin 서비스 인증 코드입니다.
+            </p>
+            <p style="font-size: 14px; color: #9a8272; margin: 0 0 32px;">
+                아래 코드를 복사하여 화면에 입력해 주세요.
+            </p>
+
+            <div style="background-color: #f5ede3; border: 1px dashed #c8a882; border-radius: 8px; padding: 30px 24px; margin: 0 0 24px;">
+                <p style="font-size: 12px; color: #b09070; margin: 0 0 12px; letter-spacing: 1px;">👇 코드를 더블 클릭하면
+                    선택됩니다</p>
+                <span style="
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 34px;
+                    font-weight: 500;
+                    letter-spacing: 10px;
+                    color: #a07850;
+                    background-color: #fffdf9;
+                    padding: 12px 24px;
+                    border-radius: 6px;
+                    border: 0.5px solid #d4bfa8;
+                    display: inline-block;
+                    -webkit-user-select: all;
+                    user-select: all;
+                " th:text="${code}">482910</span>
+            </div>
+
+            <p style="font-size: 14px; color: #9a8272;">
+                인증 코드는 <span style="font-weight: 500; color: #a07850;" th:text="${expiredTime}">5</span>분간 유효합니다.
+            </p>
+        </div>
+
+        <div style="background-color: #f0e8de; padding: 20px; text-align: center; font-size: 12px; color: #9a8272; border-top: 0.5px solid #e8dfd4;">
+            <p style="margin: 0;">본 메일은 회원가입 인증을 위해 발송되었습니다.</p>
+            <p style="margin: 6px 0 0;">본인이 요청하지 않았다면 이 이메일을 무시해 주세요.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

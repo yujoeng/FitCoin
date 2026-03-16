@@ -78,3 +78,7 @@ cors:
     - PATCH
     - DELETE
     - OPTIONS
+
+#  이메일 설정
+email:
+  expired-time: 300000 # 5분(ms)
