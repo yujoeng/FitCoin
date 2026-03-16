@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 public record ApiResponse<T>(
         Boolean isSuccess,
+        String code,
         String message,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         T result
@@ -16,6 +17,7 @@ public record ApiResponse<T>(
     public static <T> ResponseEntity<ApiResponse<T>> onSuccess(BaseCode code, T result) {
         ApiResponse<T> body = new ApiResponse<>(
                 code.isSuccess(),
+                code.getCode(),
                 code.getMessage(),
                 result
         );
@@ -26,6 +28,7 @@ public record ApiResponse<T>(
     public static ResponseEntity<ApiResponse<Void>> onSuccess(BaseCode code) {
         ApiResponse<Void> body = new ApiResponse<>(
                 code.isSuccess(),
+                code.getCode(),
                 code.getMessage(),
                 null
         );
@@ -36,6 +39,7 @@ public record ApiResponse<T>(
     public static ResponseEntity<ApiResponse<Void>> onFailure(BaseErrorCode code) {
         ApiResponse<Void> body = new ApiResponse<>(
                 code.isSuccess(),   // 항상 false
+                code.getCode(),
                 code.getMessage(),
                 null
         );
@@ -46,6 +50,7 @@ public record ApiResponse<T>(
     public static ResponseEntity<ApiResponse<Void>> onFailure(BaseErrorCode code, String message) {
         ApiResponse<Void> body = new ApiResponse<>(
                 code.isSuccess(),   // 항상 false
+                code.getCode(),
                 message,
                 null
         );
@@ -56,6 +61,7 @@ public record ApiResponse<T>(
     public static <T> ResponseEntity<ApiResponse<T>> onFailure(BaseErrorCode code, String message, T result) {
         ApiResponse<T> body = new ApiResponse<>(
                 code.isSuccess(),   // 항상 false
+                code.getCode(),
                 message,
                 result
         );
