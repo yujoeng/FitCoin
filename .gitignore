@@ -129,3 +129,7 @@ dist
 Thumbs.db
 
 .vscode/
+
+# Gradle
+.gradle/
+bin/
