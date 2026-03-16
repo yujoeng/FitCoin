@@ -1,7 +1,4 @@
 'use client';
-/**
- * 파일 경로: src/app/(auth)/signup/page.tsx
- */
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
