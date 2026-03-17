@@ -13,10 +13,11 @@ import org.a504.fitCoin.global.entity.BaseTimeEntity;
 public class UserRoom extends BaseTimeEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
