@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Assets, ExchangeRate, ExchangeResult, ExchangeRateHistory } from '../types/assets';
+import { Assets, ExchangeRate, ExchangeResult, ExchangeRateHistory, Gifticon, GifticonListResponse } from '../types/assets';
 import { assetsService } from '../services/assetsService';
 
 export const useAssets = () => {
   const [assets, setAssets] = useState<Assets | null>(null);
   const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
   const [rateHistory, setRateHistory] = useState<ExchangeRateHistory[]>([]);
+  const [gifticons, setGifticons] = useState<Gifticon[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -13,14 +14,16 @@ export const useAssets = () => {
     try {
       setIsLoading(true);
       setErrorMessage(null);
-      const [assetsData, rateData, historyData] = await Promise.all([
+      const [assetsData, rateData, historyData, gifticonData] = await Promise.all([
         assetsService.getAssets(),
         assetsService.getExchangeRate(),
-        assetsService.getExchangeRateHistory()
+        assetsService.getExchangeRateHistory(),
+        assetsService.getGifticons()
       ]);
       setAssets(assetsData);
       setExchangeRate(rateData);
       setRateHistory(historyData.exchangeRates);
+      setGifticons(gifticonData.gifticons);
     } catch (error: any) {
       setErrorMessage(error.message || '데이터를 불러오는 중 오류가 발생했습니다.');
     } finally {
@@ -53,6 +56,7 @@ export const useAssets = () => {
     assets,
     exchangeRate,
     rateHistory,
+    gifticons,
     isLoading,
     errorMessage,
     exchange,
