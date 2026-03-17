@@ -19,8 +19,18 @@ public class CustomUserDetails implements UserDetails {
         this.userId = user.getId();
     }
 
+    private CustomUserDetails(String email, Long userId) {
+        this.password = null;
+        this.username = email;
+        this.userId = userId;
+    }
+
     public static CustomUserDetails forLogin(User user) {
         return new CustomUserDetails(user);
+    }
+
+    public static CustomUserDetails forJwt(String email, Long userId) {
+        return new CustomUserDetails(email, userId);
     }
 
     @Override
