@@ -1,11 +1,13 @@
 package org.a504.fitCoin.domain.mission.service;
 
 import lombok.RequiredArgsConstructor;
-import org.a504.fitCoin.domain.mission.dto.MissionAvailabilityResponse;
-import org.a504.fitCoin.domain.mission.dto.MissionCandidateDto;
-import org.a504.fitCoin.domain.mission.dto.MissionCandidateListResponse;
+import org.a504.fitCoin.domain.mission.dto.*;
+import org.a504.fitCoin.domain.mission.entity.Mission;
 import org.a504.fitCoin.domain.mission.repository.MissionLogRepository;
 import org.a504.fitCoin.domain.mission.repository.MissionRepository;
+import org.a504.fitCoin.domain.mission.util.MissionTokenProvider;
+import org.a504.fitCoin.global.exception.CustomException;
+import org.a504.fitCoin.global.response.status.ErrorStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +24,24 @@ public class MissionService {
 
     private final MissionLogRepository missionLogRepository;
     private final MissionRepository missionRepository;
+    private final MissionTokenProvider missionTokenProvider;
 
+
+    public MissionStartResponse startMission(Long userId, MissionStartRequest request) {
+        Mission mission = missionRepository.findById(request.getMissionId())
+                .orElseThrow(() -> new CustomException(ErrorStatus.MISSION_NOT_FOUND));
+
+        String missionToken = missionTokenProvider.generateMissionToken(
+                userId,
+                mission.getId(),
+                request.getMissionStartedAt()
+        );
+
+        return MissionStartResponse.builder()
+                .missionId(mission.getId())
+                .missionToken(missionToken)
+                .build();
+    }
     public MissionCandidateListResponse getMissionCandidates() {
         List<MissionCandidateDto> missions = missionRepository.findAll()
                 .stream()
