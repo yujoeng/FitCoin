@@ -17,6 +17,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -119,6 +120,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String errorMessage = ex.getMessage();
         logError("ConstraintViolationException", errorMessage);
         return ApiResponse.onFailure(ErrorStatus.BAD_REQUEST, errorMessage);
+    }
+
+    // 필수 쿠키 누락
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMissingCookie(MissingRequestCookieException e) {
+        String errorMessage = "필수 쿠키 '" + e.getCookieName() + "'가 없습니다.";
+        logError("MissingRequestCookieException", errorMessage);
+        return ApiResponse.onFailure(ErrorStatus.UNAUTHORIZED, errorMessage);
     }
 
     // 필수 쿼리 파라미터 누락

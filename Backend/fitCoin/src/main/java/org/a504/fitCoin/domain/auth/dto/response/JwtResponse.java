@@ -1,6 +1,6 @@
 package org.a504.fitCoin.domain.auth.dto.response;
 
-public record LoginResponse(
+public record JwtResponse(
         String accessToken
 ) {
 }

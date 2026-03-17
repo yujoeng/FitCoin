@@ -32,24 +32,26 @@ public class JwtUtil {
                 .getPayload();
     }
 
-    public String createAccessToken(String email) {
+    public String createAccessToken(String email, Long userId) {
 
         return Jwts.builder()
                 .claim("category", "access")
                 .claim("email", email)
+                .claim("userId", userId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessTokenValidity))
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String createRefreshToken(String email) {
+    public String createRefreshToken(String email, Long userId) {
         String identifier = NanoIdUtils.randomNanoId();
 
         return Jwts.builder()
                 .claim("category", "refresh")
                 .claim("identifier", identifier)
                 .claim("email", email)
+                .claim("userId", userId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenValidity))
                 .signWith(secretKey)
@@ -57,11 +59,6 @@ public class JwtUtil {
     }
 
     public String getIdentifier(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("identifier", String.class);
+        return extractAllClaims(token).get("identifier", String.class);
     }
 }
