@@ -18,7 +18,10 @@ public enum ErrorStatus implements BaseErrorCode {
 
     INVALID_UUID(HttpStatus.BAD_REQUEST, "GLOBAL-400","올바르지 않은 UUID 형식입니다."),
 
-    INVALID_ENUM_VALUE(HttpStatus.BAD_REQUEST, "GLOBAL-400", "유효하지 않은 ENUM 값입니다.")
+    INVALID_ENUM_VALUE(HttpStatus.BAD_REQUEST, "GLOBAL-400", "유효하지 않은 ENUM 값입니다."),
+
+    // 미션 에러
+    MISSION_NOT_FOUND(HttpStatus.BAD_REQUEST, "MS4001", "존재하지 않는 미션입니다.")
     ;
 
     private final HttpStatus httpStatus;
