@@ -20,20 +20,20 @@ public class UserRoom extends BaseTimeEntity {
     private User user;
 
     @Column(name = "wall_item")
-    private String wallItem;
+    private Long wallItem;
 
     @Column(name = "floor_item")
-    private String floorItem;
+    private Long floorItem;
 
     @Column(name = "window_item")
-    private String windowItem;
+    private Long windowItem;
 
     @Column(name = "left_item")
-    private String leftItem;
+    private Long leftItem;
 
     @Column(name = "right_item")
-    private String rightItem;
+    private Long rightItem;
 
     @Column(name = "hidden_item")
-    private String hiddenItem;
+    private Long hiddenItem;
 }
