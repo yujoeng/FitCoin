@@ -1,9 +1,6 @@
 'use client';
+import { WalletPage } from '@/features/wallet/components/WalletPage';
 
-import { ExchangePage } from '@/features/wallet/components/ExchangePage';
-
-export default function WalletPage() {
-  return (
-    <ExchangePage />
-  );
+export default function WalletPageRoute() {
+  return <WalletPage />;
 }
