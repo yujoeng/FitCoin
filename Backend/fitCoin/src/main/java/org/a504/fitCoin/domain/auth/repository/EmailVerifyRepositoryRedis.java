@@ -1,7 +1,7 @@
 package org.a504.fitCoin.domain.auth.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.a504.fitCoin.global.config.property.EmailProperties;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,17 +12,12 @@ import java.util.concurrent.TimeUnit;
 public class EmailVerifyRepositoryRedis implements EmailVerifyRepository {
 
     private final StringRedisTemplate redisTemplate;
-
-    @Value("${email.code.expired-time}")
-    private Long emailCodeExpiredTime;
-
-    @Value("${email.token.expired-time}")
-    private Long emailTokenExpiredTime;
+    private final EmailProperties emailProperties;
 
     @Override
     public void saveVerificationCode(String email, String code) {
         String key = "verify:code:" + email;
-        redisTemplate.opsForValue().set(key, code, emailCodeExpiredTime, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(key, code, emailProperties.getCode().getExpiredTime(), TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -42,7 +37,7 @@ public class EmailVerifyRepositoryRedis implements EmailVerifyRepository {
     @Override
     public void saveVerificationToken(String email, String token) {
         String key = "verify:token:" + email;
-        redisTemplate.opsForValue().set(key, token, emailTokenExpiredTime, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(key, token, emailProperties.getToken().getExpiredTime(), TimeUnit.MILLISECONDS);
     }
 
     @Override

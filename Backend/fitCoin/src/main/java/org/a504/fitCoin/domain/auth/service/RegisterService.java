@@ -11,9 +11,9 @@ import org.a504.fitCoin.domain.auth.dto.response.EmailVerifyConfirmResponse;
 import org.a504.fitCoin.domain.auth.repository.EmailVerifyRepository;
 import org.a504.fitCoin.domain.user.entity.User;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
+import org.a504.fitCoin.global.config.property.EmailProperties;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.a504.fitCoin.global.response.status.ErrorStatus;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -32,9 +32,7 @@ public class RegisterService {
     private final TemplateEngine templateEngine;
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
-
-    @Value("${email.code.expired-time}")
-    private Long emailCodeExpiredTime;
+    private final EmailProperties emailProperties;
 
     public void sendVerificationCode(EmailVerifyRequest request) {
 
@@ -50,7 +48,7 @@ public class RegisterService {
 
         Context context = new Context();
         context.setVariable("code", code);
-        context.setVariable("expiredTime", emailCodeExpiredTime / (1000 * 60));
+        context.setVariable("expiredTime", emailProperties.getCode().getExpiredTime() / (1000 * 60));
         String htmlContent = templateEngine.process("mail-auth", context);
         mailService.sendEmail(email, subject, htmlContent);
     }
