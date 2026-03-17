@@ -43,4 +43,10 @@ public class UserRoom extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hidden_item")
     private Furniture hiddenItem;
+
+    public static UserRoom of(User user) {
+        UserRoom room = new UserRoom();
+        room.user = user;
+        return room;
+    }
 }

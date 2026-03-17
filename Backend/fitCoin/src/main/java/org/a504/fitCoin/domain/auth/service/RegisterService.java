@@ -9,6 +9,8 @@ import org.a504.fitCoin.domain.auth.dto.request.EmailVerifyRequest;
 import org.a504.fitCoin.domain.auth.dto.request.RegisterRequest;
 import org.a504.fitCoin.domain.auth.dto.response.EmailVerifyConfirmResponse;
 import org.a504.fitCoin.domain.auth.repository.EmailVerifyRepository;
+import org.a504.fitCoin.domain.room.entity.UserRoom;
+import org.a504.fitCoin.domain.room.repository.UserRoomJpaRepository;
 import org.a504.fitCoin.domain.user.entity.User;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
 import org.a504.fitCoin.global.config.property.EmailProperties;
@@ -28,6 +30,7 @@ import java.security.SecureRandom;
 public class RegisterService {
 
     private final UserJpaRepository userJpaRepository;
+    private final UserRoomJpaRepository userRoomJpaRepository;
     private final EmailVerifyRepository emailVerifyRepository;
     private final TemplateEngine templateEngine;
     private final MailService mailService;
@@ -99,6 +102,7 @@ public class RegisterService {
                 .build();
 
         userJpaRepository.save(user);
+        userRoomJpaRepository.save(UserRoom.of(user));
         emailVerifyRepository.deleteVerificationToken(email);
     }
 }
