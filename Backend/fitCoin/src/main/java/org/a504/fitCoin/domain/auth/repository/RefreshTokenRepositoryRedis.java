@@ -23,4 +23,17 @@ public class RefreshTokenRepositoryRedis implements RefreshTokenRepository {
         String key = KEY_PREFIX + email + ":" + identifier;
         redisTemplate.opsForValue().set(key, refreshToken, jwtProperties.getRefreshTokenValidity(), TimeUnit.MILLISECONDS);
     }
+
+    @Override
+    public boolean exists(String email, String identifier, String refreshToken) {
+        String key = KEY_PREFIX + email + ":" + identifier;
+        String value = redisTemplate.opsForValue().get(key);
+        return refreshToken.equals(value);
+    }
+
+    @Override
+    public void delete(String email, String identifier) {
+        String key = KEY_PREFIX + email + ":" + identifier;
+        redisTemplate.delete(key);
+    }
 }
