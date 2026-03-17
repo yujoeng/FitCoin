@@ -3,6 +3,7 @@ package org.a504.fitCoin.domain.mission.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
 import org.a504.fitCoin.domain.mission.dto.MissionAvailabilityResponse;
 import org.a504.fitCoin.domain.mission.dto.MissionCandidateListResponse;
 import org.a504.fitCoin.domain.mission.dto.MissionStartRequest;
@@ -11,6 +12,7 @@ import org.a504.fitCoin.domain.mission.service.MissionService;
 import org.a504.fitCoin.global.response.ApiResponse;
 import org.a504.fitCoin.global.response.status.SuccessStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,12 +27,10 @@ public class MissionController {
             description = "선택한 미션을 시작합니다. 응답으로 받은 missionToken을 미션 완료 API 요청 시 사용합니다.")
     @PostMapping("/start")
     public ResponseEntity<ApiResponse<MissionStartResponse>> startMission(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody MissionStartRequest request
     ) {
-        // TODO: Auth 도메인 개발 완료 후 아래 하드코딩 제거하고 @AuthenticationPrincipal CustomUserDetails로 교체
-        Long userId = 1L; // 임시값 — 반드시 교체 필요!
-
-        MissionStartResponse result = missionService.startMission(userId, request);
+        MissionStartResponse result = missionService.startMission(userDetails.getUserId(), request);
         return ApiResponse.onSuccess(SuccessStatus.OK, result);
     }
 
@@ -45,11 +45,10 @@ public class MissionController {
     @Operation(summary = "미션 수행 가능 여부 조회",
             description = "사용자의 오늘 미션 수행 가능 여부를 조회합니다. 하루 최대 3회 수행 가능하며 00시에 초기화됩니다.")
     @PostMapping("/availability")
-    public ResponseEntity<ApiResponse<MissionAvailabilityResponse>> getMissionAvailability() {
-        // TODO: Auth 도메인 개발 완료 후 아래 하드코딩 제거하고 @AuthenticationPrincipal CustomUserDetails로 교체
-        Long userId = 1L;
-
-        MissionAvailabilityResponse result = missionService.getMissionAvailability(userId);
+    public ResponseEntity<ApiResponse<MissionAvailabilityResponse>> getMissionAvailability(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        MissionAvailabilityResponse result = missionService.getMissionAvailability(userDetails.getUserId());
         return ApiResponse.onSuccess(SuccessStatus.OK, result);
     }
 }
