@@ -22,13 +22,12 @@ public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
             "/error", "/favicon.ico", "/health",
-            "/api/swagger-ui/**",
-            "/api/swagger-ui.html",
-            "/api/v3/api-docs",
-            "/api/v3/api-docs/**",
-            "/api/auth/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/auth/**",
             "/wallet/**",  // TODO: 테스트 완료 후 JWT 인증 구현되면 제거
-            "auth/**"
     };
     private final CorsConfigProperties corsConfigProperties;
 
@@ -51,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated()
                 );
+//                .addFilterBefore(new JwtFilter(jwtUtil, accessTokenRepository, authVersionRepository), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
@@ -60,7 +61,7 @@ public class SecurityConfig {
         cors.setAllowedOrigins(corsConfigProperties.getAllowedOrigins());
         cors.setAllowedMethods(corsConfigProperties.getAllowedMethods());
         cors.setAllowedHeaders(List.of("*"));
-        cors.setExposedHeaders(List.of("*"));
+        cors.setExposedHeaders(List.of("Authorization"));
         cors.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
