@@ -22,3 +22,16 @@ export interface ExchangeResult {
   receivedCoin: number;
   exchangeRate: number;
 }
+
+// 기프티콘
+export interface Gifticon {
+  gifticonId: number;
+  gifticonType: string;
+  imageUrl: string;
+  issuedAt: string;
+}
+
+// 기프티콘 목록 응답
+export interface GifticonListResponse {
+  gifticons: Gifticon[];
+}
