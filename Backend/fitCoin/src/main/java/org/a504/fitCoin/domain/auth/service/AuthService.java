@@ -1,22 +1,29 @@
 package org.a504.fitCoin.domain.auth.service;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.a504.fitCoin.domain.auth.dto.JwtDto;
+import org.a504.fitCoin.domain.auth.dto.request.EmailVerifyRequest;
 import org.a504.fitCoin.domain.auth.dto.request.LoginRequest;
 import org.a504.fitCoin.domain.auth.jwt.JwtUtil;
 import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
+import org.a504.fitCoin.domain.auth.repository.PasswordResetRepository;
 import org.a504.fitCoin.domain.auth.repository.RefreshTokenRepository;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
+import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.a504.fitCoin.global.response.status.ErrorStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 @Slf4j
 @Service
@@ -28,6 +35,13 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
+    private final PasswordResetRepository passwordResetRepository;
+    private final UserJpaRepository userJpaRepository;
+    private final MailService mailService;
+    private final TemplateEngine templateEngine;
+
+    @Value("${password-reset.url}")
+    private String passwordResetUrl;
 
     public JwtDto login(LoginRequest request) {
 
@@ -108,5 +122,25 @@ public class AuthService {
                 log.warn("Failed to delete refresh token during logout: {}", e.getMessage());
             }
         }
+    }
+
+    public void sendPasswordResetUrl(EmailVerifyRequest request) {
+        String email = request.email();
+        boolean exists = userJpaRepository.findByEmail(email)
+                .map(user -> user.getDeletedAt() == null)
+                .orElse(false);
+
+        if (!exists) return;
+
+        String token = NanoIdUtils.randomNanoId();
+        passwordResetRepository.save(token, email);
+
+        String resetLink = passwordResetUrl + "?token=" + token;
+        String subject = "[FitCoin] 비밀번호 재설정 안내";
+
+        Context context = new Context();
+        context.setVariable("resetUrl", resetLink);
+        String htmlContent = templateEngine.process("mail-password-reset", context);
+        mailService.sendEmail(email, subject, htmlContent);
     }
 }

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.dto.JwtDto;
+import org.a504.fitCoin.domain.auth.dto.request.EmailVerifyRequest;
 import org.a504.fitCoin.domain.auth.dto.request.LoginRequest;
 import org.a504.fitCoin.domain.auth.dto.response.JwtResponse;
 import org.a504.fitCoin.domain.auth.service.AuthService;
@@ -58,6 +59,12 @@ public class AuthController {
         authService.logout(accessToken, refreshToken);
         response.addCookie(CookieUtil.createCookie("refresh", null, cookieProperties.getDeleteAge()));
 
+        return ApiResponse.onSuccess(SuccessStatus.OK);
+    }
+
+    @PostMapping("/password/reset-request")
+    public ResponseEntity<ApiResponse<Void>> passwordResetRequest(@Valid @RequestBody EmailVerifyRequest request) {
+        authService.sendPasswordResetUrl(request);
         return ApiResponse.onSuccess(SuccessStatus.OK);
     }
 }
