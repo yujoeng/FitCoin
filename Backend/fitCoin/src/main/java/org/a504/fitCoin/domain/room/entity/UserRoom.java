@@ -19,21 +19,27 @@ public class UserRoom extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "wall_item")
-    private Long wallItem;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "wall_item")
+    private Furniture wallItem;
 
-    @Column(name = "floor_item")
-    private Long floorItem;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "floor_item")
+    private Furniture floorItem;
 
-    @Column(name = "window_item")
-    private Long windowItem;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "window_item")
+    private Furniture windowItem;
 
-    @Column(name = "left_item")
-    private Long leftItem;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "left_item")
+    private Furniture leftItem;
 
-    @Column(name = "right_item")
-    private Long rightItem;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "right_item")
+    private Furniture rightItem;
 
-    @Column(name = "hidden_item")
-    private Long hiddenItem;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hidden_item")
+    private Furniture hiddenItem;
 }
