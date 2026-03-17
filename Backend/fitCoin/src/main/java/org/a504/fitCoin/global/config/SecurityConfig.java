@@ -29,8 +29,7 @@ public class SecurityConfig {
             "/v3/api-docs",
             "/v3/api-docs/**",
             "/auth/**",
-            "/wallet/**",  // TODO: 테스트 완료 후 JWT 인증 구현되면 제거
-            "/missions/**" // TODO: 테스트 완료 후 JWT 인증 구현되면 제거
+            "/wallet/**"  // TODO: 테스트 완료 후 JWT 인증 구현되면 제거
     };
     private final CorsConfigProperties corsConfigProperties;
 
