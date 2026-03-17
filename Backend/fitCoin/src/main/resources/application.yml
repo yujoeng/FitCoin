@@ -73,6 +73,7 @@ cors:
   allowed-origins:
     - ${CORS_ORIGIN_LOCAL_VITE:http://localhost:5173}
     - ${CORS_ORIGIN_LOCAL_REACT:http://localhost:3000}
+    - ${CORS_ORIGIN_SERVER:https://j14a504.p.ssafy.io}
   allowed-methods:
     - GET
     - POST
