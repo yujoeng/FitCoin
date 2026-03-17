@@ -9,7 +9,7 @@ interface FitCoinExercisePageProps {
   mission: Exercise;
   onComplete: (feedbacks: string[]) => void;
   onBack: () => void;
-  // TODO: 포인트/코인 실제 값은 부모(FitCoinApp.tsx or page.tsx)에서 props로 받아야 해요
+  // TODO: 포인트/코인 실제 값은 부모(FitCoinApp.tsx or page.tsx)에서 props로 받아야 함
   point?: number;
   coin?: number;
 }
@@ -22,7 +22,7 @@ export default function FitCoinExercisePage({
   coin = 0,
 }: FitCoinExercisePageProps) {
   const feedbacksRef = useRef<string[]>([]);
-  // 카운트를 여기서 관리해요 — PoseDetector에서 올려받아요
+  // 카운트를 여기서 관리 — PoseDetector에서 올려받음
   const [count, setCount] = useState(0);
 
   const handleFeedback = useCallback((key: string) => {
@@ -109,7 +109,7 @@ export default function FitCoinExercisePage({
         </div>
 
         {/* PoseDetector — 카메라 + 피드백 + 상태/각도 뱃지 */}
-        {/* 카운트/프로그레스는 PoseDetector에서 제거했고, 아래에서 따로 크게 보여줘요 */}
+        {/* 카운트/프로그레스는 PoseDetector에서 제거했고, 아래에서 따로 크게 보여줌 */}
         <FitCoinPoseDetector
           key={mission.id}
           exercise={mission}
