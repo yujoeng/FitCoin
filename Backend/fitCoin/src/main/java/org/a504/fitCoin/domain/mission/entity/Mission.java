@@ -24,4 +24,13 @@ public class Mission {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MissionType type;
+
+    @Column(nullable = false)
+    private int beginnerCount;
+
+    @Column(nullable = false)
+    private int intermediateCount;
+
+    @Column(nullable = false)
+    private int advancedCount;
 }
