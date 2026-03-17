@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAssets } from '../hooks/useAssets';
 import {
   LineChart,
@@ -11,6 +12,7 @@ import {
 } from 'recharts';
 
 export const ExchangePage = () => {
+  const router = useRouter();
   const { assets, exchangeRate, rateHistory, isLoading, errorMessage, exchange, setErrorMessage } = useAssets();
   const [pointInput, setPointInput] = useState<string>('');
 
@@ -62,7 +64,10 @@ export const ExchangePage = () => {
 
       {/* 1. 상단 헤더 */}
       <header style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px', paddingTop: '8px', paddingBottom: '8px' }}>
-        <button style={{ fontSize: '20px', padding: '0 4px', fontWeight: 'bold', color: 'var(--color-text-primary)', background: 'none', border: 'none', cursor: 'pointer' }}>
+        <button 
+          onClick={() => router.back()}
+          style={{ fontSize: '20px', padding: '0 4px', fontWeight: 'bold', color: 'var(--color-text-primary)', background: 'none', border: 'none', cursor: 'pointer' }}
+        >
           ←
         </button>
         <h1 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>환전소</h1>
