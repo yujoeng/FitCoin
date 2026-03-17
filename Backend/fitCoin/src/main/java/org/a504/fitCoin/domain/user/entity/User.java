@@ -2,6 +2,7 @@ package org.a504.fitCoin.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.a504.fitCoin.domain.user.value.ExerciseLevel;
@@ -38,4 +39,12 @@ public class User {
 
     @Column(name = "coin", nullable = false, columnDefinition = "INT DEFAULT 0")
     private int coin;
+
+    @Builder
+    private User(String email, String password, String nickname, ExerciseLevel exerciseLevel) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.exerciseLevel = exerciseLevel;
+    }
 }
