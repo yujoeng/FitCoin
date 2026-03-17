@@ -21,6 +21,9 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_ENUM_VALUE(HttpStatus.BAD_REQUEST, "GLOBAL-400", "유효하지 않은 ENUM 값입니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "GLOBAL-403", "접근이 거부되었습니다."),
     CONFLICT(HttpStatus.CONFLICT, "GLOBAL-409", "데이터 충돌이 발생했습니다. 이미 존재하는 리소스이거나 현재 상태에서 처리할 수 없습니다."),
+
+    // 미션 에러
+    MISSION_NOT_FOUND(HttpStatus.BAD_REQUEST, "MS4001", "존재하지 않는 미션입니다.")
     ;
 
     private final HttpStatus httpStatus;

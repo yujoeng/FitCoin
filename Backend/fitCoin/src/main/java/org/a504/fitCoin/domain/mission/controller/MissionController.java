@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.mission.dto.MissionAvailabilityResponse;
 import org.a504.fitCoin.domain.mission.dto.MissionCandidateListResponse;
+import org.a504.fitCoin.domain.mission.dto.MissionStartRequest;
+import org.a504.fitCoin.domain.mission.dto.MissionStartResponse;
 import org.a504.fitCoin.domain.mission.service.MissionService;
 import org.a504.fitCoin.global.response.ApiResponse;
 import org.a504.fitCoin.global.response.status.SuccessStatus;
@@ -18,6 +20,19 @@ import org.springframework.web.bind.annotation.*;
 public class MissionController {
 
     private final MissionService missionService;
+
+    @Operation(summary = "미션 시작",
+            description = "선택한 미션을 시작합니다. 응답으로 받은 missionToken을 미션 완료 API 요청 시 사용합니다.")
+    @PostMapping("/start")
+    public ResponseEntity<ApiResponse<MissionStartResponse>> startMission(
+            @RequestBody MissionStartRequest request
+    ) {
+        // TODO: Auth 도메인 개발 완료 후 아래 하드코딩 제거하고 @AuthenticationPrincipal CustomUserDetails로 교체
+        Long userId = 1L; // 임시값 — 반드시 교체 필요!
+
+        MissionStartResponse result = missionService.startMission(userId, request);
+        return ApiResponse.onSuccess(SuccessStatus.OK, result);
+    }
 
     @Operation(summary = "미션 후보 목록 조회",
             description = "수행 가능한 전체 미션 목록을 조회합니다. 미션 시작 시 필요한 미션 ID를 이 API에서 얻습니다.")
