@@ -45,4 +45,19 @@ public class AuthController {
 
         return ApiResponse.onSuccess(SuccessStatus.OK, new JwtResponse(jwtDto.accessToken()));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @CookieValue(value = "refresh", required = false) String refreshToken,
+            HttpServletResponse response) {
+
+        String accessToken = (authorization != null && authorization.startsWith("Bearer "))
+                ? authorization.split(" ")[1] : null;
+
+        authService.logout(accessToken, refreshToken);
+        response.addCookie(CookieUtil.createCookie("refresh", null, cookieProperties.getDeleteAge()));
+
+        return ApiResponse.onSuccess(SuccessStatus.OK);
+    }
 }

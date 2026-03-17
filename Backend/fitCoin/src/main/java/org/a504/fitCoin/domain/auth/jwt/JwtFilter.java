@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
 import org.a504.fitCoin.domain.auth.util.ResponseUtil;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,6 +38,12 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String accessToken = authorization.split(" ")[1];
+
+        if (accessTokenBlacklistRepository.exists(accessToken)) {
+            log.error("Blacklisted access token.");
+            ResponseUtil.setResponse(response, HttpStatus.UNAUTHORIZED, false, "GLOBAL-401", "Invalid access token.");
+            return;
+        }
 
         Claims claims;
         try {
@@ -75,11 +83,11 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
 
-        return path.startsWith("/auth/") ||
-                path.startsWith("/swagger-ui") ||
-                path.startsWith("/v3/api-docs") ||
+        return path.startsWith("/api/auth/") ||
+                path.startsWith("/api/swagger-ui") ||
+                path.startsWith("/api/v3/api-docs") ||
+                path.equals("/api/swagger-ui.html") ||
                 path.equals("/error") ||
-                path.equals("/swagger-ui.html") ||
                 path.equals("/favicon.ico") ||
                 path.equals("/health");
     }

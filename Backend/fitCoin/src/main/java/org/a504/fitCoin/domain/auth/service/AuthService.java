@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.a504.fitCoin.domain.auth.dto.JwtDto;
 import org.a504.fitCoin.domain.auth.dto.request.LoginRequest;
 import org.a504.fitCoin.domain.auth.jwt.JwtUtil;
+import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
 import org.a504.fitCoin.domain.auth.repository.RefreshTokenRepository;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
 import org.a504.fitCoin.global.exception.CustomException;
@@ -26,6 +27,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
 
     public JwtDto login(LoginRequest request) {
 
@@ -81,5 +83,30 @@ public class AuthService {
         refreshTokenRepository.save(email, jwtUtil.getIdentifier(newRefresh), newRefresh);
 
         return new JwtDto(newAccess, newRefresh);
+    }
+
+    public void logout(String accessToken, String refreshToken) {
+        if (accessToken != null) {
+            try {
+                Claims claims = jwtUtil.extractAllClaims(accessToken);
+                long remainingMs = claims.getExpiration().getTime() - System.currentTimeMillis();
+                if (remainingMs > 0) {
+                    accessTokenBlacklistRepository.save(accessToken, remainingMs);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to blacklist access token during logout: {}", e.getMessage());
+            }
+        }
+
+        if (refreshToken != null) {
+            try {
+                Claims claims = jwtUtil.extractAllClaims(refreshToken);
+                String email = claims.get("email", String.class);
+                String identifier = claims.get("identifier", String.class);
+                refreshTokenRepository.delete(email, identifier);
+            } catch (Exception e) {
+                log.warn("Failed to delete refresh token during logout: {}", e.getMessage());
+            }
+        }
     }
 }

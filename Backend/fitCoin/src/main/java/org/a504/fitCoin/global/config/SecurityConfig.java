@@ -3,6 +3,7 @@ package org.a504.fitCoin.global.config;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.jwt.JwtFilter;
 import org.a504.fitCoin.domain.auth.jwt.JwtUtil;
+import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
 import org.a504.fitCoin.global.config.property.CorsConfigProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,10 +33,10 @@ public class SecurityConfig {
             "/v3/api-docs",
             "/v3/api-docs/**",
             "/auth/**",
-            "/wallet/**"  // TODO: 테스트 완료 후 JWT 인증 구현되면 제거
     };
     private final CorsConfigProperties corsConfigProperties;
     private final JwtUtil jwtUtil;
+    private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -61,7 +62,7 @@ public class SecurityConfig {
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtUtil, accessTokenBlacklistRepository), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
