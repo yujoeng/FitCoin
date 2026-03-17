@@ -60,12 +60,14 @@ jwt:
 
 springdoc:
   swagger-ui:
-    path: /api/swagger-ui.html
+    path: /swagger-ui.html
   api-docs:
-    path: /api/v3/api-docs
+    path: /v3/api-docs
 
 server:
   port: ${SERVER_PORT}
+  servlet:
+    context-path: /api
 
 cors:
   allowed-origins:
@@ -78,3 +80,15 @@ cors:
     - PATCH
     - DELETE
     - OPTIONS
+
+#  이메일 설정
+email:
+  code:
+    expired-time: 300000   # 5분(ms) - 인증 코드 유효 시간
+  token:
+    expired-time: 1800000  # 30분(ms) - 이메일 인증 토큰 유효 시간
+
+# cookie 설정
+cookie:
+  delete-age: 0
+  max-age: 1209600
