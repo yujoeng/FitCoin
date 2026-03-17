@@ -7,4 +7,6 @@ public interface RefreshTokenRepository {
     boolean exists(String email, String identifier, String refreshToken);
 
     void delete(String email, String identifier);
+
+    void deleteAll(String email);
 }

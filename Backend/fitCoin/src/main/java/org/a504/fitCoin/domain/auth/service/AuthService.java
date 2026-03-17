@@ -9,8 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.a504.fitCoin.domain.auth.dto.JwtDto;
 import org.a504.fitCoin.domain.auth.dto.request.EmailVerifyRequest;
 import org.a504.fitCoin.domain.auth.dto.request.LoginRequest;
+import org.a504.fitCoin.domain.auth.dto.request.ResetPasswordRequest;
 import org.a504.fitCoin.domain.auth.jwt.JwtUtil;
 import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
+import org.a504.fitCoin.domain.auth.repository.PasswordChangedRepository;
 import org.a504.fitCoin.domain.auth.repository.PasswordResetRepository;
 import org.a504.fitCoin.domain.auth.repository.RefreshTokenRepository;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -36,9 +39,11 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
     private final PasswordResetRepository passwordResetRepository;
+    private final PasswordChangedRepository passwordChangedRepository;
     private final UserJpaRepository userJpaRepository;
     private final MailService mailService;
     private final TemplateEngine templateEngine;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${password-reset.url}")
     private String passwordResetUrl;
@@ -142,5 +147,21 @@ public class AuthService {
         context.setVariable("resetUrl", resetLink);
         String htmlContent = templateEngine.process("mail-password-reset", context);
         mailService.sendEmail(email, subject, htmlContent);
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        String email = passwordResetRepository.findEmailByToken(request.token())
+                .orElseThrow(() -> {
+                    log.warn("Password reset token not found or expired. token={}", request.token());
+                    return new CustomException(ErrorStatus.BAD_REQUEST);
+                });
+
+        userJpaRepository.findByEmail(email)
+                .ifPresent(user -> user.updatePassword(passwordEncoder.encode(request.password())));
+
+        long changedAtMs = System.currentTimeMillis();
+        refreshTokenRepository.deleteAll(email);
+        passwordChangedRepository.save(email, changedAtMs);
+        passwordResetRepository.delete(request.token());
     }
 }

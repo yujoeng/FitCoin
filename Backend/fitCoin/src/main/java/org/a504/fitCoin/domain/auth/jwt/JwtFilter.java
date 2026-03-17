@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
+import org.a504.fitCoin.domain.auth.repository.PasswordChangedRepository;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
 import org.a504.fitCoin.domain.auth.util.ResponseUtil;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
+    private final PasswordChangedRepository passwordChangedRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -71,6 +73,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String email = claims.get("email", String.class);
         Long userId = claims.get("userId", Long.class);
+
+        long issuedAtMs = claims.getIssuedAt().getTime();
+        boolean invalidatedByPasswordChange = passwordChangedRepository.findChangedAt(email)
+                .map(changedAtMs -> issuedAtMs < changedAtMs)
+                .orElse(false);
+
+        if (invalidatedByPasswordChange) {
+            log.error("Access token issued before password change. email={}", email);
+            ResponseUtil.setResponse(response, HttpStatus.UNAUTHORIZED, false, "GLOBAL-401", "Invalid access token.");
+            return;
+        }
 
         CustomUserDetails customUserDetails = CustomUserDetails.forJwt(email, userId);
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());

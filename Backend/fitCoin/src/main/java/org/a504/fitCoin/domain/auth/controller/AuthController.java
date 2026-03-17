@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.dto.JwtDto;
 import org.a504.fitCoin.domain.auth.dto.request.EmailVerifyRequest;
 import org.a504.fitCoin.domain.auth.dto.request.LoginRequest;
+import org.a504.fitCoin.domain.auth.dto.request.ResetPasswordRequest;
 import org.a504.fitCoin.domain.auth.dto.response.JwtResponse;
 import org.a504.fitCoin.domain.auth.service.AuthService;
 import org.a504.fitCoin.domain.auth.util.CookieUtil;
@@ -65,6 +66,12 @@ public class AuthController {
     @PostMapping("/password/reset-request")
     public ResponseEntity<ApiResponse<Void>> passwordResetRequest(@Valid @RequestBody EmailVerifyRequest request) {
         authService.sendPasswordResetUrl(request);
+        return ApiResponse.onSuccess(SuccessStatus.OK);
+    }
+
+    @PatchMapping("/password/reset")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
         return ApiResponse.onSuccess(SuccessStatus.OK);
     }
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.jwt.JwtFilter;
 import org.a504.fitCoin.domain.auth.jwt.JwtUtil;
 import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
+import org.a504.fitCoin.domain.auth.repository.PasswordChangedRepository;
 import org.a504.fitCoin.global.config.property.CorsConfigProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,7 @@ public class SecurityConfig {
     private final CorsConfigProperties corsConfigProperties;
     private final JwtUtil jwtUtil;
     private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
+    private final PasswordChangedRepository passwordChangedRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -62,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil, accessTokenBlacklistRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtUtil, accessTokenBlacklistRepository, passwordChangedRepository), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

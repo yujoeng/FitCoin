@@ -6,6 +6,9 @@ import org.a504.fitCoin.global.config.property.JwtProperties;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
+
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -35,5 +38,17 @@ public class RefreshTokenRepositoryRedis implements RefreshTokenRepository {
     public void delete(String email, String identifier) {
         String key = KEY_PREFIX + email + ":" + identifier;
         redisTemplate.delete(key);
+    }
+
+    @Override
+    public void deleteAll(String email) {
+        String pattern = KEY_PREFIX + email + ":*";
+        ScanOptions options = ScanOptions.scanOptions().match(pattern).count(100).build();
+
+        try (Cursor<String> cursor = redisTemplate.scan(options)) {
+            while (cursor.hasNext()) {
+                redisTemplate.unlink(cursor.next());
+            }
+        }
     }
 }
