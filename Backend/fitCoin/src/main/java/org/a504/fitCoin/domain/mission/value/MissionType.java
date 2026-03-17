@@ -1,6 +1,10 @@
 package org.a504.fitCoin.domain.mission.value;
 
 public enum MissionType {
-    //TODO : 이후 기획에 맞춰 값 수정해야 함
-    JUMP
+    ARM,         // 팔
+    LOWER_BODY,  // 하체
+    STRETCHING,  // 스트레칭
+    CORE,        // 코어
+    CARDIO,      // 유산소
+    SHOULDER     // 어깨
 }

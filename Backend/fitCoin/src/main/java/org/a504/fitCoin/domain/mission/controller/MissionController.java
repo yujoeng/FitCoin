@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.mission.dto.MissionAvailabilityResponse;
+import org.a504.fitCoin.domain.mission.dto.MissionCandidateListResponse;
 import org.a504.fitCoin.domain.mission.service.MissionService;
 import org.a504.fitCoin.global.response.ApiResponse;
 import org.a504.fitCoin.global.response.status.SuccessStatus;
@@ -17,6 +18,14 @@ import org.springframework.web.bind.annotation.*;
 public class MissionController {
 
     private final MissionService missionService;
+
+    @Operation(summary = "미션 후보 목록 조회",
+            description = "수행 가능한 전체 미션 목록을 조회합니다. 미션 시작 시 필요한 미션 ID를 이 API에서 얻습니다.")
+    @GetMapping("/candidates")
+    public ResponseEntity<ApiResponse<MissionCandidateListResponse>> getMissionCandidates() {
+        MissionCandidateListResponse result = missionService.getMissionCandidates();
+        return ApiResponse.onSuccess(SuccessStatus.OK, result);
+    }
 
     @Operation(summary = "미션 수행 가능 여부 조회",
             description = "사용자의 오늘 미션 수행 가능 여부를 조회합니다. 하루 최대 3회 수행 가능하며 00시에 초기화됩니다.")
