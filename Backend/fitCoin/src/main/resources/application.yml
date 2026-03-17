@@ -81,4 +81,7 @@ cors:
 
 #  이메일 설정
 email:
-  expired-time: 300000 # 5분(ms)
+  code:
+    expired-time: 300000   # 5분(ms) - 인증 코드 유효 시간
+  token:
+    expired-time: 1800000  # 30분(ms) - 이메일 인증 토큰 유효 시간
