@@ -8,6 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 public class CookieProperties {
-    private int cookieDeleteAge;
-    private int cookieMaxAge;
+    private int deleteAge;
+    private int maxAge;
 }
