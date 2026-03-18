@@ -43,6 +43,11 @@ build/Release
 node_modules/
 jspm_packages/
 
+# Project structure boundaries
+# Frontend: Frontend/fitCoin/node_modules
+# Backend: Backend/*/node_modules
+# 루트 레벨이나 Frontend/ 바로 아래에 node_modules가 생성되지 않도록 주의하세요.
+
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 

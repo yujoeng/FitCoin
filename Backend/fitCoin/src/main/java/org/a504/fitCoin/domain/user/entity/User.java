@@ -47,4 +47,8 @@ public class User {
         this.nickname = nickname;
         this.exerciseLevel = exerciseLevel;
     }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }

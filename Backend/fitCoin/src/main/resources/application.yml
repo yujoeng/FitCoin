@@ -93,3 +93,6 @@ email:
 cookie:
   delete-age: 0
   max-age: 1209600
+
+password-reset:
+    url: ${PASSWORD_RESET_URL:http://localhost:3000/reset-password}
