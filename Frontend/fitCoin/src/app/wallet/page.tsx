@@ -1,10 +1,6 @@
 'use client';
+import { WalletPage } from '@/features/wallet/components/WalletPage';
 
-export default function WalletPage() {
-  return (
-    <main>
-      <h1>지갑</h1>
-      {/* TODO: 구현 예정 */}
-    </main>
-  );
+export default function WalletPageRoute() {
+  return <WalletPage />;
 }
