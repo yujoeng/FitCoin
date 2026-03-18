@@ -2,6 +2,7 @@ package org.a504.fitCoin.domain.character.service;
 
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.character.dto.response.AdoptCharacterResponse;
+import org.a504.fitCoin.domain.character.dto.response.CharacterResponse;
 import org.a504.fitCoin.domain.character.entity.CharacterDetail;
 import org.a504.fitCoin.domain.character.entity.Characters;
 import org.a504.fitCoin.domain.character.exception.CharacterErrorStatus;
@@ -91,5 +92,24 @@ public class CharacterService {
         // 부동소수점: 컴퓨터가 소수를 저장할 때 미세한 오차가 생길 수 있어요
         return characters.get(characters.size() - 1);
     }
+
+    @Transactional(readOnly = true)
+    public CharacterResponse getMyCharacter(Long userId) {
+
+        // GROWING, AVAILABLE 상태 캐릭터 조회
+        UserCharacter userCharacter = userCharacterJpaRepository
+                .findByUserIdAndStatusNot(userId, UserCharacterStatus.GRADUATED)
+                .orElseThrow(() -> new CustomException(CharacterErrorStatus.CHARACTER_NOT_ACTIVE));
+
+        // 상태에 맞는 이미지 URL 조회
+        String imgUrl = characterDetailJpaRepository
+                .findByCharactersIdAndStatus(userCharacter.getCharacters().getId(), CharacterStatus.DEFAULT)
+                .map(CharacterDetail::getUrl)
+                .orElse(null);
+
+        // DTO 반환
+        return CharacterResponse.of(userCharacter, imgUrl);
+    }
+
 
 }

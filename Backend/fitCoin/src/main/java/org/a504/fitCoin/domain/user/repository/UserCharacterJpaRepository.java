@@ -11,4 +11,7 @@ public interface UserCharacterJpaRepository extends JpaRepository<UserCharacter,
     // 졸업 상태가 아닌 캐릭터가 존재하는지 확인
     Optional<UserCharacter> findByUserIdAndStatusNot(Long userId, UserCharacterStatus status);
 
+    // 현재 캐릭터 조회
+    Optional<UserCharacter> findByUserIdAndStatus(Long userId, UserCharacterStatus status);
+
 }

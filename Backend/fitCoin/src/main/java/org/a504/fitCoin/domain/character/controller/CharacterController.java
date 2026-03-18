@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.character.dto.response.AdoptCharacterResponse;
+import org.a504.fitCoin.domain.character.dto.response.CharacterResponse;
 import org.a504.fitCoin.domain.character.service.CharacterService;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
 import org.a504.fitCoin.global.response.ApiResponse;
@@ -28,6 +29,16 @@ public class CharacterController {
         Long userId = userDetails.getUserId();
         AdoptCharacterResponse response = characterService.adoptCharacter(userId);
         return ApiResponse.onSuccess(SuccessStatus.CREATED, response);
+    }
+
+    @Operation(summary = "현재 캐릭터 조회")
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<CharacterResponse>> getMyCharacter(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        CharacterResponse response = characterService.getMyCharacter(userId);
+        return ApiResponse.onSuccess(SuccessStatus.OK, response);
     }
 
 }
