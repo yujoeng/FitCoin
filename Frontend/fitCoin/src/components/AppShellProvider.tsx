@@ -17,7 +17,13 @@ export default function AppShellProvider({
 
   return (
     <>
-      <main style={{ paddingBottom: showTabBar ? "80px" : "0px" }}>
+      <main style={{
+        paddingBottom: showTabBar ? "80px" : "0px",
+        height: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}>
         {children}
       </main>
       {showTabBar && <AppTabBar />}

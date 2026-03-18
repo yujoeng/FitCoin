@@ -71,19 +71,19 @@ export default function HomeView({
                 maxWidth: '430px',
                 margin: '0 auto',
                 width: '100%',
+                height: '100%',
             }}
         >
             {/* ── 상단: 스트릭바 + 포인트/코인 ── */}
             <div
                 style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-2)',
+                    position: 'relative',
                     padding: 'var(--space-3) var(--space-3) 0',
+                    flexShrink: 0,
                 }}
             >
-                {/* 스트릭바 */}
-                <div style={{ flex: 1, minWidth: 0 }}>
+                {/* 스트릭바 — 포인트/코인 박스 너비(약 90px)만큼 오른쪽 여백 확보 */}
+                <div style={{ paddingRight: '96px' }}>
                     <StreakBar
                         streakCount={streakCount}
                         streakDays={streakDays}
@@ -91,17 +91,28 @@ export default function HomeView({
                     />
                 </div>
 
-                {/* 포인트 + 코인 */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', flexShrink: 0 }}>
+                {/* 포인트 + 코인 — 우상단 고정 */}
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 'var(--space-3)',
+                        right: 'var(--space-3)',
+                        bottom: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 'var(--space-1)',
+                    }}
+                >
                     {/* 포인트 */}
                     <div
                         style={{
+                            flex: 1,
                             display: 'flex',
                             alignItems: 'center',
                             gap: '6px',
                             padding: '6px 12px',
                             borderRadius: 'var(--radius-lg)',
-                            background: 'var(--color-primary-light)',
+                            background: 'var(--color-bg-card)',
                             border: '1px solid var(--color-border)',
                         }}
                     >
@@ -123,12 +134,13 @@ export default function HomeView({
                     {/* 코인 */}
                     <div
                         style={{
+                            flex: 1,
                             display: 'flex',
                             alignItems: 'center',
                             gap: '6px',
                             padding: '6px 12px',
                             borderRadius: 'var(--radius-lg)',
-                            background: 'var(--color-primary-light)',
+                            background: 'var(--color-bg-card)',
                             border: '1px solid var(--color-border)',
                         }}
                     >
@@ -150,8 +162,8 @@ export default function HomeView({
             </div>
 
             {/* ── 중단: 방 + 오버레이 버튼 ── */}
-            <div style={{ padding: 'var(--space-3)' }}>
-                <div style={{ position: 'relative' }}>
+            <div style={{ padding: 'var(--space-3)', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'relative', flex: 1, minHeight: 0 }}>
                     <RoomView
                         roomConfig={roomConfig}
                         character={character}
@@ -198,7 +210,7 @@ export default function HomeView({
             </div>
             {/* ── 하단: 경험치 바 카드 ── */}
             {character && (
-                <div style={{ padding: '0 var(--space-3) var(--space-3)' }}>
+                <div style={{ padding: '0 var(--space-3) var(--space-3)', flexShrink: 0 }}>
                     <div
                         style={{
                             borderRadius: 'var(--radius-xl)',
@@ -251,7 +263,7 @@ export default function HomeView({
                                     className="fc-font-point"
                                     style={{ fontSize: 'var(--text-sm)', color: 'var(--color-primary)', fontWeight: 700 }}
                                 >
-                                    {character.exp} / 100
+                                    {character.exp} / 10
                                 </span>
                             </div>
                             <div
