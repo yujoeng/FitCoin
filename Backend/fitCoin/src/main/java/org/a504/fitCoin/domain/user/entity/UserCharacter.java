@@ -2,6 +2,7 @@ package org.a504.fitCoin.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.a504.fitCoin.domain.character.entity.Characters;
@@ -38,4 +39,13 @@ public class UserCharacter {
 
     @Column(name = "graduation_date")
     private LocalDateTime graduationDate;
+
+    @Builder
+    public UserCharacter(User user, Characters characters) {
+        this.user = user;
+        this.characters = characters;
+        this.exp = 0;                               // 입양 시 경험치 0
+        this.status = UserCharacterStatus.GROWING;  // 입양 시 "키우는 중" 상태
+        this.adoptionDate = LocalDateTime.now();    // 입양일 자동 설정
+    }
 }
