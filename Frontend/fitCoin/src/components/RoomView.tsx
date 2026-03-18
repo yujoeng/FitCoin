@@ -82,10 +82,9 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
             style={{
                 position: 'relative',
                 width: '100%',
-                aspectRatio: '3 / 4', // 수정: 3:4 세로 비율로 변경
-                minHeight: '360px', // 수정: 세로형 비율에 맞게 늘림
+                height: '100%',
                 borderRadius: 'var(--radius-xl)',
-                overflow: 'hidden', // 추가: 부모 컨테이너 모서리 넘어가는 배경 자르기
+                overflow: 'hidden',
                 background: PLACEHOLDER_COLORS.wallpaper,
                 boxShadow: 'var(--shadow-md)',
             }}
