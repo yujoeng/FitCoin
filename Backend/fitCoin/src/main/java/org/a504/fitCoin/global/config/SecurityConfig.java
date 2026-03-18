@@ -1,6 +1,10 @@
 package org.a504.fitCoin.global.config;
 
 import lombok.RequiredArgsConstructor;
+import org.a504.fitCoin.domain.auth.jwt.JwtFilter;
+import org.a504.fitCoin.domain.auth.jwt.JwtUtil;
+import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
+import org.a504.fitCoin.domain.auth.repository.PasswordChangedRepository;
 import org.a504.fitCoin.global.config.property.CorsConfigProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,9 +33,12 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/v3/api-docs",
             "/v3/api-docs/**",
-            "auth/**"
+            "/auth/**",
     };
     private final CorsConfigProperties corsConfigProperties;
+    private final JwtUtil jwtUtil;
+    private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
+    private final PasswordChangedRepository passwordChangedRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -55,7 +63,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .addFilterBefore(new JwtFilter(jwtUtil, accessTokenBlacklistRepository, passwordChangedRepository), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

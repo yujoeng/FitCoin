@@ -5,7 +5,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.dto.JwtDto;
+import org.a504.fitCoin.domain.auth.dto.request.EmailVerifyRequest;
 import org.a504.fitCoin.domain.auth.dto.request.LoginRequest;
+import org.a504.fitCoin.domain.auth.dto.request.ResetPasswordRequest;
 import org.a504.fitCoin.domain.auth.dto.response.JwtResponse;
 import org.a504.fitCoin.domain.auth.service.AuthService;
 import org.a504.fitCoin.domain.auth.util.CookieUtil;
@@ -44,5 +46,32 @@ public class AuthController {
         response.addCookie(CookieUtil.createCookie("refresh", jwtDto.refreshToken(), cookieProperties.getMaxAge()));
 
         return ApiResponse.onSuccess(SuccessStatus.OK, new JwtResponse(jwtDto.accessToken()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @CookieValue(value = "refresh", required = false) String refreshToken,
+            HttpServletResponse response) {
+
+        String accessToken = (authorization != null && authorization.startsWith("Bearer "))
+                ? authorization.split(" ")[1] : null;
+
+        authService.logout(accessToken, refreshToken);
+        response.addCookie(CookieUtil.createCookie("refresh", null, cookieProperties.getDeleteAge()));
+
+        return ApiResponse.onSuccess(SuccessStatus.OK);
+    }
+
+    @PostMapping("/password/reset-request")
+    public ResponseEntity<ApiResponse<Void>> passwordResetRequest(@Valid @RequestBody EmailVerifyRequest request) {
+        authService.sendPasswordResetUrl(request);
+        return ApiResponse.onSuccess(SuccessStatus.OK);
+    }
+
+    @PatchMapping("/password/reset")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ApiResponse.onSuccess(SuccessStatus.OK);
     }
 }
