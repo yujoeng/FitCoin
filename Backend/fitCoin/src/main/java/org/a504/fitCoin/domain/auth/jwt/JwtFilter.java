@@ -9,8 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
-import org.a504.fitCoin.domain.auth.repository.PasswordChangedRepository;
+import org.a504.fitCoin.domain.auth.repository.AccessTokenRepository;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
 import org.a504.fitCoin.domain.auth.util.ResponseUtil;
 import org.springframework.http.HttpStatus;
@@ -26,8 +25,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
-    private final PasswordChangedRepository passwordChangedRepository;
+    private final AccessTokenRepository accessTokenRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -41,7 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String accessToken = authorization.split(" ")[1];
 
-        if (accessTokenBlacklistRepository.exists(accessToken)) {
+        if (accessTokenRepository.isBlacklisted(accessToken)) {
             log.error("Blacklisted access token.");
             ResponseUtil.setResponse(response, HttpStatus.UNAUTHORIZED, false, "GLOBAL-401", "Invalid access token.");
             return;
@@ -75,11 +73,11 @@ public class JwtFilter extends OncePerRequestFilter {
         Long userId = claims.get("userId", Long.class);
 
         long issuedAtMs = claims.getIssuedAt().getTime();
-        boolean invalidatedByPasswordChange = passwordChangedRepository.findChangedAt(email)
-                .map(changedAtMs -> issuedAtMs < changedAtMs)
+        boolean invalidated = accessTokenRepository.findInvalidationTime(email)
+                .map(invalidatedAtMs -> issuedAtMs < invalidatedAtMs)
                 .orElse(false);
 
-        if (invalidatedByPasswordChange) {
+        if (invalidated) {
             log.error("Access token issued before password change. email={}", email);
             ResponseUtil.setResponse(response, HttpStatus.UNAUTHORIZED, false, "GLOBAL-401", "Invalid access token.");
             return;
