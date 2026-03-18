@@ -52,7 +52,7 @@ export default function LoginForm() {
     setIsLoading(true);
     try {
       const { accessToken } = await login({ email, password });
-      saveAccessToken(accessToken); // 토큰을 localStorage에 저장
+      saveAccessToken(accessToken); // 토큰을 인메모리에 저장
       router.push("/home"); // 로그인 성공 → 홈으로 이동
     } catch (err: unknown) {
       // 백엔드 명세: 로그인 에러 메시지는 화면에 그대로 출력 X
@@ -190,7 +190,7 @@ export default function LoginForm() {
           cursor: isLoading ? "not-allowed" : "pointer",
         }}
       >
-        {isLoading ? "로그인 중..." : "로그인 버튼"}
+        {isLoading ? "로그인 중..." : "로그인"}
       </button>
     </div>
   );

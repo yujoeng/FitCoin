@@ -84,6 +84,16 @@ export async function logout(): Promise<void> {
 }
 
 /**
+ * 토큰 재발급
+ * POST /auth/reissue
+ * 쿠키의 refresh 값은 withCredentials 설정을 통해 자동 전송됨
+ */
+export async function reissue(): Promise<LoginResponse> {
+  const response = await apiClient.post<ApiResponse<LoginResponse>>('/auth/reissue');
+  return response.data.result;
+}
+
+/**
  * 이메일 인증 코드 발송
  * POST /auth/email-verifications
  * 이미 가입된 이메일이면 409 Conflict
