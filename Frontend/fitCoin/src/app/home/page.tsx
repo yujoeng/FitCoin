@@ -35,11 +35,11 @@ const INITIAL_STATE: HomePageState = {
     streakDays: createMockStreakDays(),
     character: {
         id: 'user-char-01',
-        characterTypeId: 'hedgehog',
-        name: '고슴도치',
+        characterTypeId: '강아지',
+        name: '강아지',
         exp: 4,
         stage: 2,
-        imageSrc: '', // TODO: '/characters/hedgehog/stage2.png'
+        imageSrc: '/characters/before/강아지.png',
     },
     roomConfig: DEFAULT_ROOM_CONFIG,
 };
