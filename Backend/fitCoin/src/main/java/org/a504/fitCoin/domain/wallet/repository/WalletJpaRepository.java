@@ -1,6 +1,6 @@
 package org.a504.fitCoin.domain.wallet.repository;
 
-import org.a504.fitCoin.domain.wallet.entity.UserGifticon;
+import org.a504.fitCoin.domain.user.entity.UserGifticon;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 

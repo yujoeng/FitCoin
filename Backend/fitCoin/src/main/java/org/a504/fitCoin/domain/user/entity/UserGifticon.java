@@ -1,10 +1,12 @@
-package org.a504.fitCoin.domain.wallet.entity;
+package org.a504.fitCoin.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.a504.fitCoin.domain.user.entity.User;
+import org.a504.fitCoin.domain.wallet.entity.Gifticon;
 import org.a504.fitCoin.global.entity.BaseTimeEntity;
 
 @Entity
@@ -23,4 +25,10 @@ public class UserGifticon extends BaseTimeEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gifticon_id")
     private Gifticon gifticon;
+
+    @Builder
+    public UserGifticon(User user, Gifticon gifticon) {
+        this.user = user;
+        this.gifticon = gifticon;
+    }
 }
