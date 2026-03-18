@@ -3,7 +3,7 @@ package org.a504.fitCoin.domain.wallet.dto;
 import lombok.Builder;
 import lombok.Getter;
 import org.a504.fitCoin.domain.wallet.entity.Gifticon;
-import org.a504.fitCoin.domain.wallet.entity.UserGifticon;
+import org.a504.fitCoin.domain.user.entity.UserGifticon;
 import org.a504.fitCoin.domain.wallet.value.GifticonType;
 import java.time.LocalDateTime;
 

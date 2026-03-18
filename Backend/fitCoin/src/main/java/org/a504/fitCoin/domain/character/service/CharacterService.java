@@ -2,6 +2,7 @@ package org.a504.fitCoin.domain.character.service;
 
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.character.dto.response.AdoptCharacterResponse;
+import org.a504.fitCoin.domain.character.dto.response.CharacterDexResponse;
 import org.a504.fitCoin.domain.character.dto.response.CharacterResponse;
 import org.a504.fitCoin.domain.character.entity.CharacterDetail;
 import org.a504.fitCoin.domain.character.entity.Characters;
@@ -11,9 +12,13 @@ import org.a504.fitCoin.domain.character.repository.CharacterJpaRepository;
 import org.a504.fitCoin.domain.character.value.CharacterStatus;
 import org.a504.fitCoin.domain.user.entity.User;
 import org.a504.fitCoin.domain.user.entity.UserCharacter;
+import org.a504.fitCoin.domain.user.entity.UserGifticon;
 import org.a504.fitCoin.domain.user.repository.UserCharacterJpaRepository;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
 import org.a504.fitCoin.domain.user.value.UserCharacterStatus;
+import org.a504.fitCoin.domain.wallet.entity.Gifticon;
+import org.a504.fitCoin.domain.wallet.repository.GifticonJpaRepository;
+import org.a504.fitCoin.domain.user.repository.UserGifticonJpaRepository;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +34,8 @@ public class CharacterService {
     private final CharacterDetailJpaRepository characterDetailJpaRepository;
     private final UserCharacterJpaRepository userCharacterJpaRepository;
     private final UserJpaRepository userJpaRepository;
+    private final GifticonJpaRepository gifticonJpaRepository;
+    private final UserGifticonJpaRepository userGifticonJpaRepository;
 
     @Transactional
     public AdoptCharacterResponse adoptCharacter(Long userId) {
@@ -109,6 +116,62 @@ public class CharacterService {
 
         // DTO 반환
         return CharacterResponse.of(userCharacter, imgUrl);
+    }
+
+    @Transactional
+    public void graduateCharacter(Long userId) {
+
+        // 유저 조회
+        User user = userJpaRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        // AVAILABLE 상태 캐릭터 조회
+        UserCharacter userCharacter = userCharacterJpaRepository
+                .findByUserIdAndStatus(userId, UserCharacterStatus.AVAILABLE)
+                .orElseThrow(() -> new CustomException(CharacterErrorStatus.CHARACTER_NOT_GRADUATABLE));
+
+        // 캐릭터 졸업 처리
+        userCharacter.graduate();
+
+        // 발급 가능한 기프티콘 목록 조회
+        List<Gifticon> gifticons = gifticonJpaRepository.findByStatus(1);
+        if (gifticons.isEmpty()) {
+            throw new CustomException(CharacterErrorStatus.GIFTICON_NOT_FOUND);
+        }
+
+        // 랜덤 기프티콘 1개 선택
+        Gifticon picked = gifticons.get(new Random().nextInt(gifticons.size()));
+
+        // 기프티콘 지급
+        UserGifticon userGifticon = UserGifticon.builder()
+                .user(user)
+                .gifticon(picked)
+                .build();
+        userGifticonJpaRepository.save(userGifticon);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CharacterDexResponse> getCharacterDex(Long userId) {
+
+        // 졸업시킨 캐릭터 목록 조회 (중복 제거)
+        List<Characters> graduatedCharacters = userCharacterJpaRepository
+                .findDistinctGraduatedCharactersByUserId(userId);
+
+        // 각 캐릭터 이미지 URL 조회해 DTO 변환
+        return graduatedCharacters.stream()
+                .map(character -> {
+                    // DEFAULT, GRADUATED 이미지 URL 순서대로 담기
+                    List<String> imgs = characterDetailJpaRepository
+                            .findByCharactersId(character.getId())
+                            .stream()
+                            .sorted((a, b) -> a.getStatus().compareTo(b.getStatus()))
+                            // DEFAULT가 GRADUATED보다 알파벳 순서상 앞이라 DEFAULT → GRADUATED 순서로 정렬됨
+                            .map(CharacterDetail::getUrl)
+                            .collect(java.util.stream.Collectors.toList());
+
+                    return CharacterDexResponse.of(character, imgs);
+                })
+                .collect(java.util.stream.Collectors.toList());
     }
 
 

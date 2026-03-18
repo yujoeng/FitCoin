@@ -48,4 +48,10 @@ public class UserCharacter {
         this.status = UserCharacterStatus.GROWING;  // 입양 시 "키우는 중" 상태
         this.adoptionDate = LocalDateTime.now();    // 입양일 자동 설정
     }
+
+    // 졸업 처리 메서드
+    public void graduate() {
+        this.status = UserCharacterStatus.GRADUATED;
+        this.graduationDate = LocalDateTime.now();
+    }
 }
