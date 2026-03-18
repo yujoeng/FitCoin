@@ -1,10 +1,22 @@
-'use client';
+"use client";
 
 // ── AppShell: TopBar + TabBar UI 컴포넌트 ──
-import React from 'react';
-import { Zap, ChevronLeft, Home, Activity, Trophy, Coins, Brain, BookOpen, BookMarked, Wallet, Settings } from 'lucide-react';
-import { useRouter, usePathname } from 'next/navigation';
-import type { Exercise, StreakState } from '@/types';
+import React from "react";
+import {
+  Zap,
+  ChevronLeft,
+  Home,
+  Activity,
+  Trophy,
+  Coins,
+  Brain,
+  BookOpen,
+  BookMarked,
+  Wallet,
+  Settings,
+} from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import type { Exercise, StreakState } from "@/types";
 
 // ── 상단 헤더바 ──
 interface AppTopBarProps {
@@ -15,8 +27,14 @@ interface AppTopBarProps {
   onBack: () => void;
 }
 
-export function AppTopBar({ page, mission, streak, totalPoints, onBack }: AppTopBarProps) {
-  const isHome = page === 'mission';
+export function AppTopBar({
+  page,
+  mission,
+  streak,
+  totalPoints,
+  onBack,
+}: AppTopBarProps) {
+  const isHome = page === "mission";
 
   return (
     <header className="fc-topbar">
@@ -36,7 +54,15 @@ export function AppTopBar({ page, mission, streak, totalPoints, onBack }: AppTop
 
       {/* 운동 중일 때 미션명 */}
       {!isHome && mission && (
-        <span style={{ flex: 1, fontWeight: 800, fontSize: '1rem', color: 'var(--text-1)', marginLeft: 8 }}>
+        <span
+          style={{
+            flex: 1,
+            fontWeight: 800,
+            fontSize: "1rem",
+            color: "var(--text-1)",
+            marginLeft: 8,
+          }}
+        >
           {mission.name}
         </span>
       )}
@@ -46,12 +72,16 @@ export function AppTopBar({ page, mission, streak, totalPoints, onBack }: AppTop
         {isHome && (
           <div className="fc-chip">
             <Activity size={12} color="var(--primary-dark)" />
-            <span style={{ color: 'var(--primary-dark)' }}>{streak.count}일</span>
+            <span style={{ color: "var(--primary-dark)" }}>
+              {streak.count}일
+            </span>
           </div>
         )}
         <div className="fc-chip">
           <Coins size={12} color="var(--gold)" />
-          <span style={{ color: 'var(--gold)' }}>{totalPoints.toLocaleString()}</span>
+          <span style={{ color: "var(--gold)" }}>
+            {totalPoints.toLocaleString()}
+          </span>
         </div>
       </div>
     </header>
@@ -60,11 +90,16 @@ export function AppTopBar({ page, mission, streak, totalPoints, onBack }: AppTop
 
 // ── 하단 탭바 ──
 const TABS = [
-  { key: 'character', label: '캐릭터\n도감', Icon: BookOpen, href: '/character' },
-  { key: 'room', label: '테마/가구\n도감', Icon: BookMarked, href: '/room' },
-  { key: 'home', label: '홈', Icon: Home, href: '/home' },
-  { key: 'wallet', label: '지갑', Icon: Wallet, href: '/wallet' },
-  { key: 'my', label: '마이페이지', Icon: Settings, href: '/my' },
+  {
+    key: "character",
+    label: "캐릭터\n도감",
+    Icon: BookOpen,
+    href: "/character",
+  },
+  { key: "room", label: "테마/가구\n도감", Icon: BookMarked, href: "/room" },
+  { key: "home", label: "홈", Icon: Home, href: "/home" },
+  { key: "wallet", label: "지갑", Icon: Wallet, href: "/wallet" },
+  { key: "my", label: "마이페이지", Icon: Settings, href: "/my" },
 ];
 
 interface AppTabBarProps {
@@ -82,11 +117,11 @@ export function AppTabBar({ active }: AppTabBarProps = {}) {
         return (
           <button
             key={key}
-            className={`fc-tab${isActive ? ' active' : ''}`}
+            className={`fc-tab${isActive ? " active" : ""}`}
             onClick={() => router.push(href)}
           >
             <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-            <span style={{ whiteSpace: 'pre-line' }}>{label}</span>
+            <span style={{ whiteSpace: "pre-line" }}>{label}</span>
           </button>
         );
       })}
