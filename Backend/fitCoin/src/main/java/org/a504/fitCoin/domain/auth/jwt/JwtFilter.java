@@ -78,7 +78,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 .orElse(false);
 
         if (invalidated) {
-            log.error("Access token issued before password change. email={}", email);
+            log.error("Access token invalidated. email={}", email);
             ResponseUtil.setResponse(response, HttpStatus.UNAUTHORIZED, false, "GLOBAL-401", "Invalid access token.");
             return;
         }

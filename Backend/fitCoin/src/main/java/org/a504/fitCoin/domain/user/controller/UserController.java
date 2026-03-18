@@ -9,6 +9,7 @@ import org.a504.fitCoin.global.response.ApiResponse;
 import org.a504.fitCoin.global.response.status.SuccessStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,5 +31,11 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessStatus.OK, response);
     }
 
-    
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        userService.deleteUser(userDetails.getUserId());
+        return ApiResponse.onSuccess(SuccessStatus.OK);
+    }
 }
