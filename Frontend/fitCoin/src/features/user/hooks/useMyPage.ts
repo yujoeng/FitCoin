@@ -1,0 +1,339 @@
+// src/features/user/hooks/useMyPage.ts
+// ─────────────────────────────────────────────
+// 마이페이지에서 필요한 상태와 API 로직을 한 곳에서 관리하는 커스텀 훅
+// (커스텀 훅 — 상태(state)와 함수만 반환하고, JSX는 절대 포함하지 않음)
+// ─────────────────────────────────────────────
+
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+
+import {
+  // ─── MOCK 사용 중 ───────────────────────────────────────────
+  // API 연동 완료 후 아래 주석을 해제하고, 목 데이터 블록을 삭제할 것
+  // getUserInfo,
+  updateNickname,
+  updatePassword,
+  updateExerciseLevel,
+  deleteUser,
+  type UserInfo,
+  type ExerciseLevel,
+} from "@/features/user/services/userApi";
+import { logout } from "@/features/auth/services/authApi";
+import {
+  // ─── MOCK 사용 중 ───────────────────────────────────────────
+  // API 연동 완료 후 아래 주석을 해제하고, 목 데이터 블록을 삭제할 것
+  // getRecentStreak,
+  // getMonthStreak,
+  type RecentStreakResponse,
+  type MonthStreakResponse,
+} from "@/features/streak/services/streakApi";
+
+import { removeAccessToken } from "@/features/auth/utils/tokenUtils";
+
+// ─────────────────────────────────────────────
+// ⚠️ MOCK 데이터 — API 연동 전 UI 확인용
+// API 연동 완료 후 이 블록 전체를 삭제할 것
+// 연동 대상:
+//   - GET /users/me          → MOCK_USER_INFO
+//   - GET /streak/recent     → MOCK_RECENT_STREAK
+//   - GET /streak/month      → MOCK_MONTH_STREAK
+// ─────────────────────────────────────────────
+const MOCK_USER_INFO: UserInfo = {
+  email: "donddatjwimi@ssafy.com",
+  nickname: "운동왕땃쥐",
+  exercise_level: "middle",
+};
+
+const MOCK_RECENT_STREAK: RecentStreakResponse = {
+  currentStreak: 4,
+  weeklyStreak: [
+    { date: "2026-03-12", checked: true },
+    { date: "2026-03-13", checked: true },
+    { date: "2026-03-14", checked: false },
+    { date: "2026-03-15", checked: true },
+    { date: "2026-03-16", checked: true },
+    { date: "2026-03-17", checked: true },
+    { date: "2026-03-18", checked: true },
+  ],
+};
+
+const MOCK_MONTH_STREAK: MonthStreakResponse = {
+  year: 2026,
+  month: 3,
+  currentStreak: 4,
+  monthlyStreak: [
+    { date: "2026-03-01", checked: true },
+    { date: "2026-03-02", checked: true },
+    { date: "2026-03-03", checked: true },
+    { date: "2026-03-04", checked: false },
+    { date: "2026-03-05", checked: true },
+    { date: "2026-03-06", checked: true },
+    { date: "2026-03-07", checked: false },
+    { date: "2026-03-08", checked: false },
+    { date: "2026-03-09", checked: true },
+    { date: "2026-03-10", checked: true },
+    { date: "2026-03-11", checked: true },
+    { date: "2026-03-12", checked: true },
+    { date: "2026-03-13", checked: true },
+    { date: "2026-03-14", checked: false },
+    { date: "2026-03-15", checked: true },
+    { date: "2026-03-16", checked: true },
+    { date: "2026-03-17", checked: true },
+    { date: "2026-03-18", checked: true },
+  ],
+};
+// ─────────────────────────────────────────────
+// ⚠️ MOCK 데이터 끝
+// ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// 반환 타입
+// ─────────────────────────────────────────────
+export interface UseMyPageReturn {
+  // 데이터
+  userInfo: UserInfo | null;
+  recentStreak: RecentStreakResponse | null;
+  monthStreak: MonthStreakResponse | null;
+  isLoading: boolean;
+  error: string | null;
+  calendarDate: { year: number; month: number };
+
+  // 모달 / 드롭다운 열림 상태
+  nicknameModalOpen: boolean;
+  passwordModalOpen: boolean;
+  deleteModalOpen: boolean;
+  levelDropdownOpen: boolean;
+
+  // 모달 / 드롭다운 제어 함수
+  setNicknameModalOpen: (v: boolean) => void;
+  setPasswordModalOpen: (v: boolean) => void;
+  setDeleteModalOpen: (v: boolean) => void;
+  setLevelDropdownOpen: (v: boolean) => void;
+
+  // 액션 함수
+  handleLogout: () => Promise<void>;
+  handleNicknameUpdate: (nickname: string) => Promise<void>;
+  handlePasswordUpdate: (
+    password: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => Promise<void>;
+  handleLevelUpdate: (level: ExerciseLevel) => Promise<void>;
+  handleDeleteUser: (password: string) => Promise<void>;
+  handleCalendarPrev: () => void;
+  handleCalendarNext: () => void;
+}
+
+// ─────────────────────────────────────────────
+// 훅 본체
+// ─────────────────────────────────────────────
+export function useMyPage(): UseMyPageReturn {
+  const router = useRouter();
+
+  // ── 데이터 상태 ──
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [recentStreak, setRecentStreak] = useState<RecentStreakResponse | null>(
+    null,
+  );
+  const [monthStreak, setMonthStreak] = useState<MonthStreakResponse | null>(
+    null,
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // ── 달력 년/월 ──
+  const [calendarDate, setCalendarDate] = useState(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() + 1 };
+  });
+
+  // ── 모달/드롭다운 상태 ──
+  const [nicknameModalOpen, setNicknameModalOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [levelDropdownOpen, setLevelDropdownOpen] = useState(false);
+
+  // ─────────────────────────────────────────────
+  // 초기 데이터 로드
+  // ─────────────────────────────────────────────
+  const fetchUserData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // ─── MOCK 시작 ──────────────────────────────────────────
+      // API 연동 완료 후 아래 두 줄을 삭제하고, 주석 처리된 실제 코드를 활성화할 것
+      setUserInfo(MOCK_USER_INFO);
+      setRecentStreak(MOCK_RECENT_STREAK);
+      // ─── MOCK 끝 ────────────────────────────────────────────
+
+      // ─── 실제 API 코드 (연동 후 활성화) ─────────────────────
+      // const [info, recent] = await Promise.all([
+      //   getUserInfo(),
+      //   getRecentStreak(),
+      // ]);
+      // setUserInfo(info);
+      // setRecentStreak(recent);
+      // ────────────────────────────────────────────────────────
+    } catch {
+      setError("정보를 불러오지 못했어요. 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchMonthStreak = useCallback(async (year: number, month: number) => {
+    try {
+      // ─── MOCK 시작 ──────────────────────────────────────────
+      // 달력 이동 시 년/월이 MOCK_MONTH_STREAK와 다르면 빈 달력이 표시됨 (정상)
+      // API 연동 완료 후 아래 두 줄을 삭제하고, 주석 처리된 실제 코드를 활성화할 것
+      if (
+        year === MOCK_MONTH_STREAK.year &&
+        month === MOCK_MONTH_STREAK.month
+      ) {
+        setMonthStreak(MOCK_MONTH_STREAK);
+      } else {
+        // 목 데이터에 없는 달은 빈 데이터로 처리
+        setMonthStreak({ year, month, currentStreak: 0, monthlyStreak: [] });
+      }
+      // ─── MOCK 끝 ────────────────────────────────────────────
+
+      // ─── 실제 API 코드 (연동 후 활성화) ─────────────────────
+      // const data = await getMonthStreak(year, month);
+      // setMonthStreak(data);
+      // ────────────────────────────────────────────────────────
+    } catch {
+      // 달력 조회 실패는 조용히 처리 (주요 기능 아님)
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  useEffect(() => {
+    fetchMonthStreak(calendarDate.year, calendarDate.month);
+  }, [calendarDate, fetchMonthStreak]);
+
+  // ─────────────────────────────────────────────
+  // 액션 함수들
+  // ─────────────────────────────────────────────
+
+  /** 로그아웃: 서버 토큰 무효화 → 로컬 토큰 삭제 → 로그인 화면으로 이동 */
+  const handleLogout = async () => {
+    await logout();
+    removeAccessToken();
+    router.replace("/");
+  };
+
+  /** 닉네임 변경: 성공 시 로컬 userInfo 즉시 업데이트 (재조회 없이)
+   *  MOCK: 백엔드 없어도 화면에서 닉네임이 바뀌는 것처럼 동작함
+   *  API 연동 후: updateNickname 응답값으로 교체 (현재 코드 그대로 유지 가능)
+   */
+  const handleNicknameUpdate = async (nickname: string) => {
+    try {
+      const result = await updateNickname({ nickname });
+      setUserInfo((prev) =>
+        prev ? { ...prev, nickname: result.nickname } : prev,
+      );
+    } catch {
+      // ─── MOCK: API 실패 시 로컬에서만 반영 ──────────────────
+      // API 연동 완료 후 이 catch 블록 삭제할 것
+      setUserInfo((prev) => (prev ? { ...prev, nickname } : prev));
+      // ────────────────────────────────────────────────────────
+    }
+  };
+
+  /** 비밀번호 변경
+   *  MOCK: 백엔드 없으면 에러가 나지만, 모달에서 에러 메시지로 표시됨 (정상)
+   */
+  const handlePasswordUpdate = async (
+    password: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => {
+    await updatePassword({ password, newPassword, confirmPassword });
+  };
+
+  /** 운동 레벨 변경: 낙관적 업데이트 및 실패 시 롤백 로직 적용 */
+  const handleLevelUpdate = async (level: ExerciseLevel) => {
+    // 1. 롤백을 위해 변경 전의 현재 상태를 백업해둡니다.
+    const previousUserInfo = userInfo;
+
+    // 2. [낙관적 업데이트] 서버 응답을 기다리지 않고 UI 상태를 즉시 변경합니다.
+    setUserInfo((prev) => (prev ? { ...prev, exercise_level: level } : prev));
+    // 드롭다운도 즉시 닫아 사용자 반응성을 높입니다.
+    setLevelDropdownOpen(false);
+
+    try {
+      // 3. 실제 API 호출 (/users/me/exercise-level)
+      const result = await updateExerciseLevel({ exercise_level: level });
+
+      // 4. 성공 시, 서버에서 받은 최종 데이터로 상태를 동기화합니다.
+      setUserInfo((prev) =>
+        prev ? { ...prev, exercise_level: result.exercise_level } : prev,
+      );
+    } catch (err) {
+      // 5. [실패 시 복구] 통신 실패(400, 401 등) 시 백업해둔 이전 상태로 되돌립니다.
+      console.error(
+        "운동 레벨 업데이트에 실패했습니다. 이전 상태로 복구합니다.",
+        err,
+      );
+      setUserInfo(previousUserInfo);
+
+      // 사용자에게 에러 알림 (선택 사항)
+      alert("레벨 변경에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+
+  /** 회원 탈퇴: 서버 Soft Delete → 로컬 토큰 삭제 → 로그인 화면으로 이동 */
+  const handleDeleteUser = async (password: string) => {
+    await deleteUser({ password });
+    removeAccessToken();
+    router.replace("/");
+  };
+
+  // ── 달력 이전/다음 달 이동 ──
+  const handleCalendarPrev = () => {
+    setCalendarDate((prev) =>
+      prev.month === 1
+        ? { year: prev.year - 1, month: 12 }
+        : { year: prev.year, month: prev.month - 1 },
+    );
+  };
+
+  const handleCalendarNext = () => {
+    setCalendarDate((prev) =>
+      prev.month === 12
+        ? { year: prev.year + 1, month: 1 }
+        : { year: prev.year, month: prev.month + 1 },
+    );
+  };
+
+  return {
+    userInfo,
+    recentStreak,
+    monthStreak,
+    isLoading,
+    error,
+    calendarDate,
+    nicknameModalOpen,
+    setNicknameModalOpen,
+    passwordModalOpen,
+    setPasswordModalOpen,
+    deleteModalOpen,
+    setDeleteModalOpen,
+    levelDropdownOpen,
+    setLevelDropdownOpen,
+    handleLogout,
+    handleNicknameUpdate,
+    handlePasswordUpdate,
+    handleLevelUpdate,
+    handleDeleteUser,
+    handleCalendarPrev,
+    handleCalendarNext,
+  };
+}
+// 이 파일이 하는 일: 마이페이지의 데이터 로드, 모달 상태, API 호출 로직을 하나의 훅으로 관리한다.
