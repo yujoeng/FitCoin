@@ -1,5 +1,6 @@
 package org.a504.fitCoin.domain.advertisement.service;
 
+import org.a504.fitCoin.domain.advertisement.dto.response.AdAvailabilityResponse;
 import org.a504.fitCoin.domain.advertisement.dto.response.StartAdResponse;
 import org.a504.fitCoin.domain.advertisement.entity.Advertisement;
 import org.a504.fitCoin.domain.advertisement.repository.AdInProgressRepository;
@@ -41,6 +42,26 @@ class AdvertisementServiceTest {
     private AdvertisementService advertisementService;
 
     private static final Long USER_ID = 1L;
+
+    // ===== getAvailability =====
+
+    @Test
+    void getAvailability_시청_가능한_경우_true_반환() {
+        given(adWatchedRepository.exists(USER_ID)).willReturn(false);
+
+        AdAvailabilityResponse response = advertisementService.getAvailability(USER_ID);
+
+        assertThat(response.adWatchAvailable()).isTrue();
+    }
+
+    @Test
+    void getAvailability_이미_시청한_경우_false_반환() {
+        given(adWatchedRepository.exists(USER_ID)).willReturn(true);
+
+        AdAvailabilityResponse response = advertisementService.getAvailability(USER_ID);
+
+        assertThat(response.adWatchAvailable()).isFalse();
+    }
 
     // ===== startAd =====
 
