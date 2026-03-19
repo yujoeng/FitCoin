@@ -1,18 +1,22 @@
 package org.a504.fitCoin.domain.user.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
+import org.a504.fitCoin.domain.user.dto.request.ExerciseLevelRequest;
+import org.a504.fitCoin.domain.user.dto.request.NewPasswordRequest;
+import org.a504.fitCoin.domain.user.dto.request.NicknameRequest;
+import org.a504.fitCoin.domain.user.dto.response.ExerciseLevelResponse;
 import org.a504.fitCoin.domain.user.dto.response.MyPageResponse;
+import org.a504.fitCoin.domain.user.dto.response.NicknameResponse;
 import org.a504.fitCoin.domain.user.service.UserService;
+import org.a504.fitCoin.domain.user.value.ExerciseLevel;
 import org.a504.fitCoin.global.response.ApiResponse;
 import org.a504.fitCoin.global.response.status.SuccessStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +40,38 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         userService.deleteUser(userDetails.getUserId());
+        return ApiResponse.onSuccess(SuccessStatus.OK);
+    }
+
+    @PatchMapping("/me/nickname")
+    public ResponseEntity<ApiResponse<NicknameResponse>> changeNickname(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody NicknameRequest request
+    ) {
+
+        String nickname = request.nickname();
+        userService.changeNickname(userDetails.getUserId(), nickname);
+        return ApiResponse.onSuccess(SuccessStatus.OK, new NicknameResponse(nickname));
+    }
+
+    @PatchMapping("/me/exercise-level")
+    public ResponseEntity<ApiResponse<ExerciseLevelResponse>> changeExerciseLevel(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody ExerciseLevelRequest request
+    ) {
+
+        ExerciseLevel exerciseLevel = request.exerciseLevel();
+        userService.changeExerciseLevel(userDetails.getUserId(), exerciseLevel);
+        return ApiResponse.onSuccess(SuccessStatus.OK, new ExerciseLevelResponse(exerciseLevel));
+    }
+
+    @PatchMapping("/me/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody NewPasswordRequest request
+    ) {
+
+        userService.changePassword(userDetails.getUserId(), request);
         return ApiResponse.onSuccess(SuccessStatus.OK);
     }
 }
