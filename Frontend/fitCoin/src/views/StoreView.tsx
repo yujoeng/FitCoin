@@ -46,7 +46,13 @@ export default function StoreView({ points, coins, character }: StoreViewProps) 
     const isModalOpen = result !== null || error !== null;
 
     return (
-        <>
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'var(--color-bg)',
+                height: '100%',
+            }}>
             {/* 페이지 헤더 + 포인트/코인 한 줄 배치 */}
             <div
                 style={{
@@ -122,13 +128,11 @@ export default function StoreView({ points, coins, character }: StoreViewProps) 
                     display: 'flex',
                     flexDirection: 'column',
                     background: 'var(--color-bg)',
-                    maxWidth: '430px',
-                    margin: '0 auto',
-                    width: '100%',
+                    padding: '0 16px 0px 16px',
+                    gap: '4px',
                     overflowY: 'auto',
-                    padding: '0 16px 16px 16px',
-                    gap: '8px',
                     flex: 1,
+                    minHeight: 0,
                 }}
             >
 
@@ -137,11 +141,14 @@ export default function StoreView({ points, coins, character }: StoreViewProps) 
                     style={{
                         background: 'var(--color-bg-card)',
                         borderRadius: '16px',
-                        padding: '16px',
+                        padding: '8px',
                         boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
                     }}
                 >
-                    <StoreThemePreview character={character} />
+                    <StoreThemePreview character={character} style={{ flex: 1 }} />
                 </div>
 
                 {/* ── 하단: 뽑기 섹션 ── */}
@@ -149,7 +156,7 @@ export default function StoreView({ points, coins, character }: StoreViewProps) 
                     style={{
                         background: 'var(--color-bg-card)',
                         borderRadius: '16px',
-                        padding: '16px',
+                        padding: '8px',
                         boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
                     }}
                 >
@@ -168,6 +175,6 @@ export default function StoreView({ points, coins, character }: StoreViewProps) 
                     onClose={clearResult}
                 />
             </div>
-        </>
+        </div>
     );
 }
