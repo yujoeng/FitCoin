@@ -11,8 +11,7 @@ import org.a504.fitCoin.domain.auth.dto.request.EmailVerifyRequest;
 import org.a504.fitCoin.domain.auth.dto.request.LoginRequest;
 import org.a504.fitCoin.domain.auth.dto.request.ResetPasswordRequest;
 import org.a504.fitCoin.domain.auth.jwt.JwtUtil;
-import org.a504.fitCoin.domain.auth.repository.AccessTokenBlacklistRepository;
-import org.a504.fitCoin.domain.auth.repository.PasswordChangedRepository;
+import org.a504.fitCoin.domain.auth.repository.AccessTokenRepository;
 import org.a504.fitCoin.domain.auth.repository.PasswordResetRepository;
 import org.a504.fitCoin.domain.auth.repository.RefreshTokenRepository;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
@@ -37,9 +36,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final AccessTokenBlacklistRepository accessTokenBlacklistRepository;
+    private final AccessTokenRepository accessTokenRepository;
     private final PasswordResetRepository passwordResetRepository;
-    private final PasswordChangedRepository passwordChangedRepository;
     private final UserJpaRepository userJpaRepository;
     private final MailService mailService;
     private final TemplateEngine templateEngine;
@@ -110,7 +108,7 @@ public class AuthService {
                 Claims claims = jwtUtil.extractAllClaims(accessToken);
                 long remainingMs = claims.getExpiration().getTime() - System.currentTimeMillis();
                 if (remainingMs > 0) {
-                    accessTokenBlacklistRepository.save(accessToken, remainingMs);
+                    accessTokenRepository.blacklist(accessToken, remainingMs);
                 }
             } catch (Exception e) {
                 log.warn("Failed to blacklist access token during logout: {}", e.getMessage());
@@ -161,7 +159,7 @@ public class AuthService {
 
         long changedAtMs = System.currentTimeMillis();
         refreshTokenRepository.deleteAll(email);
-        passwordChangedRepository.save(email, changedAtMs);
+        accessTokenRepository.saveInvalidationTime(email, changedAtMs);
         passwordResetRepository.delete(request.token());
     }
 }
