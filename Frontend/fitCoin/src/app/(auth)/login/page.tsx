@@ -3,8 +3,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import LoginForm from "@/features/auth/components/LoginForm";
+import dynamic from "next/dynamic";
 import { hasAccessToken } from "@/features/auth/utils/tokenUtils";
+
+const LoginForm = dynamic(
+  () => import("@/features/auth/components/LoginForm"),
+  { ssr: false },
+);
 
 export default function LoginPage() {
   const router = useRouter();
