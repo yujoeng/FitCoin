@@ -35,7 +35,7 @@ class ItemControllerTest {
 
     @Test
     @WithMockUser
-    void 아이템_목록_조회_성공() throws Exception {
+    void 상점_아이템_목록_조회_성공() throws Exception {
         // given
         GetItemsResponse response = new GetItemsResponse(List.of(
                 new ItemResponse("포인트 가구 랜덤 뽑기권", "설명1", PurchaseType.POINT, 300),
@@ -58,7 +58,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void 인증_없이_요청하면_401을_반환한다() throws Exception {
+    void 상점_아이템_목록_조회_인증_없이_요청하면_401_반환() throws Exception {
         mockMvc.perform(get("/items"))
                 .andExpect(status().isUnauthorized());
     }

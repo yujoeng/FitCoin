@@ -28,4 +28,13 @@ public class AdvertisementController {
         StartAdResponse response = advertisementService.startAd(userDetails.getUserId());
         return ApiResponse.onSuccess(SuccessStatus.OK, response);
     }
+
+    @PostMapping("/complete")
+    @Operation(summary = "광고 시청 완료", description = "광고 시청을 완료하고 포인트를 지급받습니다. 비정상적으로 빠른 완료 요청은 어뷰징으로 판단합니다.")
+    public ResponseEntity<ApiResponse<Void>> completeAd(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        advertisementService.completeAd(userDetails.getUserId());
+        return ApiResponse.onSuccess(SuccessStatus.OK);
+    }
 }

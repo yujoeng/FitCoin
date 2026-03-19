@@ -32,6 +32,14 @@ public class PointLog {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    public static PointLog of(User user, int amount, TransactionType type) {
+        PointLog log = new PointLog();
+        log.user = user;
+        log.amount = amount;
+        log.type = type;
+        return log;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

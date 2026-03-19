@@ -27,7 +27,7 @@ class ItemServiceTest {
     private ItemService itemService;
 
     @Test
-    void 아이템_목록을_반환한다() {
+    void getItems_아이템_목록을_반환한다() {
         // given
         Item item1 = mockItem("포인트 가구 랜덤 뽑기권", "설명1", PurchaseType.POINT, 300);
         Item item2 = mockItem("코인 가구 랜덤 뽑기권", "설명2", PurchaseType.COIN, 10);
@@ -47,7 +47,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void DB에_아이템이_없으면_빈_목록을_반환한다() {
+    void getItems_DB에_아이템이_없으면_빈_목록을_반환한다() {
         // given
         given(itemJpaRepository.findAll()).willReturn(List.of());
 
