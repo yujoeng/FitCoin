@@ -1,4 +1,4 @@
-import apiClient from '@/services/apiClient';
+import apiClient from "@/services/apiClient";
 
 // ─────────────────────────────────────────────
 // 공통 응답 래퍼 타입
@@ -12,7 +12,7 @@ interface ApiResponse<T> {
 }
 
 // ─────────────────────────────────────────────
-// 요청/응답 타입 정의
+// 요청/응답 타입 정의 (백엔드 명세 기준)
 // ─────────────────────────────────────────────
 
 export interface LoginRequest {
@@ -42,7 +42,7 @@ export interface SignupRequest {
   nickname: string;
   password: string;
   confirmPassword: string;
-  exercise_level: 'high' | 'middle' | 'low';
+  exercise_level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
   token: string;
 }
 
@@ -53,6 +53,7 @@ export interface PasswordResetRequestBody {
 export interface PasswordResetBody {
   password: string;
   confirmPassword: string;
+  token: string;
 }
 
 // ─────────────────────────────────────────────
@@ -60,93 +61,78 @@ export interface PasswordResetBody {
 // ─────────────────────────────────────────────
 
 /**
- * 로그인
- * POST /auth/login
- * 성공 → { accessToken } 반환
- * 실패 → 401 (에러 메시지 화면에 그대로 출력 금지 — 백엔드 명세)
+ * 로그인 - 성공 시 ApiResponse의 result(accessToken) 반환
  */
 export async function login(data: LoginRequest): Promise<LoginResponse> {
-  const response = await apiClient.post<ApiResponse<LoginResponse>>('/auth/login', data);
-  return response.data.result; // ← 공통 응답 result에서 꺼냄
+  // 제네릭에 ApiResponse<LoginResponse>를 입혀줘야 함
+  const response = await apiClient.post<ApiResponse<LoginResponse>>(
+    "/auth/login",
+    data,
+  );
+  return response.data.result; // data가 아니라 data.result를 반환
 }
 
 /**
- * 로그아웃
- * POST /auth/logout
- * 실패해도 성공으로 처리 (백엔드 명세)
+ * 로그아웃 - 실패해도 성공으로 처리
  */
 export async function logout(): Promise<void> {
   try {
-    await apiClient.post('/auth/logout');
+    await apiClient.post("/auth/logout");
   } catch {
-    // 로그아웃은 실패해도 프론트에서는 성공으로 처리
+    // 로그아웃 실패 무시
   }
 }
 
 /**
  * 토큰 재발급
- * POST /auth/reissue
- * 쿠키의 refresh 값은 withCredentials 설정을 통해 자동 전송됨
  */
 export async function reissue(): Promise<LoginResponse> {
-  const response = await apiClient.post<ApiResponse<LoginResponse>>('/auth/reissue');
+  const response =
+    await apiClient.post<ApiResponse<LoginResponse>>("/auth/reissue");
   return response.data.result;
 }
 
 /**
  * 이메일 인증 코드 발송
- * POST /auth/email-verifications
- * 이미 가입된 이메일이면 409 Conflict
  */
 export async function requestEmailVerification(
   data: EmailVerificationRequest,
 ): Promise<void> {
-  await apiClient.post('/auth/email-verifications', data);
+  // 결과값이 없는 경우 ApiResponse<unknown> 등으로 처리하거나 생략 가능
+  await apiClient.post("/auth/email-verifications", data);
 }
 
 /**
- * 이메일 인증 코드 확인
- * POST /auth/email-verifications/confirm
- * 성공 → { token } 반환 — 회원가입 시 함께 보내야 함
+ * 이메일 인증 코드 확인 - { token } 반환
  */
 export async function confirmEmailVerification(
   data: EmailVerificationConfirmRequest,
 ): Promise<EmailVerificationConfirmResponse> {
-  const response = await apiClient.post<ApiResponse<EmailVerificationConfirmResponse>>(
-    '/auth/email-verifications/confirm',
-    data,
-  );
-  return response.data.result; // ← 공통 응답 result에서 꺼냄
+  const response = await apiClient.post<
+    ApiResponse<EmailVerificationConfirmResponse>
+  >("/auth/email-verifications/confirm", data);
+  return response.data.result;
 }
 
 /**
  * 회원가입
- * POST /auth/signup
- * 성공(201) 후 → login() 별도 호출해서 accessToken 받아야 함 (백엔드 명세)
  */
 export async function signup(data: SignupRequest): Promise<void> {
-  await apiClient.post('/auth/signup', data);
+  await apiClient.post("/auth/signup", data);
 }
 
 /**
  * 비밀번호 재설정 이메일 발송
- * POST /auth/password/reset-request
- * 없는 이메일이어도 성공 응답 (백엔드 명세)
  */
 export async function requestPasswordReset(
   data: PasswordResetRequestBody,
 ): Promise<void> {
-  await apiClient.post('/auth/password/reset-request', data);
+  await apiClient.post("/auth/password/reset-request", data);
 }
 
 /**
  * 비밀번호 재설정
- * PATCH /auth/password/reset?token=...
  */
-export async function resetPassword(
-  resetToken: string,
-  data: PasswordResetBody,
-): Promise<void> {
-  await apiClient.patch(`/auth/password/reset?token=${resetToken}`, data);
+export async function resetPassword(data: PasswordResetBody): Promise<void> {
+  await apiClient.post("/auth/password/reset", data);
 }
-// 이 파일이 하는 일: 서버에 인증 관련 요청을 보내는 함수들을 모아둔다.

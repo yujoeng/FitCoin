@@ -11,16 +11,16 @@ import {
 } from "@/features/auth/services/authApi";
 import { saveAccessToken } from "@/features/auth/utils/tokenUtils";
 
-// ── 운동 레벨 옵션 ──────────────────────────────
+// ── 운동 레벨 옵션 (백엔드 Enum 명세 반영) ──
 const EXERCISE_LEVELS = [
-  { value: "low", label: "초급 — 운동 거의 안 해요" },
-  { value: "middle", label: "중급 — 가끔 하는 편이에요" },
-  { value: "high", label: "고급 — 꾸준히 운동해요" },
+  { value: "BEGINNER", label: "초급 — 운동 거의 안 해요" },
+  { value: "INTERMEDIATE", label: "중급 — 가끔 하는 편이에요" },
+  { value: "ADVANCED", label: "고급 — 꾸준히 운동해요" },
 ] as const;
 
-type ExerciseLevel = "low" | "middle" | "high";
+type ExerciseLevel = (typeof EXERCISE_LEVELS)[number]["value"];
 
-// ── 유효성 검사 함수들 ──────────────────────────
+// ── 유효성 검사 (명세 반영) ──
 function checkEmail(value: string): string {
   if (!value) return "이메일을 입력해주세요.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
@@ -30,6 +30,7 @@ function checkEmail(value: string): string {
 
 function checkNickname(value: string): string {
   if (!value) return "닉네임을 입력해주세요.";
+  // 한글, 영문, 숫자 조합 체크 로직 추가 가능
   if (value.length < 2 || value.length > 10)
     return "닉네임은 2~10자로 입력해주세요.";
   return "";
@@ -37,7 +38,15 @@ function checkNickname(value: string): string {
 
 function checkPassword(value: string): string {
   if (!value) return "비밀번호를 입력해주세요.";
+  // 영문, 숫자, 특수문자 중 2종류 이상 포함 체크 (간단한 예시)
+  const hasLetter = /[a-zA-Z]/.test(value);
+  const hasNumber = /[0-9]/.test(value);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+  const typesCount = [hasLetter, hasNumber, hasSpecial].filter(Boolean).length;
+
   if (value.length < 8) return "비밀번호는 8자 이상이어야 해요.";
+  if (typesCount < 2)
+    return "영문, 숫자, 특수문자 중 2종류 이상 포함해야 해요.";
   return "";
 }
 
@@ -47,7 +56,7 @@ function checkPasswordConfirm(password: string, confirm: string): string {
   return "";
 }
 
-// ── 공통 인풋 스타일 ────────────────────────────
+// ── 스타일 정의 ──
 function inputStyle(hasError: boolean): React.CSSProperties {
   return {
     padding: "14px 16px",
@@ -58,11 +67,10 @@ function inputStyle(hasError: boolean): React.CSSProperties {
     color: "#2C3E1F",
     outline: "none",
     width: "100%",
-    boxSizing: "border-box" as const,
+    boxSizing: "border-box",
   };
 }
 
-// ── 에러 텍스트 스타일 ──────────────────────────
 const errorText: React.CSSProperties = {
   color: "#e53e3e",
   fontSize: "12px",
@@ -72,22 +80,19 @@ const errorText: React.CSSProperties = {
 export default function SignupForm() {
   const router = useRouter();
 
-  // ── 입력값 상태 ──
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [exerciseLevel, setExerciseLevel] = useState<ExerciseLevel>("low");
+  const [exerciseLevel, setExerciseLevel] = useState<ExerciseLevel>("BEGINNER");
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-  // ── 이메일 인증 상태 ──
-  const [isCodeSent, setIsCodeSent] = useState(false); // 인증코드 발송 완료
-  const [isEmailVerified, setIsEmailVerified] = useState(false); // 인증 완료
-  const [verifyToken, setVerifyToken] = useState(""); // 인증 완료 후 받은 token
+  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [verifyToken, setVerifyToken] = useState("");
 
-  // ── 에러 메시지 상태 ──
   const [errors, setErrors] = useState({
     email: "",
     code: "",
@@ -97,12 +102,10 @@ export default function SignupForm() {
   });
   const [apiError, setApiError] = useState("");
 
-  // ── 로딩 상태 ──
   const [isLoadingSend, setIsLoadingSend] = useState(false);
   const [isLoadingVerify, setIsLoadingVerify] = useState(false);
   const [isLoadingSignup, setIsLoadingSignup] = useState(false);
 
-  // ── 인증 코드 발송 ──────────────────────────────
   async function handleSendCode() {
     const emailErr = checkEmail(email);
     setErrors((prev) => ({ ...prev, email: emailErr }));
@@ -113,19 +116,17 @@ export default function SignupForm() {
     try {
       await requestEmailVerification({ email });
       setIsCodeSent(true);
-    } catch (err: unknown) {
-      const e = err as { response?: { status?: number } };
-      if (e?.response?.status === 409) {
+    } catch (err: any) {
+      if (err.response?.status === 409) {
         setErrors((prev) => ({ ...prev, email: "이미 가입된 이메일이에요." }));
       } else {
-        setApiError("인증 코드 발송에 실패했어요. 다시 시도해주세요.");
+        setApiError("인증 코드 발송에 실패했어요.");
       }
     } finally {
       setIsLoadingSend(false);
     }
   }
 
-  // ── 인증 코드 확인 ──────────────────────────────
   async function handleVerifyCode() {
     if (!code) {
       setErrors((prev) => ({ ...prev, code: "인증 코드를 입력해주세요." }));
@@ -136,7 +137,7 @@ export default function SignupForm() {
     setIsLoadingVerify(true);
     try {
       const { token } = await confirmEmailVerification({ email, code });
-      setVerifyToken(token); // 회원가입 때 필요한 token 저장
+      setVerifyToken(token);
       setIsEmailVerified(true);
     } catch {
       setErrors((prev) => ({ ...prev, code: "인증 코드가 올바르지 않아요." }));
@@ -145,24 +146,23 @@ export default function SignupForm() {
     }
   }
 
-  // ── 회원가입 제출 ───────────────────────────────
   async function handleSignup() {
-    // 이메일 인증 확인
     if (!isEmailVerified) {
       setApiError("이메일 인증을 완료해주세요.");
       return;
     }
 
-    // 유효성 검사
     const nicknameErr = checkNickname(nickname);
     const passwordErr = checkPassword(password);
     const passwordConfirmErr = checkPasswordConfirm(password, passwordConfirm);
+
     setErrors((prev) => ({
       ...prev,
       nickname: nicknameErr,
       password: passwordErr,
       passwordConfirm: passwordConfirmErr,
     }));
+
     if (nicknameErr || passwordErr || passwordConfirmErr) return;
 
     setApiError("");
@@ -178,25 +178,22 @@ export default function SignupForm() {
         token: verifyToken,
       });
 
-      // 2. 회원가입 성공 후 자동 로그인 (백엔드 명세)
+      // 2. 자동 로그인
       const { accessToken } = await login({ email, password });
       saveAccessToken(accessToken);
 
-      // 3. 홈으로 이동
       router.replace("/home");
-    } catch (err: unknown) {
-      const e = err as { response?: { status?: number } };
-      if (e?.response?.status === 409) {
-        setApiError("이미 사용 중인 이메일이에요.");
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        setApiError("이미 사용 중인 닉네임이거나 가입된 정보입니다.");
       } else {
-        setApiError("회원가입에 실패했어요. 잠시 후 다시 시도해주세요.");
+        setApiError("회원가입 처리 중 오류가 발생했습니다.");
       }
     } finally {
       setIsLoadingSignup(false);
     }
   }
 
-  // ── 화면 렌더링 ─────────────────────────────────
   return (
     <div
       style={{
@@ -206,12 +203,12 @@ export default function SignupForm() {
         width: "100%",
       }}
     >
-      {/* ① 이메일 + 인증하기 버튼 */}
+      {/* 이메일 인증 영역 */}
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         <div style={{ display: "flex", gap: "8px" }}>
           <input
             type="email"
-            placeholder="이메일 입력칸"
+            placeholder="이메일 주소"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isEmailVerified}
@@ -231,26 +228,25 @@ export default function SignupForm() {
               fontSize: "14px",
               fontWeight: 600,
               cursor: isEmailVerified ? "default" : "pointer",
-              whiteSpace: "nowrap",
             }}
           >
             {isEmailVerified
-              ? "인증완료 ✓"
+              ? "인증완료"
               : isLoadingSend
-                ? "발송 중..."
+                ? "발송 중"
                 : "인증하기"}
           </button>
         </div>
         {errors.email && <p style={errorText}>{errors.email}</p>}
       </div>
 
-      {/* ② 인증 코드 입력 (발송 후 && 인증 전에만 표시) */}
+      {/* 인증코드 입력 영역 */}
       {isCodeSent && !isEmailVerified && (
         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
           <div style={{ display: "flex", gap: "8px" }}>
             <input
               type="text"
-              placeholder="인증번호 입력칸"
+              placeholder="인증번호 6자리"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               maxLength={6}
@@ -261,7 +257,6 @@ export default function SignupForm() {
               onClick={handleVerifyCode}
               disabled={isLoadingVerify}
               style={{
-                flexShrink: 0,
                 padding: "0 16px",
                 borderRadius: "12px",
                 border: "none",
@@ -270,42 +265,39 @@ export default function SignupForm() {
                 fontSize: "14px",
                 fontWeight: 600,
                 cursor: "pointer",
-                whiteSpace: "nowrap",
               }}
             >
-              {isLoadingVerify ? "확인 중..." : "인증"}
+              {isLoadingVerify ? "확인 중" : "인증"}
             </button>
           </div>
           {errors.code && <p style={errorText}>{errors.code}</p>}
         </div>
       )}
 
-      {/* ③ 닉네임 */}
+      {/* 정보 입력 영역 */}
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         <input
           type="text"
           placeholder="닉네임 (2~10자)"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
-          maxLength={10}
           style={inputStyle(!!errors.nickname)}
         />
         {errors.nickname && <p style={errorText}>{errors.nickname}</p>}
       </div>
 
-      {/* ④ 비밀번호 */}
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         <div style={{ position: "relative" }}>
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="비밀번호 (8자 이상)"
+            placeholder="비밀번호 (8자 이상, 영문/숫자/특수문자 조합)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={{ ...inputStyle(!!errors.password), paddingRight: "48px" }}
           />
           <button
             type="button"
-            onClick={() => setShowPassword((p) => !p)}
+            onClick={() => setShowPassword(!showPassword)}
             style={{
               position: "absolute",
               right: "14px",
@@ -314,18 +306,18 @@ export default function SignupForm() {
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "#9AA08A",
-              display: "flex",
-              alignItems: "center",
             }}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? (
+              <EyeOff size={18} color="#9AA08A" />
+            ) : (
+              <Eye size={18} color="#9AA08A" />
+            )}
           </button>
         </div>
         {errors.password && <p style={errorText}>{errors.password}</p>}
       </div>
 
-      {/* ⑤ 비밀번호 확인 */}
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         <div style={{ position: "relative" }}>
           <input
@@ -340,7 +332,7 @@ export default function SignupForm() {
           />
           <button
             type="button"
-            onClick={() => setShowPasswordConfirm((p) => !p)}
+            onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
             style={{
               position: "absolute",
               right: "14px",
@@ -349,12 +341,13 @@ export default function SignupForm() {
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "#9AA08A",
-              display: "flex",
-              alignItems: "center",
             }}
           >
-            {showPasswordConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPasswordConfirm ? (
+              <EyeOff size={18} color="#9AA08A" />
+            ) : (
+              <Eye size={18} color="#9AA08A" />
+            )}
           </button>
         </div>
         {errors.passwordConfirm && (
@@ -362,8 +355,15 @@ export default function SignupForm() {
         )}
       </div>
 
-      {/* ⑥ 운동 레벨 선택 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      {/* 운동 레벨 선택 영역 */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "6px",
+          marginTop: "4px",
+        }}
+      >
         <p
           style={{ color: "#5C6B4F", fontSize: "13px", margin: "0 0 2px 4px" }}
         >
@@ -381,9 +381,8 @@ export default function SignupForm() {
               backgroundColor: exerciseLevel === value ? "#F0F7E0" : "#FFFFFF",
               color: exerciseLevel === value ? "#2C3E1F" : "#5C6B4F",
               fontSize: "14px",
-              fontWeight: exerciseLevel === value ? 600 : 400,
-              cursor: "pointer",
               textAlign: "left",
+              cursor: "pointer",
               transition: "all 0.15s",
             }}
           >
@@ -392,16 +391,14 @@ export default function SignupForm() {
         ))}
       </div>
 
-      {/* 서버 에러 메시지 */}
       {apiError && (
         <p
           style={{
             color: "#e53e3e",
             fontSize: "13px",
             textAlign: "center",
-            margin: 0,
-            padding: "8px",
             backgroundColor: "#fff5f5",
+            padding: "8px",
             borderRadius: "8px",
           }}
         >
@@ -409,7 +406,6 @@ export default function SignupForm() {
         </p>
       )}
 
-      {/* 회원가입 버튼 */}
       <button
         type="button"
         onClick={handleSignup}
@@ -426,9 +422,8 @@ export default function SignupForm() {
           cursor: isLoadingSignup ? "not-allowed" : "pointer",
         }}
       >
-        {isLoadingSignup ? "가입 중..." : "회원가입"}
+        {isLoadingSignup ? "가입 처리 중..." : "회원가입"}
       </button>
     </div>
   );
 }
-// 이 컴포넌트가 하는 일: 이메일 인증 → 정보 입력 → 운동레벨 선택 → 회원가입 API → 자동 로그인 → 홈 이동
