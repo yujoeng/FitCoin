@@ -1,12 +1,16 @@
-import axios from 'axios';
-import { getAccessToken, saveAccessToken, removeAccessToken } from '@/features/auth/utils/tokenUtils';
+import axios from "axios";
+import {
+  getAccessToken,
+  saveAccessToken,
+  removeAccessToken,
+} from "@/features/auth/utils/tokenUtils";
 
 // Axios 인스턴스
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api",
   timeout: 5000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   withCredentials: true, // 쿠키(refreshToken) 연동을 위해 필수
 });
@@ -23,23 +27,32 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// 응답 인터셉터: 401 에러 발생 시 토큰 재발급 시도
+// 응답 인터셉터: REISSUE-401 코드일 때만 토큰 재발급 시도
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const code = error.response?.data?.code;
 
-    // 401 에러이고 재시도한 적이 없는 경우에만 실행
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // AccessToken 만료(REISSUE-401)이고 재시도한 적 없는 경우에만 reissue
+    if (
+      error.response?.status === 401 &&
+      code === "REISSUE-401" &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
 
       try {
-        // 토큰 재발급 API 호출 (withCredentials 덕분에 쿠키 자동 전송)
         // 무한 루프 방지를 위해 apiClient 대신 기본 axios 사용
         const response = await axios.post(
           `${apiClient.defaults.baseURL}/auth/reissue`,
           {},
-          { withCredentials: true },
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: originalRequest.headers.Authorization,
+            },
+          },
         );
 
         const { accessToken } = response.data.result;
@@ -49,11 +62,17 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (reissueError) {
-        // 재발급 실패 시 (리프레시 토큰 만료 등) 토큰 초기화 및 로그인 페이지 이동
+        // 재발급 실패 시 토큰 초기화 및 로그인 페이지 이동
         removeAccessToken();
-        window.location.href = '/login';
+        window.location.href = "/login";
         return Promise.reject(reissueError);
       }
+    }
+
+    // GLOBAL-401 등 그 외 401은 재발급 없이 바로 로그인으로
+    if (error.response?.status === 401) {
+      removeAccessToken();
+      window.location.href = "/login";
     }
 
     return Promise.reject(error);
