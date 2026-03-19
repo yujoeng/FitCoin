@@ -21,28 +21,29 @@ interface ThemeConfig {
 }
 
 const THEMES: ThemeConfig[] = [
-  { id: 'aqua',    label: '아쿠아',   roomConfig: AQUA_ROOM_CONFIG },
-  { id: 'muscle',  label: '머슬',     roomConfig: MUSCLE_ROOM_CONFIG },
+  { id: 'aqua', label: '아쿠아', roomConfig: AQUA_ROOM_CONFIG },
+  { id: 'muscle', label: '머슬', roomConfig: MUSCLE_ROOM_CONFIG },
   { id: 'outdoor', label: '아웃도어', roomConfig: OUTDOOR_ROOM_CONFIG },
-  { id: 'cute',    label: '큐트',     roomConfig: CUTE_ROOM_CONFIG },
-  { id: 'running', label: '러닝',     roomConfig: RUNNING_ROOM_CONFIG },
+  { id: 'cute', label: '큐트', roomConfig: CUTE_ROOM_CONFIG },
+  { id: 'running', label: '러닝', roomConfig: RUNNING_ROOM_CONFIG },
 ];
 
 interface StoreThemePreviewProps {
   character: UserCharacter | null;
+  style?: React.CSSProperties;
 }
 
-export default function StoreThemePreview({ character }: StoreThemePreviewProps) {
+export default function StoreThemePreview({ character, style }: StoreThemePreviewProps) {
   const [selectedTab, setSelectedTab] = useState<number>(0);
 
   return (
-    <section style={{ padding: '16px 0' }}>
+    <section style={{ padding: '4px 0', display: 'flex', flexDirection: 'column', flex: 1, ...style }}>
       <h2
         style={{
           color: 'var(--color-text-primary)',
           fontWeight: 700,
           fontSize: '1.1rem',
-          marginBottom: '16px',
+          marginBottom: '8px',
           paddingLeft: '4px',
         }}
       >
@@ -54,7 +55,7 @@ export default function StoreThemePreview({ character }: StoreThemePreviewProps)
         style={{
           display: 'flex',
           borderBottom: '2px solid #e8e0d0',
-          marginBottom: '16px',
+          marginBottom: '8px',
           overflowX: 'auto',
           whiteSpace: 'nowrap',
           /* 스크롤바 숨김은 className으로 처리 */
@@ -95,15 +96,16 @@ export default function StoreThemePreview({ character }: StoreThemePreviewProps)
           borderRadius: '16px',
           overflow: 'hidden',
           border: '1.5px solid #e8e0d0',
-          height: '280px',
           position: 'relative',
+          flex: 1,
+          minHeight: '200px',
         }}
       >
         <RoomView
           key={THEMES[selectedTab].id}
           roomConfig={THEMES[selectedTab].roomConfig}
           character={character}
-          onEditRoom={() => {}}
+          onEditRoom={() => { }}
           hideEditButton={true}
         />
       </div>
