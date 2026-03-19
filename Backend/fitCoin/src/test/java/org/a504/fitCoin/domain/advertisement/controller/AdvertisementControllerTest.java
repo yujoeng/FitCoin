@@ -1,5 +1,6 @@
 package org.a504.fitCoin.domain.advertisement.controller;
 
+import org.a504.fitCoin.domain.advertisement.dto.response.AdAvailabilityResponse;
 import org.a504.fitCoin.domain.advertisement.dto.response.StartAdResponse;
 import org.a504.fitCoin.domain.advertisement.service.AdvertisementService;
 import org.a504.fitCoin.domain.advertisement.value.AdErrorStatus;
@@ -18,6 +19,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,6 +33,36 @@ class AdvertisementControllerTest {
 
     @MockitoBean private AdvertisementService advertisementService;
     @MockitoBean private CorsConfigProperties corsConfigProperties;
+
+    // ===== GET /ads/availability =====
+
+    @Test
+    @WithCustomUser
+    void 광고_시청_가능_여부_조회_시청_가능한_경우() throws Exception {
+        given(advertisementService.getAvailability(any())).willReturn(new AdAvailabilityResponse(true));
+
+        mockMvc.perform(get("/ads/availability"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.result.adWatchAvailable").value(true));
+    }
+
+    @Test
+    @WithCustomUser
+    void 광고_시청_가능_여부_조회_이미_시청한_경우() throws Exception {
+        given(advertisementService.getAvailability(any())).willReturn(new AdAvailabilityResponse(false));
+
+        mockMvc.perform(get("/ads/availability"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.result.adWatchAvailable").value(false));
+    }
+
+    @Test
+    void 광고_시청_가능_여부_조회_인증_없이_요청하면_401_반환() throws Exception {
+        mockMvc.perform(get("/ads/availability"))
+                .andExpect(status().isUnauthorized());
+    }
 
     // ===== POST /ads/start =====
 

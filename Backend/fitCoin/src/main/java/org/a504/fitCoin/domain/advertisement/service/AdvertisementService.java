@@ -1,6 +1,7 @@
 package org.a504.fitCoin.domain.advertisement.service;
 
 import lombok.RequiredArgsConstructor;
+import org.a504.fitCoin.domain.advertisement.dto.response.AdAvailabilityResponse;
 import org.a504.fitCoin.domain.advertisement.dto.response.StartAdResponse;
 import org.a504.fitCoin.domain.advertisement.entity.Advertisement;
 import org.a504.fitCoin.domain.advertisement.repository.AdInProgressRepository;
@@ -34,6 +35,11 @@ public class AdvertisementService {
     private final AdvertisementJpaRepository advertisementJpaRepository;
     private final UserJpaRepository userJpaRepository;
     private final PointLogJpaRepository pointLogJpaRepository;
+
+    public AdAvailabilityResponse getAvailability(Long userId) {
+        boolean available = !adWatchedRepository.exists(userId);
+        return new AdAvailabilityResponse(available);
+    }
 
     public StartAdResponse startAd(Long userId) {
         if (adWatchedRepository.exists(userId)) {
