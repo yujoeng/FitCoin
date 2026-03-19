@@ -55,4 +55,8 @@ public class User {
     public void delete() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void addPoint(int amount) {
+        this.point += amount;
+    }
 }
