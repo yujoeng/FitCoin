@@ -3,6 +3,7 @@ package org.a504.fitCoin.domain.advertisement.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.a504.fitCoin.domain.advertisement.dto.response.AdAvailabilityResponse;
 import org.a504.fitCoin.domain.advertisement.dto.response.StartAdResponse;
 import org.a504.fitCoin.domain.advertisement.service.AdvertisementService;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
@@ -20,6 +21,15 @@ public class AdvertisementController {
 
     private final AdvertisementService advertisementService;
 
+    @GetMapping("/availability")
+    @Operation(summary = "광고 시청 가능 여부 조회", description = "사용자의 광고 시청 가능 여부를 조회합니다. 하루 1회 시청 가능하며, 매일 00시에 초기화됩니다.")
+    public ResponseEntity<ApiResponse<AdAvailabilityResponse>> getAvailability(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        AdAvailabilityResponse response = advertisementService.getAvailability(userDetails.getUserId());
+        return ApiResponse.onSuccess(SuccessStatus.OK, response);
+    }
+
     @PostMapping("/start")
     @Operation(summary = "광고 시청 시작", description = "광고 시청을 시작합니다. 당일 이미 시청했거나 진행 중인 시청이 있으면 에러를 반환합니다.")
     public ResponseEntity<ApiResponse<StartAdResponse>> startAd(
@@ -27,5 +37,14 @@ public class AdvertisementController {
     ) {
         StartAdResponse response = advertisementService.startAd(userDetails.getUserId());
         return ApiResponse.onSuccess(SuccessStatus.OK, response);
+    }
+
+    @PostMapping("/complete")
+    @Operation(summary = "광고 시청 완료", description = "광고 시청을 완료하고 포인트를 지급받습니다. 비정상적으로 빠른 완료 요청은 어뷰징으로 판단합니다.")
+    public ResponseEntity<ApiResponse<Void>> completeAd(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        advertisementService.completeAd(userDetails.getUserId());
+        return ApiResponse.onSuccess(SuccessStatus.OK);
     }
 }

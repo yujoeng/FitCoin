@@ -134,7 +134,7 @@ public class CharacterService {
         userCharacter.graduate();
 
         // 발급 가능한 기프티콘 목록 조회
-        List<Gifticon> gifticons = gifticonJpaRepository.findByStatus(1);
+        List<Gifticon> gifticons = gifticonJpaRepository.findAll()                  ;
         if (gifticons.isEmpty()) {
             throw new CustomException(CharacterErrorStatus.GIFTICON_NOT_FOUND);
         }

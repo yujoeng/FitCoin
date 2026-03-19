@@ -11,7 +11,9 @@ public enum AdErrorStatus implements BaseErrorCode {
 
     AD_NOT_FOUND(HttpStatus.NOT_FOUND, "AD4041", "등록된 광고가 없습니다."),
     AD_ALREADY_WATCHED_TODAY(HttpStatus.BAD_REQUEST, "AD4001", "오늘은 이미 광고를 시청하였습니다."),
-    AD_ALREADY_IN_PROGRESS(HttpStatus.CONFLICT, "AD4091", "이미 진행 중인 광고 시청이 있습니다.");
+    AD_ALREADY_IN_PROGRESS(HttpStatus.CONFLICT, "AD4091", "이미 진행 중인 광고 시청이 있습니다."),
+    AD_NOT_IN_PROGRESS(HttpStatus.BAD_REQUEST, "AD4002", "진행 중인 광고 시청이 없습니다. 광고 시청을 먼저 시작해 주세요."),
+    AD_ABUSE_DETECTED(HttpStatus.BAD_REQUEST, "AD4003", "비정상적인 광고 시청이 감지되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

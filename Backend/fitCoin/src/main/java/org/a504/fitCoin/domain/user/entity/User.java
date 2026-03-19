@@ -63,4 +63,8 @@ public class User {
     public void updateExerciseLevel(ExerciseLevel exerciseLevel) {
         this.exerciseLevel = exerciseLevel;
     }
+
+    public void addPoint(int amount) {
+        this.point += amount;
+    }
 }
