@@ -4,12 +4,14 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.repository.AccessTokenRepository;
 import org.a504.fitCoin.domain.auth.repository.RefreshTokenRepository;
+import org.a504.fitCoin.domain.user.dto.request.NewPasswordRequest;
 import org.a504.fitCoin.domain.user.dto.response.MyPageResponse;
 import org.a504.fitCoin.domain.user.entity.User;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
 import org.a504.fitCoin.domain.user.value.ExerciseLevel;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.a504.fitCoin.global.response.status.ErrorStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +22,7 @@ public class UserService {
     private final UserJpaRepository userJpaRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AccessTokenRepository accessTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public MyPageResponse getMyInfo(Long userId) {
 
@@ -49,6 +52,23 @@ public class UserService {
 
         User user = findUser(userId);
         user.updateExerciseLevel(exerciseLevel);
+    }
+
+    public void changePassword(Long userId, NewPasswordRequest request) {
+
+        String password = request.password();
+        String newPassword = request.newPassword();
+
+        User user = findUser(userId);
+
+        if (!passwordEncoder.matches(password, user.getPassword()))
+            throw new CustomException(ErrorStatus.BAD_REQUEST);
+
+        user.updatePassword(passwordEncoder.encode(newPassword));
+
+        long changedAtMs = System.currentTimeMillis();
+        refreshTokenRepository.deleteAll(user.getEmail());
+        accessTokenRepository.saveInvalidationTime(user.getEmail(), changedAtMs);
     }
 
 

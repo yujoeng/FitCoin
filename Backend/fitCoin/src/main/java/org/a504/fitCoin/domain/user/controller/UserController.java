@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
 import org.a504.fitCoin.domain.user.dto.request.ExerciseLevelRequest;
+import org.a504.fitCoin.domain.user.dto.request.NewPasswordRequest;
 import org.a504.fitCoin.domain.user.dto.request.NicknameRequest;
 import org.a504.fitCoin.domain.user.dto.response.ExerciseLevelResponse;
 import org.a504.fitCoin.domain.user.dto.response.MyPageResponse;
@@ -62,5 +63,15 @@ public class UserController {
         ExerciseLevel exerciseLevel = request.exerciseLevel();
         userService.changeExerciseLevel(userDetails.getUserId(), exerciseLevel);
         return ApiResponse.onSuccess(SuccessStatus.OK, new ExerciseLevelResponse(exerciseLevel));
+    }
+
+    @PatchMapping("/me/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody NewPasswordRequest request
+    ) {
+
+        userService.changePassword(userDetails.getUserId(), request);
+        return ApiResponse.onSuccess(SuccessStatus.OK);
     }
 }
