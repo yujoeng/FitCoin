@@ -7,6 +7,7 @@ import org.a504.fitCoin.domain.auth.repository.RefreshTokenRepository;
 import org.a504.fitCoin.domain.user.dto.response.MyPageResponse;
 import org.a504.fitCoin.domain.user.entity.User;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
+import org.a504.fitCoin.domain.user.value.ExerciseLevel;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.a504.fitCoin.global.response.status.ErrorStatus;
 import org.springframework.stereotype.Service;
@@ -22,23 +23,13 @@ public class UserService {
 
     public MyPageResponse getMyInfo(Long userId) {
 
-        return userJpaRepository.findById(userId)
-                .map(u -> {
-                    if (u.getDeletedAt() != null)
-                        throw new CustomException(ErrorStatus.BAD_REQUEST);
-                    return new MyPageResponse(u.getEmail(), u.getNickname(), u.getExerciseLevel());
-                })
-                .orElseThrow(() -> new CustomException(ErrorStatus.NOT_FOUND));
+        User user = findUser(userId);
+        return new MyPageResponse(user.getEmail(), user.getNickname(), user.getExerciseLevel());
     }
 
     public void deleteUser(Long userId) {
 
-        User user = userJpaRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorStatus.NOT_FOUND));
-
-        if (user.getDeletedAt() != null) {
-            throw new CustomException(ErrorStatus.BAD_REQUEST);
-        }
+        User user = findUser(userId);
 
         user.delete();
 
@@ -46,5 +37,29 @@ public class UserService {
         long deletedAtMs = System.currentTimeMillis();
         refreshTokenRepository.deleteAll(email);
         accessTokenRepository.saveInvalidationTime(email, deletedAtMs);
+    }
+
+    public void changeNickname(Long userId, String nickname) {
+
+        User user = findUser(userId);
+        user.updateNickname(nickname);
+    }
+
+    public void changeExerciseLevel(Long userId, ExerciseLevel exerciseLevel) {
+
+        User user = findUser(userId);
+        user.updateExerciseLevel(exerciseLevel);
+    }
+
+
+    public User findUser(Long userId) {
+        User user = userJpaRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorStatus.NOT_FOUND));
+
+        if (user.getDeletedAt() != null) {
+            throw new CustomException(ErrorStatus.BAD_REQUEST);
+        }
+
+        return user;
     }
 }

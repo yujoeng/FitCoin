@@ -55,4 +55,12 @@ public class User {
     public void delete() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateExerciseLevel(ExerciseLevel exerciseLevel) {
+        this.exerciseLevel = exerciseLevel;
+    }
 }
