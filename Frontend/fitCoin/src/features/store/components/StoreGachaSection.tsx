@@ -57,14 +57,14 @@ export default function StoreGachaSection({
   };
 
   return (
-    <section style={{ padding: '16px 0' }}>
+    <section style={{ padding: '4px 0', display: 'flex', flexDirection: 'column', flex: 1 }}>
       <h2
         style={{
           color: 'var(--color-text-primary)',
           fontWeight: 700,
           fontSize: '1.1rem',
-          marginBottom: '16px',
-          paddingLeft: '4px',
+          marginBottom: '8px',
+          paddingLeft: '2px',
         }}
       >
         뽑기
@@ -99,8 +99,8 @@ export default function StoreGachaSection({
                 onClick={() => onGacha(config.type)}
                 disabled={isLoading}
                 style={{
-                  width: '80px',
-                  height: '80px',
+                  width: '90px',
+                  height: '90px',
                   borderRadius: '50%',
                   border: 'none',
                   backgroundColor: 'var(--color-primary)',
