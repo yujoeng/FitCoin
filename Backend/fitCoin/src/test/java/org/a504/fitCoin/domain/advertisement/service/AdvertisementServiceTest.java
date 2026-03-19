@@ -117,4 +117,65 @@ class AdvertisementServiceTest {
                 "https://example.com/ad3"
         );
     }
+
+    // ===== completeAd =====
+
+    @Test
+    void completeAd_성공() {
+        // given
+        User user = mock(User.class);
+        given(adInProgressRepository.getAndDelete(USER_ID))
+                .willReturn(Optional.of(Instant.now().minusSeconds(15)));
+        given(userJpaRepository.findById(USER_ID)).willReturn(Optional.of(user));
+
+        // when
+        advertisementService.completeAd(USER_ID);
+
+        // then
+        verify(user).addPoint(500);
+        verify(pointLogJpaRepository).save(any());
+        verify(adWatchedRepository).save(USER_ID);
+    }
+
+    @Test
+    void completeAd_진행_중인_광고가_없는_경우_예외_발생() {
+        given(adInProgressRepository.getAndDelete(USER_ID)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> advertisementService.completeAd(USER_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(AdErrorStatus.AD_NOT_IN_PROGRESS));
+
+        verify(userJpaRepository, never()).findById(any());
+        verify(adWatchedRepository, never()).save(any());
+    }
+
+    @Test
+    void completeAd_시청_시간이_너무_짧으면_어뷰징으로_판단() {
+        // given: 방금 시작한 것처럼 현재 시각으로 저장 (0초 경과)
+        given(adInProgressRepository.getAndDelete(USER_ID))
+                .willReturn(Optional.of(Instant.now()));
+
+        assertThatThrownBy(() -> advertisementService.completeAd(USER_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(AdErrorStatus.AD_ABUSE_DETECTED));
+
+        verify(userJpaRepository, never()).findById(any());
+        verify(adWatchedRepository, never()).save(any());
+    }
+
+    @Test
+    void completeAd_사용자를_찾을_수_없는_경우_예외_발생() {
+        given(adInProgressRepository.getAndDelete(USER_ID))
+                .willReturn(Optional.of(Instant.now().minusSeconds(15)));
+        given(userJpaRepository.findById(USER_ID)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> advertisementService.completeAd(USER_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(UserErrorStatus.USER_NOT_FOUND));
+
+        verify(adWatchedRepository, never()).save(any());
+    }
 }
