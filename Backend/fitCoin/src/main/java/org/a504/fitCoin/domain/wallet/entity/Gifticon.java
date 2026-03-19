@@ -23,12 +23,6 @@ public class Gifticon {
     @Column(nullable = false)
     private GifticonType type;
 
-    /**
-     * 0: 발급 불가, 1: 발급 가능
-     */
-    @Column(nullable = false, columnDefinition = "TINYINT DEFAULT 1")
-    private int status;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

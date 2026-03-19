@@ -6,7 +6,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface GifticonJpaRepository extends JpaRepository<Gifticon, Long> {
-
-    // 발급 가능 기프티콘 조회
-    List<Gifticon> findByStatus(int status);
 }
