@@ -162,7 +162,7 @@ export default function HomeView({
             </div>
 
             {/* ── 중단: 방 + 오버레이 버튼 ── */}
-            <div style={{ padding: 'var(--space-3)', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: 'var(--space-3) var(--space-3) 0', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ position: 'relative', flex: 1, minHeight: 0 }}>
                     <RoomView
                         roomConfig={roomConfig}
@@ -210,7 +210,7 @@ export default function HomeView({
             </div>
             {/* ── 하단: 경험치 바 카드 ── */}
             {character && (
-                <div style={{ padding: '0 var(--space-3) var(--space-3)', flexShrink: 0 }}>
+                <div style={{ padding: '10px 10px 0px', flexShrink: 0 }}>
                     <div
                         style={{
                             borderRadius: 'var(--radius-xl)',
