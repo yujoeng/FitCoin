@@ -584,3 +584,10 @@ select {
 .fc-tab.active {
   color: var(--color-primary);
 }
+
+/* ──────────────────────────────────────────
+   10. 광고 모드 (Ad Mode)
+────────────────────────────────────────── */
+.ad-playing .fc-tabbar {
+  display: none !important;
+}
