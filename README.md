@@ -1,11 +1,9 @@
 # 🐾 돈땃쥐미 (FITCOIN)
 
-
-
 > **데일리 운동 미션으로 캐릭터를 키우고, 실물 기프티콘을 받자!**  
 > SSAFY 14기 특화 프로젝트 A504
 >
-> ![돈땃쥐미 캐릭터들 운동 모습](./Frontend/public/animals.png)
+> ![돈땃쥐미 캐릭터들 운동 모습](Frontend/fitCoin/public/splash.gif)
 
 <br>
 
