@@ -1,9 +1,9 @@
-package org.a504.fitCoin.domain.item.controller;
+package org.a504.fitCoin.domain.shop.controller;
 
-import org.a504.fitCoin.domain.item.dto.response.GetItemsResponse;
-import org.a504.fitCoin.domain.item.dto.response.ItemResponse;
-import org.a504.fitCoin.domain.item.value.ShopItem.PurchaseType;
-import org.a504.fitCoin.domain.item.service.ItemService;
+import org.a504.fitCoin.domain.shop.dto.response.GetItemsResponse;
+import org.a504.fitCoin.domain.shop.dto.response.ItemResponse;
+import org.a504.fitCoin.domain.shop.service.ShopService;
+import org.a504.fitCoin.domain.shop.value.ShopItem.PurchaseType;
 import org.a504.fitCoin.global.config.property.CorsConfigProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +20,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ItemController.class)
+@WebMvcTest(ShopController.class)
 @ActiveProfiles("test")
-class ItemControllerTest {
+class ShopControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private ItemService itemService;
+    private ShopService shopService;
 
     @MockitoBean
     private CorsConfigProperties corsConfigProperties;
@@ -36,30 +36,28 @@ class ItemControllerTest {
     @Test
     @WithMockUser
     void 상점_아이템_목록_조회_성공() throws Exception {
-        // given
         GetItemsResponse response = new GetItemsResponse(List.of(
-                new ItemResponse("포인트 가구 랜덤 뽑기권", "설명1", PurchaseType.POINT, 300),
-                new ItemResponse("코인 가구 랜덤 뽑기권", "설명2", PurchaseType.COIN, 10),
-                new ItemResponse("기프티콘 뽑기권", "설명3", PurchaseType.COIN, 30)
+                new ItemResponse("코인 가구 랜덤 뽑기권", "설명1", PurchaseType.COIN, 10),
+                new ItemResponse("코인 기프티콘 뽑기권", "설명2", PurchaseType.COIN, 30),
+                new ItemResponse("포인트 가구 랜덤 뽑기권", "설명3", PurchaseType.POINT, 300)
         ));
-        given(itemService.getItems()).willReturn(response);
+        given(shopService.getItems()).willReturn(response);
 
-        // when & then
-        mockMvc.perform(get("/items"))
+        mockMvc.perform(get("/shop/items"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isSuccess").value(true))
                 .andExpect(jsonPath("$.result.items").isArray())
                 .andExpect(jsonPath("$.result.items.length()").value(3))
-                .andExpect(jsonPath("$.result.items[0].name").value("포인트 가구 랜덤 뽑기권"))
-                .andExpect(jsonPath("$.result.items[0].priceType").value("POINT"))
-                .andExpect(jsonPath("$.result.items[0].price").value(300))
-                .andExpect(jsonPath("$.result.items[1].name").value("코인 가구 랜덤 뽑기권"))
-                .andExpect(jsonPath("$.result.items[2].priceType").value("COIN"));
+                .andExpect(jsonPath("$.result.items[0].name").value("코인 가구 랜덤 뽑기권"))
+                .andExpect(jsonPath("$.result.items[0].priceType").value("COIN"))
+                .andExpect(jsonPath("$.result.items[0].price").value(10))
+                .andExpect(jsonPath("$.result.items[1].name").value("코인 기프티콘 뽑기권"))
+                .andExpect(jsonPath("$.result.items[2].priceType").value("POINT"));
     }
 
     @Test
     void 상점_아이템_목록_조회_인증_없이_요청하면_401_반환() throws Exception {
-        mockMvc.perform(get("/items"))
+        mockMvc.perform(get("/shop/items"))
                 .andExpect(status().isUnauthorized());
     }
 }

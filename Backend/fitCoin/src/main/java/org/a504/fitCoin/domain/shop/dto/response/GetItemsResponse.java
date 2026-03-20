@@ -1,4 +1,4 @@
-package org.a504.fitCoin.domain.item.dto.response;
+package org.a504.fitCoin.domain.shop.dto.response;
 
 import java.util.List;
 

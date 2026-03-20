@@ -1,4 +1,4 @@
-package org.a504.fitCoin.domain.item.value;
+package org.a504.fitCoin.domain.shop.value;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
-package org.a504.fitCoin.domain.item.dto.response;
+package org.a504.fitCoin.domain.shop.dto.response;
 
-import org.a504.fitCoin.domain.item.value.ShopItem;
-import org.a504.fitCoin.domain.item.value.ShopItem.PurchaseType;
+import org.a504.fitCoin.domain.shop.value.ShopItem;
+import org.a504.fitCoin.domain.shop.value.ShopItem.PurchaseType;
 
 public record ItemResponse(
         String name,
