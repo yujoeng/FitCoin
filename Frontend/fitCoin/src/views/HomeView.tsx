@@ -201,10 +201,8 @@ export default function HomeView({
                             zIndex: 10,
                         }}
                     >
-                        <CircleButton emoji="⚙️" onClick={onGoSettings} label="설정" />
                         <CircleButton emoji="📺" onClick={onWatchAd} label="광고 시청" />
                         <CircleButton emoji="🏃" onClick={onGoMission} label="미션 수행" />
-                        <CircleButton emoji="🛋️" onClick={onEditRoom} label="가구 변경" />
                     </div>
                 </div>
             </div>
