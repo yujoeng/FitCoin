@@ -7,7 +7,6 @@ import org.a504.fitCoin.global.response.ApiResponse;
 import org.a504.fitCoin.global.response.code.BaseErrorCode;
 import org.a504.fitCoin.global.response.status.ErrorStatus;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -76,13 +75,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return ApiResponse.onFailure(errorCode);
-    }
-
-    // 낙관적 락 충돌 (동시 잔액 차감 등)
-    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    public ResponseEntity<ApiResponse<Void>> handleOptimisticLock(ObjectOptimisticLockingFailureException e) {
-        logError("OptimisticLockingFailure", e);
-        return ApiResponse.onFailure(ErrorStatus.CONFLICT);
     }
 
     // 내부 서버 에러 (fallback)

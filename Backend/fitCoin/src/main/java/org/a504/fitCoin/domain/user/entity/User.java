@@ -42,9 +42,6 @@ public class User {
     @Column(name = "coin", nullable = false, columnDefinition = "INT DEFAULT 0")
     private int coin;
 
-    @Version
-    private Long version;
-
     @Builder
     private User(String email, String password, String nickname, ExerciseLevel exerciseLevel) {
         this.email = email;
