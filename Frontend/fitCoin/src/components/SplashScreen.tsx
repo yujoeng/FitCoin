@@ -45,4 +45,3 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
     </div>
   );
 }
-// 이 컴포넌트가 하는 일: GIF로 화면 전체를 덮고, 2.5초 후 onFinish 호출
