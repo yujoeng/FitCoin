@@ -134,5 +134,5 @@ export async function requestPasswordReset(
  * 비밀번호 재설정
  */
 export async function resetPassword(data: PasswordResetBody): Promise<void> {
-  await apiClient.post("/auth/password/reset", data);
+  await apiClient.patch("/auth/password/reset", data);
 }

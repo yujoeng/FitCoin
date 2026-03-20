@@ -11,7 +11,25 @@ export const apiClient = axios.create({
   withCredentials: true, // 쿠키(refreshToken) 연동을 위해 필수
 });
 
+// ─────────────────────────────────────────────
+// 동시 reissue 방지용 모듈 레벨 변수
+// _retry는 요청별 객체라 공유 안 됨 → 반드시 모듈 레벨로 선언해야 함
+// ─────────────────────────────────────────────
+let isRefreshing = false;
+type QueueItem = { resolve: (token: string) => void; reject: (err: unknown) => void };
+const failedQueue: QueueItem[] = [];
+
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else resolve(token as string);
+  });
+  failedQueue.length = 0;
+}
+
+// ─────────────────────────────────────────────
 // 요청 인터셉터: 모든 요청에 Access Token 자동 첨부
+// ─────────────────────────────────────────────
 apiClient.interceptors.request.use(
   (config) => {
     const token = getAccessToken();
@@ -23,37 +41,82 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// 응답 인터셉터: 401 에러 발생 시 토큰 재발급 시도
+// ─────────────────────────────────────────────
+// 응답 인터셉터
+// ─────────────────────────────────────────────
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const code = error.response?.data?.code;
 
-    // 401 에러이고 재시도한 적이 없는 경우에만 실행
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // REISSUE-401: AccessToken 만료 → reissue 시도
+    if (
+      error.response?.status === 401 &&
+      code === 'REISSUE-401' &&
+      !originalRequest._retry
+    ) {
+      // ── reissue가 이미 진행 중이면 대기열에 추가 ──
+      if (isRefreshing) {
+        return new Promise<string>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((newToken) => {
+            // reissue 완료 후 새 토큰으로 원래 요청 재시도
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return apiClient(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      // ── reissue 시작 ──
       originalRequest._retry = true;
+      isRefreshing = true; // 동기적으로 설정 → 다음 요청이 여기서 막힘
 
       try {
-        // 토큰 재발급 API 호출 (withCredentials 덕분에 쿠키 자동 전송)
-        // 무한 루프 방지를 위해 apiClient 대신 기본 axios 사용
         const response = await axios.post(
           `${apiClient.defaults.baseURL}/auth/reissue`,
           {},
-          { withCredentials: true },
+          {
+            withCredentials: true, // 쿠키(refreshToken) 자동 전송
+            headers: {
+              // 백엔드가 만료된 AccessToken도 함께 요구 (명세)
+              Authorization: originalRequest.headers.Authorization,
+            },
+          },
         );
 
         const { accessToken } = response.data.result;
         saveAccessToken(accessToken);
 
-        // 새 토큰으로 헤더 교체 후 원래 요청 재시도
+        // 대기 중인 요청들에 새 토큰 전달 → 일괄 재시도
+        processQueue(null, accessToken);
+
+        // 원래 요청도 새 토큰으로 재시도
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (reissueError) {
-        // 재발급 실패 시 (리프레시 토큰 만료 등) 토큰 초기화 및 로그인 페이지 이동
+        // reissue 실패 (refreshToken 만료 등) → 전부 로그인으로
+        processQueue(reissueError, null);
         removeAccessToken();
         window.location.href = '/login';
         return Promise.reject(reissueError);
+      } finally {
+        isRefreshing = false; // 성공/실패 관계없이 반드시 초기화
       }
+    }
+
+    // GLOBAL-401: 블랙리스트/유효하지 않은 토큰 → 재발급 없이 로그인으로
+    if (error.response?.status === 401) {
+      removeAccessToken();
+      window.location.href = '/login';
+    }
+
+    // 403: 백엔드 AuthenticationEntryPoint 미설정 시 Spring Security가 반환하는 403
+    // 정상적으로는 401이 와야 하나, 백엔드 수정 전까지 동일하게 처리
+    if (error.response?.status === 403) {
+      removeAccessToken();
+      window.location.href = '/login';
     }
 
     return Promise.reject(error);

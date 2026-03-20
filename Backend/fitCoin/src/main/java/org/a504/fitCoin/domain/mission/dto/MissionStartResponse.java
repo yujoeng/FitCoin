@@ -6,7 +6,5 @@ import lombok.Getter;
 @Getter
 @Builder
 public class MissionStartResponse {
-
     private Long missionId;
-    private String missionToken;
 }

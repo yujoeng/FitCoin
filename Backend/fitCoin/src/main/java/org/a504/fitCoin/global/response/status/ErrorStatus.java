@@ -25,7 +25,12 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "GLOBAL-404", "요청 데이터를 찾지 못했습니다."),
 
     // 미션 에러
-    MISSION_NOT_FOUND(HttpStatus.BAD_REQUEST, "MS4001", "존재하지 않는 미션입니다.");
+    MISSION_NOT_FOUND(HttpStatus.BAD_REQUEST, "MS4001", "존재하지 않는 미션입니다."),
+    MISSION_DAILY_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "MS4002", "오늘의 미션을 모두 완료했습니다."),
+    MISSION_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "MS4003", "미션 토큰이 유효하지 않습니다."),
+    MISSION_LOG_NOT_FOUND(HttpStatus.BAD_REQUEST, "MS4004", "미션 수행 정보를 찾을 수 없습니다."),
+    MISSION_ALREADY_IN_PROGRESS(HttpStatus.CONFLICT, "MS4005", "이미 진행 중인 미션이 있습니다.")
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;

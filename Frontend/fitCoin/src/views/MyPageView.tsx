@@ -756,7 +756,11 @@ export default function MyPageView() {
     );
   }
 
-  const levelOptions: ExerciseLevel[] = ["high", "middle", "low"];
+  const levelOptions: ExerciseLevel[] = [
+    "BEGINNER",
+    "INTERMEDIATE",
+    "ADVANCED",
+  ];
 
   return (
     <>
@@ -989,7 +993,7 @@ export default function MyPageView() {
                   }}
                 >
                   {userInfo
-                    ? EXERCISE_LEVEL_LABELS[userInfo.exercise_level]
+                    ? EXERCISE_LEVEL_LABELS[userInfo.exerciseLevel]
                     : ""}
                 </span>
                 {/* SVG 쉐브론 아이콘 — 열림/닫힘에 따라 180도 회전 */}
@@ -1058,19 +1062,19 @@ export default function MyPageView() {
                         cursor: "pointer",
                         fontFamily: "var(--font-body)",
                         color:
-                          userInfo?.exercise_level === level
+                          userInfo?.exerciseLevel === level
                             ? "var(--color-primary)"
                             : "var(--color-text-primary)",
                         fontWeight:
-                          userInfo?.exercise_level === level ? 700 : 400,
+                          userInfo?.exerciseLevel === level ? 700 : 400,
                         background:
-                          userInfo?.exercise_level === level
+                          userInfo?.exerciseLevel === level
                             ? "var(--color-primary-light)"
                             : "transparent",
                       }}
                     >
                       {EXERCISE_LEVEL_LABELS[level]}
-                      {userInfo?.exercise_level === level && " ✓"}
+                      {userInfo?.exerciseLevel === level && " ✓"}
                     </button>
                   ))}
                 </div>
