@@ -42,16 +42,11 @@ public class MissionService {
             throw new CustomException(ErrorStatus.MISSION_DAILY_LIMIT_EXCEEDED);
         }
 
-        // 2. 이미 진행 중인 미션 있는지 확인
-        if (missionRedisRepository.existsInProgress(userId)) {
-            throw new CustomException(ErrorStatus.MISSION_ALREADY_IN_PROGRESS);
-        }
-
-        // 3. 미션 존재 여부 확인
+        // 2. 미션 존재 여부 확인
         Mission mission = missionRepository.findById(request.getMissionId())
                 .orElseThrow(() -> new CustomException(ErrorStatus.MISSION_NOT_FOUND));
 
-        // 4. Redis에 진행 중 미션 저장 (TTL 5분)
+        // 3. Redis에 진행 중 미션 저장 (TTL 5분)
         missionRedisRepository.saveInProgress(userId, mission.getId(), request.getMissionStartedAt());
 
         return MissionStartResponse.builder()
