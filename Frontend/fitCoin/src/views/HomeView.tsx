@@ -4,35 +4,36 @@
 import RoomView from '@/components/RoomView';
 import StreakBar from '@/components/StreakBar';
 import type { HomePageState } from '@/types/home';
+import PointBadge from '@/components/PointBadge';
+import CoinBadge from '@/components/CoinBadge';
 
 interface CircleButtonProps {
-    emoji: string;
+    imageSrc: string;
     onClick: () => void;
     label: string;
 }
 
-function CircleButton({ emoji, onClick, label }: CircleButtonProps) {
+function CircleButton({ imageSrc, onClick, label }: CircleButtonProps) {
     return (
         <button
             onClick={onClick}
             aria-label={label}
             className="fc-pressable"
             style={{
-                width: '48px',
-                height: '48px',
+                width: '55px',
+                height: '55px',
                 borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.85)',
-                border: '1.5px solid rgba(150, 185, 91, 0.4)',
-                backdropFilter: 'blur(4px)',
+                background: 'rgba(255, 255, 255, 0.25)',
+                backdropFilter: 'blur(8px)',
+                border: '1.5px solid rgba(255, 255, 255, 0.7)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                fontSize: '20px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
             }}
         >
-            {emoji}
+            <img src={imageSrc} alt={label} style={{ width: '44px', height: '44px' }} />
         </button>
     );
 }
@@ -83,7 +84,7 @@ export default function HomeView({
                 }}
             >
                 {/* 스트릭바 — 포인트/코인 박스 너비(약 90px)만큼 오른쪽 여백 확보 */}
-                <div style={{ paddingRight: '96px' }}>
+                <div style={{ paddingRight: '105px' }}>
                     <StreakBar
                         streakCount={streakCount}
                         streakDays={streakDays}
@@ -104,65 +105,15 @@ export default function HomeView({
                     }}
                 >
                     {/* 포인트 */}
-                    <div
-                        style={{
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '6px 12px',
-                            borderRadius: 'var(--radius-lg)',
-                            background: 'var(--color-bg-card)',
-                            border: '1px solid var(--color-border)',
-                        }}
-                    >
-                        {/* TODO: 포인트 아이콘 이미지로 교체 */}
-                        <span style={{ fontSize: '14px' }}>🏆</span>
-                        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-                            <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)' }}>
-                                포인트
-                            </span>
-                            <span
-                                className="fc-font-point"
-                                style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-text-primary)' }}
-                            >
-                                {points.toLocaleString()}
-                            </span>
-                        </div>
-                    </div>
+                    <PointBadge points={points} />
 
                     {/* 코인 */}
-                    <div
-                        style={{
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '6px 12px',
-                            borderRadius: 'var(--radius-lg)',
-                            background: 'var(--color-bg-card)',
-                            border: '1px solid var(--color-border)',
-                        }}
-                    >
-                        {/* TODO: 코인 아이콘 이미지로 교체 */}
-                        <span style={{ fontSize: '14px' }}>🪙</span>
-                        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-                            <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)' }}>
-                                코인
-                            </span>
-                            <span
-                                className="fc-font-point"
-                                style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-text-primary)' }}
-                            >
-                                {coins.toLocaleString()}
-                            </span>
-                        </div>
-                    </div>
+                    <CoinBadge coins={coins} />
                 </div>
             </div>
 
             {/* ── 중단: 방 + 오버레이 버튼 ── */}
-            <div style={{ padding: 'var(--space-3)', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: 'var(--space-3) var(--space-3) 0', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ position: 'relative', flex: 1, minHeight: 0 }}>
                     <RoomView
                         roomConfig={roomConfig}
@@ -176,16 +127,16 @@ export default function HomeView({
                         style={{
                             position: 'absolute',
                             left: '10px',   // ← 방 왼쪽 테두리에 절반씩 걸치게
-                            top: '50%',
+                            top: '20%',
                             transform: 'translateY(-50%)',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: 'var(--space-2)',
+                            gap: 'var(--space-5)',
                             zIndex: 10,
                         }}
                     >
-                        <CircleButton emoji="🔄" onClick={onGoExchange} label="환전소" />
-                        <CircleButton emoji="🛍️" onClick={onGoStore} label="상점/인벤토리" />
+                        <CircleButton imageSrc="/icons/btn-exchange.png" onClick={onGoExchange} label="환전소" />
+                        <CircleButton imageSrc="/icons/btn-store.png" onClick={onGoStore} label="상점/인벤토리" />
                     </div>
 
                     {/* 오른쪽 버튼 4개 — right를 음수로 줘서 방 경계 안쪽에 걸치게 */}
@@ -193,24 +144,22 @@ export default function HomeView({
                         style={{
                             position: 'absolute',
                             right: '10px',  // ← 방 오른쪽 테두리에 절반씩 걸치게
-                            top: '50%',
-                            transform: 'translateY(-60%)',
+                            top: '20%',
+                            transform: 'translateY(-50%)',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: 'var(--space-2)',
+                            gap: 'var(--space-5)',
                             zIndex: 10,
                         }}
                     >
-                        <CircleButton emoji="⚙️" onClick={onGoSettings} label="설정" />
-                        <CircleButton emoji="📺" onClick={onWatchAd} label="광고 시청" />
-                        <CircleButton emoji="🏃" onClick={onGoMission} label="미션 수행" />
-                        <CircleButton emoji="🛋️" onClick={onEditRoom} label="가구 변경" />
+                        <CircleButton imageSrc="/icons/btn-ad.png" onClick={onWatchAd} label="광고 시청" />
+                        <CircleButton imageSrc="/icons/btn-mission.png" onClick={onGoMission} label="미션 수행" />
                     </div>
                 </div>
             </div>
             {/* ── 하단: 경험치 바 카드 ── */}
             {character && (
-                <div style={{ padding: '0 var(--space-3) var(--space-3)', flexShrink: 0 }}>
+                <div style={{ padding: '10px 10px 0px', flexShrink: 0 }}>
                     <div
                         style={{
                             borderRadius: 'var(--radius-xl)',
@@ -219,7 +168,7 @@ export default function HomeView({
                             boxShadow: 'var(--shadow-sm)',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 'var(--space-3)',
+                            gap: 'var(--space-5)',
                         }}
                     >
                         {/* Lv. 박스 */}

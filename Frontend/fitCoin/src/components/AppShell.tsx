@@ -92,11 +92,11 @@ export function AppTopBar({
 const TABS = [
   {
     key: "character",
-    label: "캐릭터\n도감",
+    label: "캐릭터",
     Icon: BookOpen,
     href: "/character",
   },
-  { key: "room", label: "테마/가구\n도감", Icon: BookMarked, href: "/room" },
+  { key: "room", label: "테마/가구", Icon: BookMarked, href: "/room" },
   { key: "home", label: "홈", Icon: Home, href: "/home" },
   { key: "wallet", label: "지갑", Icon: Wallet, href: "/wallet" },
   { key: "my", label: "마이페이지", Icon: Settings, href: "/my" },
