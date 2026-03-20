@@ -2,7 +2,7 @@ package org.a504.fitCoin.domain.item.controller;
 
 import org.a504.fitCoin.domain.item.dto.response.GetItemsResponse;
 import org.a504.fitCoin.domain.item.dto.response.ItemResponse;
-import org.a504.fitCoin.domain.item.entity.Item.PurchaseType;
+import org.a504.fitCoin.domain.item.value.ShopItem.PurchaseType;
 import org.a504.fitCoin.domain.item.service.ItemService;
 import org.a504.fitCoin.global.config.property.CorsConfigProperties;
 import org.junit.jupiter.api.Test;
