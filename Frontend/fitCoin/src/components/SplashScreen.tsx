@@ -7,7 +7,7 @@ interface SplashScreenProps {
   onFinish: () => void;
 }
 
-const SPLASH_DURATION_MS = 2500;
+const SPLASH_DURATION_MS = 1500;
 
 export default function SplashScreen({ onFinish }: SplashScreenProps) {
   useEffect(() => {
@@ -28,9 +28,11 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
         backgroundColor: '#FFF8E7',
       }}
     >
-      <img
-        src="/splash.gif"
-        alt="돈땃쥐미 로딩 중"
+      <video
+        src="/splash.mp4"
+        autoPlay
+        muted
+        playsInline
         style={{
           width: '100%',
           height: 'auto',
