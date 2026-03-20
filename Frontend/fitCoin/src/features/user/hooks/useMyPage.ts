@@ -19,14 +19,12 @@ import {
   type RecentStreakResponse,
   type MonthStreakResponse,
 } from "@/features/streak/services/streakApi";
-
 import { removeAccessToken } from "@/features/auth/utils/tokenUtils";
 
 // ─────────────────────────────────────────────
 // 반환 타입
 // ─────────────────────────────────────────────
 export interface UseMyPageReturn {
-  // 데이터
   userInfo: UserInfo | null;
   recentStreak: RecentStreakResponse | null;
   monthStreak: MonthStreakResponse | null;
@@ -34,19 +32,16 @@ export interface UseMyPageReturn {
   error: string | null;
   calendarDate: { year: number; month: number };
 
-  // 모달 / 드롭다운 열림 상태
   nicknameModalOpen: boolean;
   passwordModalOpen: boolean;
   deleteModalOpen: boolean;
   levelDropdownOpen: boolean;
 
-  // 모달 / 드롭다운 제어 함수
   setNicknameModalOpen: (v: boolean) => void;
   setPasswordModalOpen: (v: boolean) => void;
   setDeleteModalOpen: (v: boolean) => void;
   setLevelDropdownOpen: (v: boolean) => void;
 
-  // 액션 함수
   handleLogout: () => Promise<void>;
   handleNicknameUpdate: (nickname: string) => Promise<void>;
   handlePasswordUpdate: (
@@ -66,7 +61,6 @@ export interface UseMyPageReturn {
 export function useMyPage(): UseMyPageReturn {
   const router = useRouter();
 
-  // ── 데이터 상태 ──
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [recentStreak, setRecentStreak] = useState<RecentStreakResponse | null>(
     null,
@@ -77,13 +71,11 @@ export function useMyPage(): UseMyPageReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ── 달력 년/월 ──
   const [calendarDate, setCalendarDate] = useState(() => {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() + 1 };
   });
 
-  // ── 모달/드롭다운 상태 ──
   const [nicknameModalOpen, setNicknameModalOpen] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -121,7 +113,7 @@ export function useMyPage(): UseMyPageReturn {
       const data = await getMonthStreak(year, month);
       setMonthStreak(data);
     } catch {
-      // 달력 조회 실패는 조용히 처리 (주요 기능 아님)
+      // 달력 조회 실패는 조용히 처리
     }
   }, []);
 
@@ -144,10 +136,7 @@ export function useMyPage(): UseMyPageReturn {
     router.replace("/");
   };
 
-  /** 닉네임 변경: 성공 시 로컬 userInfo 즉시 업데이트 (재조회 없이)
-   *  MOCK: 백엔드 없어도 화면에서 닉네임이 바뀌는 것처럼 동작함
-   *  API 연동 후: updateNickname 응답값으로 교체 (현재 코드 그대로 유지 가능)
-   */
+  /** 닉네임 변경: 성공 시 로컬 userInfo 즉시 업데이트 */
   const handleNicknameUpdate = async (nickname: string) => {
     try {
       const result = await updateNickname({ nickname });
@@ -159,9 +148,7 @@ export function useMyPage(): UseMyPageReturn {
     }
   };
 
-  /** 비밀번호 변경
-   *  MOCK: 백엔드 없으면 에러가 나지만, 모달에서 에러 메시지로 표시됨 (정상)
-   */
+  /** 비밀번호 변경 */
   const handlePasswordUpdate = async (
     password: string,
     newPassword: string,
@@ -170,33 +157,24 @@ export function useMyPage(): UseMyPageReturn {
     await updatePassword({ password, newPassword, confirmPassword });
   };
 
-  /** 운동 레벨 변경: 낙관적 업데이트 및 실패 시 롤백 로직 적용 */
+  /** 운동 레벨 변경: 낙관적 업데이트 + 실패 시 롤백 */
   const handleLevelUpdate = async (level: ExerciseLevel) => {
-    // 1. 롤백을 위해 변경 전의 현재 상태를 백업해둡니다.
     const previousUserInfo = userInfo;
 
-    // 2. [낙관적 업데이트] 서버 응답을 기다리지 않고 UI 상태를 즉시 변경합니다.
-    setUserInfo((prev) => (prev ? { ...prev, exercise_level: level } : prev));
-    // 드롭다운도 즉시 닫아 사용자 반응성을 높입니다.
+    setUserInfo((prev) => (prev ? { ...prev, exerciseLevel: level } : prev));
     setLevelDropdownOpen(false);
 
     try {
-      // 3. 실제 API 호출 (/users/me/exercise-level)
-      const result = await updateExerciseLevel({ exercise_level: level });
-
-      // 4. 성공 시, 서버에서 받은 최종 데이터로 상태를 동기화합니다.
+      const result = await updateExerciseLevel({ exerciseLevel: level });
       setUserInfo((prev) =>
-        prev ? { ...prev, exercise_level: result.exercise_level } : prev,
+        prev ? { ...prev, exerciseLevel: result.exerciseLevel } : prev,
       );
     } catch (err) {
-      // 5. [실패 시 복구] 통신 실패(400, 401 등) 시 백업해둔 이전 상태로 되돌립니다.
       console.error(
         "운동 레벨 업데이트에 실패했습니다. 이전 상태로 복구합니다.",
         err,
       );
       setUserInfo(previousUserInfo);
-
-      // 사용자에게 에러 알림 (선택 사항)
       alert("레벨 변경에 실패했습니다. 다시 시도해주세요.");
     }
   };
@@ -208,7 +186,6 @@ export function useMyPage(): UseMyPageReturn {
     router.replace("/");
   };
 
-  // ── 달력 이전/다음 달 이동 ──
   const handleCalendarPrev = () => {
     setCalendarDate((prev) =>
       prev.month === 1
