@@ -14,7 +14,8 @@ import StoreThemePreview from '@/features/store/components/StoreThemePreview';
 import PageHeader from '@/components/PageHeader';
 import type { StoreItem } from '@/features/store/types/types';
 import type { UserCharacter } from '@/types/home';
-import { TrendingUp, Coins } from 'lucide-react';
+import PointBadge from '@/components/PointBadge';
+import CoinBadge from '@/components/CoinBadge';
 
 interface StoreViewProps {
     points: number;
@@ -72,52 +73,10 @@ export default function StoreView({ points, coins, character }: StoreViewProps) 
                 {/* 우측: 포인트 / 코인 박스 */}
                 <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                     {/* 포인트 */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '10px 18px',
-                            borderRadius: '12px',
-                            background: 'var(--color-bg)',
-                            border: '1px solid var(--color-border)',
-                        }}
-                    >
-                        {/* TODO: 포인트 아이콘 이미지로 교체 */}
-                        <TrendingUp size={18} color="var(--color-primary)" />
-                        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-                            <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)' }}>
-                                포인트
-                            </span>
-                            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-primary)', fontFamily: 'var(--font-body)', }}>
-                                {points.toLocaleString()}
-                            </span>
-                        </div>
-                    </div>
+                    <PointBadge points={points} />
 
                     {/* 코인 */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '10px 18px',
-                            borderRadius: '12px',
-                            background: 'var(--color-bg)',
-                            border: '1px solid var(--color-border)',
-                        }}
-                    >
-                        {/* TODO: 코인 아이콘 이미지로 교체 */}
-                        <Coins size={18} color="#B8860B" />
-                        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-                            <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)' }}>
-                                코인
-                            </span>
-                            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-primary)', fontFamily: 'var(--font-body)', }}>
-                                {coins.toLocaleString()}
-                            </span>
-                        </div>
-                    </div>
+                    <CoinBadge coins={coins} />
                 </div>
             </div>
 

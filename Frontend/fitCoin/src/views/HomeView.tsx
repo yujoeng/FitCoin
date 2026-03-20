@@ -4,6 +4,8 @@
 import RoomView from '@/components/RoomView';
 import StreakBar from '@/components/StreakBar';
 import type { HomePageState } from '@/types/home';
+import PointBadge from '@/components/PointBadge';
+import CoinBadge from '@/components/CoinBadge';
 
 interface CircleButtonProps {
     imageSrc: string;
@@ -82,7 +84,7 @@ export default function HomeView({
                 }}
             >
                 {/* 스트릭바 — 포인트/코인 박스 너비(약 90px)만큼 오른쪽 여백 확보 */}
-                <div style={{ paddingRight: '96px' }}>
+                <div style={{ paddingRight: '105px' }}>
                     <StreakBar
                         streakCount={streakCount}
                         streakDays={streakDays}
@@ -103,60 +105,10 @@ export default function HomeView({
                     }}
                 >
                     {/* 포인트 */}
-                    <div
-                        style={{
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '6px 12px',
-                            borderRadius: 'var(--radius-lg)',
-                            background: 'var(--color-bg-card)',
-                            border: '1px solid var(--color-border)',
-                        }}
-                    >
-                        {/* TODO: 포인트 아이콘 이미지로 교체 */}
-                        <span style={{ fontSize: '14px' }}>🏆</span>
-                        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-                            <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)' }}>
-                                포인트
-                            </span>
-                            <span
-                                className="fc-font-point"
-                                style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-text-primary)' }}
-                            >
-                                {points.toLocaleString()}
-                            </span>
-                        </div>
-                    </div>
+                    <PointBadge points={points} />
 
                     {/* 코인 */}
-                    <div
-                        style={{
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '6px 12px',
-                            borderRadius: 'var(--radius-lg)',
-                            background: 'var(--color-bg-card)',
-                            border: '1px solid var(--color-border)',
-                        }}
-                    >
-                        {/* TODO: 코인 아이콘 이미지로 교체 */}
-                        <span style={{ fontSize: '14px' }}>🪙</span>
-                        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-                            <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)' }}>
-                                코인
-                            </span>
-                            <span
-                                className="fc-font-point"
-                                style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-text-primary)' }}
-                            >
-                                {coins.toLocaleString()}
-                            </span>
-                        </div>
-                    </div>
+                    <CoinBadge coins={coins} />
                 </div>
             </div>
 
