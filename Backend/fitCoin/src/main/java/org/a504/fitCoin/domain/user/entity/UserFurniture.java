@@ -10,6 +10,7 @@ import org.a504.fitCoin.global.entity.BaseTimeEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "furniture_id"}))
 public class UserFurniture extends BaseTimeEntity {
 
     @Id
@@ -17,10 +18,17 @@ public class UserFurniture extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "furniture_id")
+    @JoinColumn(name = "furniture_id", nullable = false)
     private Furniture furniture;
+
+    public static UserFurniture of(User user, Furniture furniture) {
+        UserFurniture uf = new UserFurniture();
+        uf.user = user;
+        uf.furniture = furniture;
+        return uf;
+    }
 }

@@ -32,6 +32,14 @@ public class CoinLog {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    public static CoinLog of(User user, int amount, TransactionType type) {
+        CoinLog log = new CoinLog();
+        log.user = user;
+        log.amount = amount;
+        log.type = type;
+        return log;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
