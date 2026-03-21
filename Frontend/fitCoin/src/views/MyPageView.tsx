@@ -676,6 +676,7 @@ export default function MyPageView() {
 
   const {
     userInfo,
+    characterInfo,
     recentStreak,
     monthStreak,
     isLoading,
@@ -797,12 +798,15 @@ export default function MyPageView() {
         </div>
 
         <div
+          className="fc-hide-scrollbar"
           style={{
             padding: "0 var(--space-4)",
             display: "flex",
             flexDirection: "column",
             gap: "var(--space-4)",
             flex: 1,
+            overflowY: "auto",
+            minHeight: 0,
           }}
         >
           {/* ── 프로필 카드 ── */}
@@ -858,8 +862,19 @@ export default function MyPageView() {
                   background: "var(--color-primary-light)",
                 }}
               >
-                {/* TODO: 실제 캐릭터 이미지로 교체 — GET /characters/me API 연동 필요 */}
-                <span style={{ fontSize: "36px" }}>🐾</span>
+                {/* GET /characters/me 연동 완료 */}
+                {characterInfo?.imgUrl ? (
+                  <Image
+                    src={characterInfo.imgUrl}
+                    alt="내 캐릭터"
+                    width={72}
+                    height={72}
+                    style={{ objectFit: "cover" }}
+                    priority
+                  />
+                ) : (
+                  <span style={{ fontSize: "36px" }}>🐾</span>
+                )}
               </div>
 
               {/* 텍스트 정보 */}

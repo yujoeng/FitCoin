@@ -15,11 +15,18 @@ export const EXERCISE_LEVEL_LABELS: Record<ExerciseLevel, string> = {
   ADVANCED: "고급",
 };
 
-/** GET /users/me 응답 */
 export interface UserInfo {
   email: string;
   nickname: string;
   exerciseLevel: ExerciseLevel;
+}
+
+/** GET /characters/me 응답 */
+export interface CharacterInfo {
+  characterId: number;
+  imgUrl: string;
+  currentExp: number;
+  isGraduatable: boolean;
 }
 
 /** PATCH /users/me/nickname 요청 바디 */
@@ -61,6 +68,23 @@ export interface DeleteUserRequest {
 export async function getUserInfo(): Promise<UserInfo> {
   const response = await apiClient.get<ApiResponse<UserInfo>>("/users/me");
   return response.data.result;
+}
+
+/**
+ * 내 캐릭터 정보 조회
+ * GET /characters/me
+ * 404 발생 시 null 반환 (캐릭터 없는 상태)
+ */
+export async function getCharacterMe(): Promise<CharacterInfo | null> {
+  try {
+    const response = await apiClient.get<ApiResponse<CharacterInfo>>("/characters/me");
+    return response.data.result;
+  } catch (err: any) {
+    if (err.response?.status === 404) {
+      return null;
+    }
+    throw err;
+  }
 }
 
 /**

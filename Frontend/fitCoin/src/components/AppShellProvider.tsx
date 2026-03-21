@@ -42,7 +42,7 @@ export default function AppShellProvider({
       <main
         className="fc-hide-scrollbar"
         style={{
-          paddingBottom: (isMounted && showTabBar) ? "80px" : "0px",
+          paddingBottom: (isMounted && showTabBar) ? "calc(80px + var(--safe-bottom))" : "0px",
           height: "100dvh",
           overflowY: "auto",
           boxSizing: "border-box",
