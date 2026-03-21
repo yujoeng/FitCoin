@@ -28,7 +28,7 @@ export default function SettingModal({ onClose }: SettingModalProps) {
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: 100,
+        zIndex: 1000,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
