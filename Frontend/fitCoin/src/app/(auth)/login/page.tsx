@@ -8,8 +8,13 @@ import { hasAccessToken } from "@/features/auth/utils/tokenUtils";
 
 const LoginForm = dynamic(
   () => import("@/features/auth/components/LoginForm"),
-  { ssr: false },
+  { ssr: false, loading: () => <div style={{ height: "300px" }} /> },
 );
+
+const SplashScreen = dynamic(() => import("@/components/SplashScreen"), {
+  ssr: false,
+  loading: () => <div style={{ width: "100%", height: "100dvh", backgroundColor: "#FFF8E7" }} />,
+});
 
 export default function LoginPage() {
   const router = useRouter();

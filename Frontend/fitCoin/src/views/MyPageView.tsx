@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Settings } from "lucide-react";
+import SettingModal from "@/components/SettingModal";
 import { useMyPage } from "@/features/user/hooks/useMyPage";
 import {
   EXERCISE_LEVEL_LABELS,
@@ -670,6 +672,8 @@ function StreakCalendar({
 // 메인 컴포넌트: MyPageView
 // ─────────────────────────────────────────────
 export default function MyPageView() {
+  const [settingModalOpen, setSettingModalOpen] = useState(false);
+
   const {
     userInfo,
     recentStreak,
@@ -808,8 +812,30 @@ export default function MyPageView() {
               padding: "var(--space-5)",
               boxShadow: "var(--shadow-sm)",
               background: "var(--color-bg-card)",
+              position: "relative",
             }}
           >
+            {/* 설정 버튼 */}
+            <button
+              onClick={() => setSettingModalOpen(true)}
+              className="fc-pressable"
+              style={{
+                position: "absolute",
+                top: "var(--space-5)",
+                right: "var(--space-5)",
+                zIndex: 10,
+                color: "var(--color-text-secondary)",
+                padding: "var(--space-1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <Settings size={22} />
+            </button>
             {/* 캐릭터 이미지 + 정보 */}
             <div
               style={{
@@ -895,7 +921,7 @@ export default function MyPageView() {
                   </button>
                 </div>
 
-                {/* 로그아웃 / 비밀번호 재설정 / 회원탈퇴 */}
+                {/* 로그아웃 / 비밀번호 변경 / 회원탈퇴 */}
                 <div
                   style={{
                     display: "flex",
@@ -911,7 +937,7 @@ export default function MyPageView() {
                       color: "var(--color-text-secondary)",
                     },
                     {
-                      label: "비밀번호 재설정",
+                      label: "비밀번호 변경",
                       onClick: () => setPasswordModalOpen(true),
                       bg: "var(--color-primary-light)",
                       color: "var(--color-text-secondary)",
@@ -1115,6 +1141,9 @@ export default function MyPageView() {
           onClose={() => setDeleteModalOpen(false)}
           onSubmit={handleDeleteUser}
         />
+      )}
+      {settingModalOpen && (
+        <SettingModal onClose={() => setSettingModalOpen(false)} />
       )}
     </>
   );
