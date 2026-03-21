@@ -186,6 +186,20 @@ const useRoom = () => {
     });
   }, [currentLayout]);
 
+  /**
+   * 모든 슬롯 비우기 (Wallpaper/Floor 포함 전체)
+   */
+  const clearAllSlots = useCallback(() => {
+    setEditingLayout({
+      wallpaperId: null,
+      floorId: null,
+      windowId: null,
+      leftId: null,
+      rightId: null,
+      decorationId: null,
+    });
+  }, []);
+
   return {
     isLoading,
     isSaving,
@@ -198,6 +212,7 @@ const useRoom = () => {
     selectFurniture,
     saveLayout,
     resetEditing,
+    clearAllSlots,
   };
 };
 

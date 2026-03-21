@@ -6,6 +6,7 @@ interface FurniturePanelProps {
   selectedSlot: FurnitureType;
   onSlotChange: (slot: FurnitureType) => void;
   onSelectFurniture: (furnitureId: number | null) => void;
+  onClearAll: () => void;
   currentFurnitureId: number | null;
 }
 
@@ -23,6 +24,7 @@ export default function FurniturePanel({
   selectedSlot,
   onSlotChange,
   onSelectFurniture,
+  onClearAll,
   currentFurnitureId,
 }: FurniturePanelProps) {
   // 현재 카테고리에 맞는 아이템 필터링
@@ -98,26 +100,43 @@ export default function FurniturePanel({
           padding: '20px 16px',
         }}
       >
-        {/* 배치 해제 버튼 */}
-        <button
-          onClick={() => onSelectFurniture(null)}
-          disabled={currentFurnitureId === null}
-          style={{
-            width: '100%',
-            padding: '12px',
-            marginBottom: '20px',
-            borderRadius: 'var(--radius-lg)',
-            background: 'var(--color-bg)',
-            color: currentFurnitureId === null ? 'var(--color-text-disabled)' : 'var(--color-text-primary)',
-            fontSize: 'var(--text-sm)',
-            fontWeight: 700,
-            border: '2px dashed var(--color-border-strong)',
-            opacity: currentFurnitureId === null ? 0.6 : 1,
-            cursor: currentFurnitureId === null ? 'default' : 'pointer',
-          }}
-        >
-          {currentFurnitureId === null ? '현재 비어 있음' : '가구 배치 해제'}
-        </button>
+        {/* 배치 해제 버튼 영역 */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+          <button
+            onClick={() => onSelectFurniture(null)}
+            disabled={currentFurnitureId === null}
+            style={{
+              flex: 1,
+              padding: '12px',
+              borderRadius: 'var(--radius-lg)',
+              background: 'var(--color-bg)',
+              color: currentFurnitureId === null ? 'var(--color-text-disabled)' : 'var(--color-text-primary)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 700,
+              border: '2px dashed var(--color-border-strong)',
+              opacity: currentFurnitureId === null ? 0.6 : 1,
+              cursor: currentFurnitureId === null ? 'default' : 'pointer',
+            }}
+          >
+            {currentFurnitureId === null ? '현재 비어 있음' : '현재 슬롯 해제'}
+          </button>
+          
+          <button
+            onClick={onClearAll}
+            style={{
+              padding: '12px 16px',
+              borderRadius: 'var(--radius-lg)',
+              background: 'var(--color-danger-light)',
+              color: 'var(--color-danger)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 700,
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            전체 해제
+          </button>
+        </div>
 
         <div
           style={{
@@ -133,7 +152,11 @@ export default function FurniturePanel({
             return (
               <div
                 key={item.furnitureId}
-                onClick={() => isOwned && onSelectFurniture(item.furnitureId)}
+                onClick={() => {
+                  if (!isOwned) return;
+                  // 이미 선택된 아이템이면 해제(null), 아니면 선택
+                  onSelectFurniture(isSelected ? null : item.furnitureId);
+                }}
                 style={{
                   aspectRatio: '1 / 1',
                   borderRadius: 'var(--radius-xl)',
