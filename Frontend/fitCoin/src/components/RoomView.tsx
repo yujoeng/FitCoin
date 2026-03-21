@@ -1,4 +1,3 @@
-// src/components/RoomView.tsx
 import type { RoomConfig, UserCharacter, FurnitureSlot } from '@/types/home';
 
 interface RoomViewProps {
@@ -10,12 +9,12 @@ interface RoomViewProps {
 }
 
 const PLACEHOLDER_COLORS: Record<FurnitureSlot | 'character', string> = {
-    wallpaper: '#D6E4F5',
+    wallpaper: '#FDF2D0',
     floor: '#C8B89A',
-    window: '#B8D8F0',
-    leftItem: '#B8D4C8',
-    rightItem: '#D4B8C8',
-    decoration: '#F5E8D6',
+    window: '#B3E5FC',
+    left: '#B8D4C8',
+    right: '#D4B8C8',
+    hidden: '#F5E8D6',
     character: '#E8D6F5',
 };
 
@@ -23,12 +22,12 @@ function SlotImage({
     src,
     alt,
     slotKey,
-    objectFit = 'contain', // 추가: 기본값은 contain 유지
+    objectFit = 'contain',
 }: {
     src: string;
     alt: string;
     slotKey: FurnitureSlot | 'character';
-    objectFit?: 'contain' | 'cover'; // 추가
+    objectFit?: 'contain' | 'cover';
 }) {
     if (src) {
         return (
@@ -40,18 +39,16 @@ function SlotImage({
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
-                    objectFit: objectFit, // 수정: props로 받은 objectFit 적용
+                    objectFit: objectFit,
                 }}
             />
         );
     }
 
-    // 캐릭터 슬롯은 이미지가 없을 때 플레이스홀더를 보여주지 않음
     if (slotKey === 'character' && !src) {
-        return null; // 렌더링하지 않음
+        return null;
     }
 
-    // 캐릭터 이외의 슬롯은 기존 플레이스홀더 렌더링
     return (
         <div
             style={{
@@ -60,8 +57,9 @@ function SlotImage({
                 height: '100%',
                 background: PLACEHOLDER_COLORS[slotKey],
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                alignItems: slotKey === 'wallpaper' ? 'flex-end' : 'center',
+                justifyContent: slotKey === 'wallpaper' ? 'flex-end' : 'center',
+                padding: slotKey === 'wallpaper' ? '0 16px 48px 0' : '0',
                 fontSize: 'var(--text-xs)',
                 color: 'var(--color-text-secondary)',
                 opacity: 0.6,
@@ -74,7 +72,7 @@ function SlotImage({
 }
 
 export default function RoomView({ roomConfig, character, onEditRoom, hideEditButton = false }: RoomViewProps) {
-    const { wallpaper, floor, window: windowItem, leftItem, rightItem, decoration } = roomConfig;
+    const { wallpaper, floor, window: windowItem, left, right, hidden } = roomConfig;
 
     return (
         <div
@@ -89,12 +87,12 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                 boxShadow: 'var(--shadow-md)',
             }}
         >
-            {/* 레이어 1: 벽지 — 바닥 높이를 제외한 상단 구역 꽉 채우기 */}
+            {/* 레이어 1: 벽지 */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 'calc(100% - var(--room-floor-height))', zIndex: 0 }}>
-                <SlotImage src={wallpaper?.imageSrc ?? ''} alt="벽지" slotKey="wallpaper" objectFit="cover" />
+                <SlotImage src={wallpaper?.imageUrl ?? ''} alt="벽지" slotKey="wallpaper" objectFit="cover" />
             </div>
 
-            {/* 레이어 2: 바닥 — CSS background-image repeat 타일 방식 */}
+            {/* 레이어 2: 바닥 */}
             <div style={{
                 position: 'absolute',
                 bottom: 0,
@@ -102,14 +100,13 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                 right: 0,
                 height: 'var(--room-floor-height)',
                 zIndex: 1,
-                backgroundColor: PLACEHOLDER_COLORS.floor, // 이미지가 없거나 깨졌을 때 기본 배경색
-                backgroundImage: floor?.imageSrc ? `url('${floor.imageSrc}')` : 'none',
-                backgroundRepeat: 'repeat-x',    // 수정: 세로는 1장, 가로로만 반복
-                backgroundPosition: 'bottom left', // 좌측 하단 기준 정렬 유지
-                backgroundSize: 'auto 100%', // 수정: 이미지 세로가 바닥 영역 높이를 꽉 채우도록
+                backgroundColor: PLACEHOLDER_COLORS.floor,
+                backgroundImage: floor?.imageUrl ? `url('${floor.imageUrl}')` : 'none',
+                backgroundRepeat: 'repeat-x',
+                backgroundPosition: 'bottom left',
+                backgroundSize: 'auto 100%',
             }}>
-                {/* 텍스트 플레이스홀더 (이미지가 없을 때만) */}
-                {!floor?.imageSrc && (
+                {!floor?.imageUrl && (
                     <div style={{
                         width: '100%',
                         height: '100%',
@@ -125,7 +122,7 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                 )}
             </div>
 
-            {/* 레이어 2.5: 창문 — 벽 중앙 */}
+            {/* 레이어 2.5: 창문 */}
             <div style={{
                 position: 'absolute',
                 top: 'var(--room-window-top)',
@@ -135,10 +132,10 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                 height: 'var(--room-window-height)',
                 zIndex: 2,
             }}>
-                <SlotImage src={windowItem?.imageSrc ?? ''} alt="창문" slotKey="window" />
+                <SlotImage src={windowItem?.imageUrl ?? ''} alt="창문" slotKey="window" />
             </div>
 
-            {/* 레이어 3: 장식품 — 상단 중앙 */}
+            {/* 레이어 3: 장식 */}
             <div style={{
                 position: 'absolute',
                 top: 'var(--room-deco-top)',
@@ -148,10 +145,10 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                 height: 'var(--room-deco-height)',
                 zIndex: 2,
             }}>
-                <SlotImage src={decoration?.imageSrc ?? ''} alt="장식품" slotKey="decoration" />
+                <SlotImage src={hidden?.imageUrl ?? ''} alt="장식" slotKey="hidden" />
             </div>
 
-            {/* 레이어 4: 좌측 아이템 */}
+            {/* 레이어 4: 아이템1 */}
             <div style={{
                 position: 'absolute',
                 bottom: 'var(--room-side-item-bottom)',
@@ -160,10 +157,10 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                 height: 'var(--room-side-item-height)',
                 zIndex: 2,
             }}>
-                <SlotImage src={leftItem?.imageSrc ?? ''} alt="좌측 아이템" slotKey="leftItem" />
+                <SlotImage src={left?.imageUrl ?? ''} alt="아이템1" slotKey="left" />
             </div>
 
-            {/* 레이어 5: 우측 아이템 */}
+            {/* 레이어 5: 아이템2 */}
             <div style={{
                 position: 'absolute',
                 bottom: 'var(--room-side-item-bottom)',
@@ -172,7 +169,7 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                 height: 'var(--room-side-item-height)',
                 zIndex: 2,
             }}>
-                <SlotImage src={rightItem?.imageSrc ?? ''} alt="우측 아이템" slotKey="rightItem" />
+                <SlotImage src={right?.imageUrl ?? ''} alt="아이템2" slotKey="right" />
             </div>
 
             {/* 레이어 6: 캐릭터 */}
@@ -192,7 +189,6 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                 />
             </div>
 
-            {/* 편집 버튼 — hideEditButton이 false일 때만 표시 */}
             {!hideEditButton && (
                 <button
                     onClick={onEditRoom}
@@ -218,7 +214,7 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                     }}
                     aria-label="가구 편집"
                 >
-                    ✏️ 편집
+                    편집
                 </button>
             )}
         </div>
