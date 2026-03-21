@@ -9,8 +9,10 @@ import {
   updatePassword,
   updateExerciseLevel,
   deleteUser,
+  getCharacterMe,
   type UserInfo,
   type ExerciseLevel,
+  type CharacterInfo,
 } from "@/features/user/services/userApi";
 import { logout } from "@/features/auth/services/authApi";
 import {
@@ -26,6 +28,7 @@ import { removeAccessToken } from "@/features/auth/utils/tokenUtils";
 // ─────────────────────────────────────────────
 export interface UseMyPageReturn {
   userInfo: UserInfo | null;
+  characterInfo: CharacterInfo | null;
   recentStreak: RecentStreakResponse | null;
   monthStreak: MonthStreakResponse | null;
   isLoading: boolean;
@@ -62,6 +65,9 @@ export function useMyPage(): UseMyPageReturn {
   const router = useRouter();
 
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(
+    null,
+  );
   const [recentStreak, setRecentStreak] = useState<RecentStreakResponse | null>(
     null,
   );
@@ -96,10 +102,14 @@ export function useMyPage(): UseMyPageReturn {
       // 스트릭은 선택 — 실패해도 에러 화면 안 띄움
       // 백엔드 미구현 시 404가 나도 마이페이지는 정상 표시됨
       try {
-        const recent = await getRecentStreak();
+        const [recent, charInfo] = await Promise.all([
+          getRecentStreak().catch(() => null),
+          getCharacterMe().catch(() => null),
+        ]);
         setRecentStreak(recent);
+        setCharacterInfo(charInfo);
       } catch {
-        setRecentStreak(null);
+        // Promise.all 내에서 catch를 개별적으로 처리함
       }
     } catch {
       setError("정보를 불러오지 못했어요. 다시 시도해주세요.");
@@ -204,6 +214,7 @@ export function useMyPage(): UseMyPageReturn {
 
   return {
     userInfo,
+    characterInfo,
     recentStreak,
     monthStreak,
     isLoading,
