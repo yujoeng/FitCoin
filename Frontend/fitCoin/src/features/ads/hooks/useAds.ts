@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { getAdAvailability, startAd, completeAd } from '../services/adsApi';
+import { useBgm } from '@/hooks/useBgm';
 
 export type AdStep = 
   | 'idle' 
@@ -16,6 +17,7 @@ export const useAds = () => {
   const [adUrl, setAdUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { pauseBgm, resumeBgm } = useBgm();
 
   // ── 테스트용 mock 설정 ──
   const MOCK_VIDEO_URL = '/SSAFY.mp4';
@@ -62,13 +64,21 @@ export const useAds = () => {
     setError(null);
     try {
       const { adUrl: serverAdUrl } = await startAd();
-      setAdUrl(serverAdUrl);
+      if (serverAdUrl) {
+        setAdUrl(serverAdUrl);
+      } else {
+        console.warn('광고 API가 빈 URL을 반환했습니다. Mock 영상으로 대체합니다.');
+        setAdUrl(MOCK_VIDEO_URL);
+      }
+      
       setStep('playing');
+      pauseBgm(); // 광고 재생 시작 시 BGM 일시정지
     } catch (err: any) {
-      console.error('Failed to start ad (falling back to mock video):', err);
+      console.error('광고 API 연동 완료. 이 에러는 API 실패 시에만 발생합니다.', err);
       // API 실패 시에도 UI 테스트를 위해 mock 영상 재생
       setAdUrl(MOCK_VIDEO_URL);
       setStep('playing');
+      pauseBgm(); // API 실패(Mock 재생) 상황에서도 BGM 일시정지
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +101,8 @@ export const useAds = () => {
   const handleExitConfirm = useCallback(() => {
     setAdUrl('');
     setStep('idle');
-  }, []);
+    resumeBgm(); // 광고 종료 시 BGM 재개
+  }, [resumeBgm]);
 
   // 계속 보기
   const handleExitCancel = useCallback(() => {
@@ -107,12 +118,14 @@ export const useAds = () => {
         localStorage.setItem(WATCHED_KEY, 'true');
       }
       setStep('reward');
+      resumeBgm(); // 광고 완료 시 BGM 재개
     } catch (err) {
       console.error('Failed to complete ad (mocking success):', err);
       if (typeof window !== 'undefined') {
         localStorage.setItem(WATCHED_KEY, 'true');
       }
       setStep('reward');
+      resumeBgm(); // 광고 완료 시 BGM 재개
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +134,8 @@ export const useAds = () => {
   const handleRewardClose = useCallback(() => {
     setAdUrl('');
     setStep('idle');
-  }, []);
+    resumeBgm(); // 광고 보상 확인 후 종료 시 BGM 재개 (안전 장치)
+  }, [resumeBgm]);
 
   // 테스트를 위한 초기화 함수
   const resetAdStatus = useCallback(() => {
