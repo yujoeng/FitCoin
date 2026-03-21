@@ -42,6 +42,8 @@ interface BgmContextType {
   toggleBgm: () => void;
   changeVolume: (val: number) => void;
   toggleNotifications: () => void;
+  pauseBgm: () => void;
+  resumeBgm: () => void;
 }
 
 const BgmContext = createContext<BgmContextType | undefined>(undefined);
@@ -57,6 +59,7 @@ export const BgmProvider = ({
   isPublic: boolean;
 }) => {
   const [isEnabled, setIsEnabled] = useState<boolean>(true);
+  const [isAdPaused, setIsAdPaused] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.3);
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -89,12 +92,12 @@ export const BgmProvider = ({
     setNotificationsEnabled(initialNotifications);
   }, []);
 
-  // 경로 변화(isPublic) 및 활성화 상태에 따른 재생/일시정지 제어
+  // 경로 변화(isPublic), 활성화 상태(isEnabled), 광고 여부(isAdPaused)에 따른 재생/일시정지 제어
   useEffect(() => {
     if (!isMounted || !audio) return;
 
-    if (isPublic) {
-      // 로그인/회원가입 등 공용 페이지에서는 무조건 정지
+    if (isPublic || isAdPaused) {
+      // 로그인/회원가입 등 공용 페이지 또는 광고 재생 중에는 무조건 정지
       audio.pause();
     } else if (isEnabled) {
       // 그 외 페이지에서 설정이 ON이면 재생
@@ -118,14 +121,15 @@ export const BgmProvider = ({
       // 설정이 OFF면 정지
       audio.pause();
     }
-  }, [isPublic, isEnabled, isMounted]);
+  }, [isPublic, isEnabled, isAdPaused, isMounted]);
 
   // 자동재생 차단 대응: 사용자가 페이지를 처음 클릭할 때 재생 시도
   useEffect(() => {
     if (!isMounted || !audio) return;
 
     const handleFirstInteraction = async () => {
-      if (isEnabled && audio && audio.paused && !isPublic) {
+      // 광고 중이 아닐 때만 반응
+      if (isEnabled && audio && audio.paused && !isPublic && !isAdPaused) {
         try {
           if (audioCtx?.state === "suspended") {
             await audioCtx.resume();
@@ -140,7 +144,7 @@ export const BgmProvider = ({
       }
     };
 
-    if (isEnabled && !isPublic) {
+    if (isEnabled && !isPublic && !isAdPaused) {
       document.addEventListener("click", handleFirstInteraction);
       document.addEventListener("touchstart", handleFirstInteraction);
     }
@@ -149,7 +153,7 @@ export const BgmProvider = ({
       document.removeEventListener("click", handleFirstInteraction);
       document.removeEventListener("touchstart", handleFirstInteraction);
     };
-  }, [isEnabled, isPublic, isMounted]);
+  }, [isEnabled, isPublic, isAdPaused, isMounted]);
 
   const toggleBgm = useCallback(() => {
     setIsEnabled((prev) => {
@@ -176,6 +180,22 @@ export const BgmProvider = ({
     });
   }, []);
 
+  const pauseBgm = useCallback(() => {
+    setIsAdPaused(true);
+    if (audio) {
+      audio.pause();
+    }
+  }, []);
+
+  const resumeBgm = useCallback(() => {
+    setIsAdPaused(false);
+    if (isEnabled && audio && !isPublic) {
+      audio.play().catch(() => {
+        /* 자동재생 차단 등 무시 */
+      });
+    }
+  }, [isEnabled, isPublic]);
+
   const contextValue = useMemo(() => ({
     isEnabled,
     volume,
@@ -183,7 +203,9 @@ export const BgmProvider = ({
     toggleBgm,
     changeVolume,
     toggleNotifications,
-  }), [isEnabled, volume, notificationsEnabled, toggleBgm, changeVolume, toggleNotifications]);
+    pauseBgm,
+    resumeBgm,
+  }), [isEnabled, volume, notificationsEnabled, toggleBgm, changeVolume, toggleNotifications, pauseBgm, resumeBgm]);
 
   return <BgmContext.Provider value={contextValue}>{children}</BgmContext.Provider>;
 };
