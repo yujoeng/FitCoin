@@ -44,6 +44,23 @@ services:
     networks:
       - a504-network
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"   # API (S3 호환)
+      - "9001:9001"   # 웹 콘솔
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BROWSER_REDIRECT_URL: https://j14a504.p.ssafy.io/minio-console
+    volumes:
+      - ./data/minio:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - a504-network
+
   jenkins:
     build:
       context: ./jenkins
