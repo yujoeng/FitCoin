@@ -20,10 +20,12 @@ export default function RoomPage() {
     loadRoom,
     selectFurniture,
     saveLayout,
+    clearAllSlots,
   } = useRoom();
 
   const [selectedSlot, setSelectedSlot] = useState<FurnitureType>('WALLPAPER');
   const [showToast, setShowToast] = useState(false);
+  const [isToastExiting, setIsToastExiting] = useState(false);
 
   // 1. 진입 시 데이터 로드
   useEffect(() => {
@@ -35,7 +37,10 @@ export default function RoomPage() {
     await saveLayout();
     if (!error) {
       setShowToast(true);
-      setTimeout(() => setShowToast(false), 2000);
+      setIsToastExiting(false);
+      // 0.9초 후 사라짐 애니메이션 시작, 1.2초 후 종료
+      setTimeout(() => setIsToastExiting(true), 900);
+      setTimeout(() => setShowToast(false), 1200);
     }
   };
 
@@ -113,6 +118,7 @@ export default function RoomPage() {
           onSlotChange={setSelectedSlot}
           onSelectFurniture={(id) => selectFurniture(selectedSlot, id)}
           currentFurnitureId={currentFurnitureId}
+          onClearAll={clearAllSlots}
         />
       </div>
 
@@ -143,20 +149,31 @@ export default function RoomPage() {
         <div
           style={{
             position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: 'rgba(0,0,0,0.8)',
-            color: '#fff',
-            padding: '12px 24px',
-            borderRadius: 'var(--radius-lg)',
-            fontSize: 'var(--text-md)',
-            fontWeight: 700,
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none',
             zIndex: 1000,
-            animation: 'fc-popIn 0.3s ease-out',
           }}
         >
-          저장되었습니다.
+          <div
+            style={{
+              background: 'var(--color-bg-dark)',
+              color: '#fff',
+              padding: '12px 24px',
+              borderRadius: 'var(--radius-lg)',
+              fontSize: 'var(--text-md)',
+              fontWeight: 700,
+              textAlign: 'center',
+              animation: isToastExiting 
+                ? 'fc-popOut 0.3s ease-in forwards' 
+                : 'fc-popIn 0.3s ease-out',
+              pointerEvents: 'auto',
+            }}
+          >
+            저장되었습니다.
+          </div>
         </div>
       )}
 
