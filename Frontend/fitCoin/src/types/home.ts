@@ -1,29 +1,26 @@
-// src/types/home.ts
-// 홈화면 전반에서 공통으로 사용되는 타입 모음
-
 // ─────────────────────────────────────────
 // 가구 슬롯 타입
 // ─────────────────────────────────────────
 
-/** 방에 배치되는 5가지 가구 슬롯 */
+/** 방에 배치되는 6가지 가구 슬롯 */
 export type FurnitureSlot =
     | 'wallpaper'   // 벽지
     | 'floor'       // 바닥
     | 'window'      // 창문
-    | 'leftItem'    // 좌측 아이템
-    | 'rightItem'   // 우측 아이템
-    | 'decoration'; // 장식품 (중앙/상단)
+    | 'left'        // 아이템1
+    | 'right'       // 아이템2
+    | 'hidden';     // 장식품
 
 /** 하나의 가구 아이템 */
 export interface FurnitureItem {
-    id: string;
+    id: number;
     name: string;
     slot: FurnitureSlot;
-    /** 이미지 경로 — 디자이너 파일 전달 시 /public/items/ 하위에 넣고 경로만 교체 */
-    imageSrc: string;
+    /** 이미지 경로 */
+    imageUrl: string;
     themeId: string;
     /** 구매 재화 종류 */
-    type: 'point' | 'coin' | 'hidden';
+    acquireType: 'POINT' | 'COIN' | 'HIDDEN';
 }
 
 /** 현재 방에 배치된 가구 구성 */
@@ -31,9 +28,9 @@ export interface RoomConfig {
     wallpaper: FurnitureItem | null;
     floor: FurnitureItem | null;
     window: FurnitureItem | null;
-    leftItem: FurnitureItem | null;
-    rightItem: FurnitureItem | null;
-    decoration: FurnitureItem | null;
+    left: FurnitureItem | null;
+    right: FurnitureItem | null;
+    hidden: FurnitureItem | null;
 }
 
 // ─────────────────────────────────────────

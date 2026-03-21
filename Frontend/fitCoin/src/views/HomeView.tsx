@@ -1,6 +1,6 @@
-// src/views/HomeView.tsx
 'use client';
 
+import { useRouter } from 'next/navigation';
 import RoomView from '@/components/RoomView';
 import StreakBar from '@/components/StreakBar';
 import type { HomePageState } from '@/types/home';
@@ -59,6 +59,7 @@ export default function HomeView({
     onGoSettings,
     onViewCalendar,
 }: HomeViewProps) {
+    const router = useRouter();
     const { points, coins, streakCount, streakDays, character, roomConfig } = state;
     const expPercent = character ? (character.exp / 10) * 100 : 0;
 
@@ -83,7 +84,6 @@ export default function HomeView({
                     flexShrink: 0,
                 }}
             >
-                {/* 스트릭바 — 포인트/코인 박스 너비(약 90px)만큼 오른쪽 여백 확보 */}
                 <div style={{ paddingRight: '105px' }}>
                     <StreakBar
                         streakCount={streakCount}
@@ -92,7 +92,6 @@ export default function HomeView({
                     />
                 </div>
 
-                {/* 포인트 + 코인 — 우상단 고정 */}
                 <div
                     style={{
                         position: 'absolute',
@@ -104,10 +103,7 @@ export default function HomeView({
                         gap: 'var(--space-1)',
                     }}
                 >
-                    {/* 포인트 */}
                     <PointBadge points={points} />
-
-                    {/* 코인 */}
                     <CoinBadge coins={coins} />
                 </div>
             </div>
@@ -115,18 +111,34 @@ export default function HomeView({
             {/* ── 중단: 방 + 오버레이 버튼 ── */}
             <div style={{ padding: 'var(--space-3) var(--space-3) 0', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ position: 'relative', flex: 1, minHeight: 0 }}>
-                    <RoomView
-                        roomConfig={roomConfig}
-                        character={character}
-                        onEditRoom={onEditRoom}
-                        hideEditButton
-                    />
+                    {/* 방 미리보기 감싸기 (배경 클릭 시 이동) */}
+                    <div
+                        className="relative cursor-pointer group"
+                        onClick={() => router.push('/room')}
+                        style={{ width: '100%', height: '100%' }}
+                    >
+                        <RoomView
+                            roomConfig={roomConfig}
+                            character={character}
+                            onEditRoom={onEditRoom}
+                            hideEditButton
+                        />
+                        {/* 호버 오버레이 */}
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 
+                                      flex items-center justify-center transition-opacity rounded-[24px]">
+                            <span
+                                style={{ color: 'var(--color-text-inverse)' }}
+                                className="font-semibold text-sm"
+                            >
+                                방 꾸미기
+                            </span>
+                        </div>
+                    </div>
 
-                    {/* 왼쪽 버튼 2개 — left를 음수로 줘서 방 경계 안쪽에 걸치게 */}
                     <div
                         style={{
                             position: 'absolute',
-                            left: '10px',   // ← 방 왼쪽 테두리에 절반씩 걸치게
+                            left: '10px',
                             top: '20%',
                             transform: 'translateY(-50%)',
                             display: 'flex',
@@ -139,11 +151,10 @@ export default function HomeView({
                         <CircleButton imageSrc="/icons/btn-store.png" onClick={onGoStore} label="상점/인벤토리" />
                     </div>
 
-                    {/* 오른쪽 버튼 4개 — right를 음수로 줘서 방 경계 안쪽에 걸치게 */}
                     <div
                         style={{
                             position: 'absolute',
-                            right: '10px',  // ← 방 오른쪽 테두리에 절반씩 걸치게
+                            right: '10px',
                             top: '20%',
                             transform: 'translateY(-50%)',
                             display: 'flex',
@@ -157,6 +168,7 @@ export default function HomeView({
                     </div>
                 </div>
             </div>
+
             {/* ── 하단: 경험치 바 카드 ── */}
             {character && (
                 <div style={{ padding: '10px 10px 0px', flexShrink: 0 }}>
@@ -171,7 +183,6 @@ export default function HomeView({
                             gap: 'var(--space-5)',
                         }}
                     >
-                        {/* Lv. 박스 */}
                         <div
                             style={{
                                 width: '52px',
@@ -196,7 +207,6 @@ export default function HomeView({
                             </span>
                         </div>
 
-                        {/* 경험치 바 */}
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div
                                 style={{
