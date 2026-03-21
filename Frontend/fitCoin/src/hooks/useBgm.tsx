@@ -24,8 +24,8 @@ const initAudioContext = () => {
   try {
     audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
     gainNode = audioCtx.createGain();
-    // 초기 게인 설정: 사용자의 요청에 따라 기본값 2.5로 설정
-    gainNode.gain.value = 2.5;
+    // 요청에 따라 고정 2.0배 증폭
+    gainNode.gain.value = 2.0;
 
     source = audioCtx.createMediaElementSource(audio);
     source.connect(gainNode);
@@ -49,12 +49,12 @@ const BgmContext = createContext<BgmContextType | undefined>(undefined);
 /**
  * BGM 설정을 전역으로 관리하는 Provider
  */
-export const BgmProvider = ({ 
-  children, 
-  isPublic 
-}: { 
-  children: React.ReactNode; 
-  isPublic: boolean; 
+export const BgmProvider = ({
+  children,
+  isPublic
+}: {
+  children: React.ReactNode;
+  isPublic: boolean;
 }) => {
   const [isEnabled, setIsEnabled] = useState<boolean>(true);
   const [volume, setVolume] = useState<number>(0.3);
@@ -66,12 +66,6 @@ export const BgmProvider = ({
     if (typeof window === "undefined") return;
     setIsMounted(true);
 
-    // Audio 객체 지연 생성 (서버 사이드 방지)
-    if (!audio) {
-      audio = new Audio(BGM_PATH);
-      audio.loop = true;
-    }
-
     const savedEnabled = localStorage.getItem(STORAGE_KEYS.BGM_ENABLED);
     const savedVolume = localStorage.getItem(STORAGE_KEYS.BGM_VOLUME);
     const savedNotifications = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS_ENABLED);
@@ -80,28 +74,19 @@ export const BgmProvider = ({
     const initialVolume = savedVolume !== null ? parseFloat(savedVolume) : 0.3;
     const initialNotifications = savedNotifications !== null ? JSON.parse(savedNotifications) : false;
 
+    // Audio 객체 지연 생성 (서버 사이드 방지)
+    if (!audio) {
+      audio = new Audio(BGM_PATH);
+      audio.loop = true;
+      audio.volume = initialVolume;
+
+      // AudioContext 초기화 시도
+      initAudioContext();
+    }
+
     setIsEnabled(initialEnabled);
     setVolume(initialVolume);
     setNotificationsEnabled(initialNotifications);
-
-    if (audio) {
-      if (!audioCtx) {
-        // AudioContext는 사용자 상호작용 후에 생성하는 것이 좋으나, 
-        // 여기서는 구조만 잡아두고 실제 사용 시점에 resume 처리
-        try {
-          audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-          gainNode = audioCtx.createGain();
-          gainNode.gain.value = initialVolume * (2.5 / 0.3);
-          
-          source = audioCtx.createMediaElementSource(audio);
-          source.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-        } catch (e) {
-          console.warn("AudioContext 초기화 지연:", e);
-        }
-      }
-      audio.volume = 1.0;
-    }
   }, []);
 
   // 경로 변화(isPublic) 및 활성화 상태에 따른 재생/일시정지 제어
@@ -119,8 +104,13 @@ export const BgmProvider = ({
             await audioCtx.resume();
           }
           await audio?.play();
-        } catch (err) {
-          console.warn("BGM 재생 보류 (사용자 상호작용 필요):", err);
+        } catch (err: any) {
+          if (err.name === "NotAllowedError") {
+            console.warn("BGM 자동재생 차단됨 (사용자 상호작용 대기)");
+            setIsEnabled(false);
+          } else {
+            console.error("BGM 재생 오류:", err);
+          }
         }
       };
       playAudio();
@@ -129,6 +119,37 @@ export const BgmProvider = ({
       audio.pause();
     }
   }, [isPublic, isEnabled, isMounted]);
+
+  // 자동재생 차단 대응: 사용자가 페이지를 처음 클릭할 때 재생 시도
+  useEffect(() => {
+    if (!isMounted || !audio) return;
+
+    const handleFirstInteraction = async () => {
+      if (isEnabled && audio && audio.paused && !isPublic) {
+        try {
+          if (audioCtx?.state === "suspended") {
+            await audioCtx.resume();
+          }
+          await audio.play();
+          // 성공하면 리스너 제거
+          document.removeEventListener("click", handleFirstInteraction);
+          document.removeEventListener("touchstart", handleFirstInteraction);
+        } catch (err) {
+          // 여전히 차단되어 있으면 유지
+        }
+      }
+    };
+
+    if (isEnabled && !isPublic) {
+      document.addEventListener("click", handleFirstInteraction);
+      document.addEventListener("touchstart", handleFirstInteraction);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleFirstInteraction);
+      document.removeEventListener("touchstart", handleFirstInteraction);
+    };
+  }, [isEnabled, isPublic, isMounted]);
 
   const toggleBgm = useCallback(() => {
     setIsEnabled((prev) => {
@@ -142,8 +163,8 @@ export const BgmProvider = ({
     const normalized = Math.max(0, Math.min(1, val));
     setVolume(normalized);
     localStorage.setItem(STORAGE_KEYS.BGM_VOLUME, normalized.toString());
-    if (gainNode) {
-      gainNode.gain.value = normalized * (2.5 / 0.3);
+    if (audio) {
+      audio.volume = normalized;
     }
   }, []);
 
