@@ -32,7 +32,7 @@ export function convertLayoutToRoomConfig(layout: RoomLayoutResponse | null | un
     if (!item) return null;
     return {
       id: item.furnitureId,
-      name: '', 
+      name: '',
       slot,
       imageUrl: item.imageUrl,
       themeId: '0',

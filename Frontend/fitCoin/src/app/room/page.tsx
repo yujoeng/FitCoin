@@ -55,13 +55,14 @@ export default function RoomPage() {
     >
       <div
         style={{
-          height: '60px',
-          background: 'var(--color-bg-card)',
-          borderBottom: '1px solid var(--color-border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 16px 0 4px',
+          padding: '8px 16px 8px 4px',
+          flexShrink: 0,
+          maxWidth: '430px',
+          width: '100%',
+          margin: '0 auto',
           zIndex: 10,
         }}
       >
