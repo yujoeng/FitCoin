@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { StreakDay, StreakDayStatus } from "@/types/home";
 
 interface StreakBarProps {
@@ -16,32 +17,38 @@ const STATUS_STYLE: Record<
     bg: string;
     border: string;
     color: string;
-    icon: string;
+    icon?: React.ReactNode;
   }
 > = {
   done: {
     bg: "var(--color-primary)",
-    border: "var(--color-primary-dark)",
+    border: "var(--color-bg-dark)",
     color: "#fff",
-    icon: "💧",
+    icon: (
+      <Image
+        src="/icons/streak.png"
+        alt="완료"
+        width={18}
+        height={18}
+        style={{ objectFit: "contain" }}
+        priority
+      />
+    ),
   },
   missed: {
-    bg: "var(--color-danger-light)",
-    border: "var(--color-danger)",
-    color: "var(--color-danger)",
-    icon: "✕",
+    bg: "transparent",
+    border: "transparent",
+    color: "var(--color-text-primary)",
   },
   today: {
-    bg: "var(--color-bg)",
+    bg: "transparent",
     border: "var(--color-primary)",
     color: "var(--color-text-primary)",
-    icon: "▾",
   },
   future: {
-    bg: "#F0EDE8",
-    border: "#DDD8CC",
-    color: "var(--color-text-disabled)",
-    icon: "·",
+    bg: "transparent",
+    border: "transparent",
+    color: "var(--color-text-primary)",
   },
 };
 
@@ -56,7 +63,7 @@ export default function StreakBar({
         width: "100%",
         borderRadius: "var(--radius-xl)",
         padding: "var(--space-3) var(--space-4)",
-        background: "var(--color-bg-dark)",
+        background: "var(--color-primary-light)",
       }}
     >
       {/* 상단: 연속 일수 + 화살표 */}
@@ -81,17 +88,24 @@ export default function StreakBar({
             gap: "var(--space-2)",
           }}
         >
-          <span style={{ fontSize: "18px" }}>💧</span>
+          <Image
+            src="/icons/streak.png"
+            alt="스트릭"
+            width={18}
+            height={18}
+            style={{ objectFit: "contain" }}
+            priority
+          />
           <span
             style={{
               fontFamily: "var(--font-body)",
               fontSize: "var(--text-sm)",
               fontWeight: 600,
-              color: "var(--color-bg)",
+              color: "var(--color-text-secondary)",
             }}
           >
             연속 학습{" "}
-            <span style={{ color: "var(--color-primary)" }}>
+            <span style={{ color: "var(--color-bg-dark)" }}>
               {streakCount}일
             </span>
           </span>
@@ -131,9 +145,9 @@ export default function StreakBar({
                 style={{
                   fontSize: "var(--text-xs)",
                   color: isToday
-                    ? "var(--color-primary)"
-                    : "var(--color-text-disabled)",
-                  fontWeight: isToday ? 700 : 400,
+                    ? "var(--color-primary-dark)"
+                    : "var(--color-text-secondary)",
+                  fontWeight: isToday ? 700 : 500,
                   fontFamily: "var(--font-body)",
                 }}
               >
@@ -159,7 +173,7 @@ export default function StreakBar({
                     : "none",
                 }}
               >
-                {style.icon}
+                {day.status === "done" ? style.icon : idx + 1}
               </div>
             </div>
           );
@@ -187,7 +201,7 @@ export default function StreakBar({
                   height: 0,
                   borderLeft: "4px solid transparent",
                   borderRight: "4px solid transparent",
-                  borderBottom: "5px solid var(--color-primary)",
+                  borderBottom: "5px solid var(--color-primary-dark)",
                 }}
               />
             )}

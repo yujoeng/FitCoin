@@ -487,8 +487,8 @@ function StreakCalendar({
       style={{
         borderRadius: "var(--radius-xl)",
         padding: "var(--space-4)",
-        background: "var(--color-bg-dark)",
-        flex: 1,
+        background: "var(--color-primary-light)",
+        flexShrink: 0,
         display: "flex",
         flexDirection: "column",
       }}
@@ -511,8 +511,8 @@ function StreakCalendar({
             borderRadius: "50%",
             border: "none",
             cursor: "pointer",
-            background: "rgba(255,255,255,0.15)",
-            color: "var(--color-text-inverse)",
+            background: "rgba(44, 62, 31, 0.1)",
+            color: "var(--color-text-primary)",
             fontSize: "18px",
             display: "flex",
             alignItems: "center",
@@ -525,7 +525,7 @@ function StreakCalendar({
           <p
             style={{
               fontSize: "var(--text-xs)",
-              color: "rgba(255,255,255,0.6)",
+              color: "var(--color-text-secondary)",
               margin: 0,
               fontFamily: "var(--font-body)",
             }}
@@ -538,7 +538,7 @@ function StreakCalendar({
             style={{
               fontSize: "var(--text-2xl)",
               fontWeight: 700,
-              color: "var(--color-text-inverse)",
+              color: "var(--color-text-primary)",
               margin: 0,
               lineHeight: 1.1,
             }}
@@ -555,8 +555,8 @@ function StreakCalendar({
             borderRadius: "50%",
             border: "none",
             cursor: "pointer",
-            background: "rgba(255,255,255,0.15)",
-            color: "var(--color-text-inverse)",
+            background: "rgba(44, 62, 31, 0.1)",
+            color: "var(--color-text-primary)",
             fontSize: "18px",
             display: "flex",
             alignItems: "center",
@@ -576,20 +576,27 @@ function StreakCalendar({
           marginBottom: "var(--space-3)",
           padding: "var(--space-2) var(--space-3)",
           borderRadius: "var(--radius-lg)",
-          background: "rgba(255,255,255,0.1)",
+          background: "rgba(44, 62, 31, 0.08)",
         }}
       >
-        <span style={{ fontSize: "16px" }}>💧</span>
+        <Image
+          src="/icons/streak.png"
+          alt="학습"
+          width={18}
+          height={18}
+          style={{ objectFit: "contain" }}
+          priority
+        />
         <span
           style={{
             fontFamily: "var(--font-body)",
             fontSize: "var(--text-sm)",
             fontWeight: 600,
-            color: "rgba(255,255,255,0.85)",
+            color: "var(--color-text-secondary)",
           }}
         >
           연속 학습{" "}
-          <span style={{ color: "var(--color-primary)" }}>
+          <span style={{ color: "var(--color-bg-dark)" }}>
             {currentStreak}일
           </span>
         </span>
@@ -610,7 +617,7 @@ function StreakCalendar({
               textAlign: "center",
               fontSize: "var(--text-xs)",
               padding: "var(--space-1) 0",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--color-text-secondary)",
               fontFamily: "var(--font-body)",
             }}
           >
@@ -651,14 +658,26 @@ function StreakCalendar({
                   fontSize: done ? "16px" : "var(--text-xs)",
                   fontWeight: 500,
                   background: done ? "var(--color-primary)" : "transparent",
+                  border: done ? "2px solid var(--color-bg-dark)" : "none",
                   color: done
                     ? "var(--color-text-inverse)"
-                    : "rgba(255,255,255,0.45)",
+                    : "var(--color-text-primary)",
                   fontFamily: done ? undefined : "var(--font-body)",
                   transition: "var(--transition-fast)",
                 }}
               >
-                {done ? "⭐" : day}
+                {done ? (
+                  <Image
+                    src="/icons/streak.png"
+                    alt="완료"
+                    width={20}
+                    height={20}
+                    style={{ objectFit: "contain" }}
+                    priority
+                  />
+                ) : (
+                  day
+                )}
               </div>
             </div>
           );
@@ -704,7 +723,7 @@ export default function MyPageView() {
     return (
       <div
         style={{
-          minHeight: "100vh",
+          height: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -721,7 +740,7 @@ export default function MyPageView() {
     return (
       <div
         style={{
-          minHeight: "100vh",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -780,11 +799,12 @@ export default function MyPageView() {
           display: "flex",
           flexDirection: "column",
           height: "100%",
+          overflow: "hidden",
         }}
       >
         {/* 상단 로고 — public/logo.png */}
         <div
-          style={{ padding: "var(--space-5) var(--space-4) var(--space-4)" }}
+          style={{ padding: "var(--space-3) var(--space-4) var(--space-2)" }}
         >
           <Image
             src="/logo.png"
