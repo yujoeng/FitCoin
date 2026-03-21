@@ -12,6 +12,9 @@ const NO_TABBAR_PATHS = ["/login", "/signup", "/password-reset", "/"];
 // 로그인 없이 접근 가능한 페이지 목록
 const PUBLIC_PATHS = ["/login", "/signup", "/password-reset", "/"];
 
+// BGM을 끄고 싶은 페이지 목록
+const NO_BGM_PATHS = ["/login", "/signup", "/password-reset", "/", "/mission", "/ads"];
+
 export default function AppShellProvider({
   children,
 }: {
@@ -21,6 +24,7 @@ export default function AppShellProvider({
   const pathname = usePathname();
   const router = useRouter();
   const showTabBar = !NO_TABBAR_PATHS.includes(pathname);
+  const isBgmOff = NO_TABBAR_PATHS.includes(pathname) || NO_BGM_PATHS.includes(pathname);
 
   useEffect(() => {
     setIsMounted(true);
@@ -38,7 +42,7 @@ export default function AppShellProvider({
 
   // 서버와 클라이언트의 최초 렌더링을 완전히 일치시킴 (구조적 하이드레이션 에러 방지)
   return (
-    <BgmProvider isPublic={isMounted ? !showTabBar : true}>
+    <BgmProvider isPublic={isMounted ? isBgmOff : true}>
       <main
         className="fc-hide-scrollbar"
         style={{
