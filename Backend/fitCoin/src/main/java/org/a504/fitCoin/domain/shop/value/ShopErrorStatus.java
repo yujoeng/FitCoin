@@ -1,4 +1,4 @@
-package org.a504.fitCoin.domain.user.value;
+package org.a504.fitCoin.domain.shop.value;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -7,11 +7,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserErrorStatus implements BaseErrorCode {
+public enum ShopErrorStatus implements BaseErrorCode {
 
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "US4041", "존재하지 않는 사용자입니다."),
-    INSUFFICIENT_POINT(HttpStatus.BAD_REQUEST, "US4001", "포인트가 부족합니다."),
-    INSUFFICIENT_COIN(HttpStatus.BAD_REQUEST, "US4002", "코인이 부족합니다.");
+    NO_FURNITURE_AVAILABLE(HttpStatus.NOT_FOUND, "SH4041", "뽑을 수 있는 가구가 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
