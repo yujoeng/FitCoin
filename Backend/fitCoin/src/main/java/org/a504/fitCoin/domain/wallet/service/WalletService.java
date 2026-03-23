@@ -15,11 +15,13 @@ public class WalletService {
     private final WalletJpaRepository walletJpaRepository;
 
     @Transactional(readOnly = true)
-    public List<WalletResponseDto> getMyGifticons(Long userId) {
-        return walletJpaRepository.findByUser_Id(userId)
+    public WalletResponseDto getMyGifticons(Long userId) {
+        List<WalletResponseDto.GifticonDto> gifticons = walletJpaRepository.findByUser_Id(userId)
                 .stream()
-                .map(WalletResponseDto::from)
+                .map(WalletResponseDto.GifticonDto::from)
                 .collect(Collectors.toList());
+
+        return WalletResponseDto.of(gifticons);
     }
 
 }

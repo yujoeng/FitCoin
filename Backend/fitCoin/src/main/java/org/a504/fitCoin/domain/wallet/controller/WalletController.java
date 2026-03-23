@@ -23,11 +23,11 @@ public class WalletController {
 
     @GetMapping("")
     @Operation(summary = "보유 기프티콘 조회", description = "로그인한 유저의 기프티콘 목록을 조회합니다.")
-    public ResponseEntity<ApiResponse<List<WalletResponseDto>>> getMyGifticons(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<WalletResponseDto>> getMyGifticons(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getUserId();
-
-        List<WalletResponseDto> result = walletService.getMyGifticons(userId);
+        WalletResponseDto result = walletService.getMyGifticons(userId);
         return ApiResponse.onSuccess(SuccessStatus.OK, result);
     }
 
