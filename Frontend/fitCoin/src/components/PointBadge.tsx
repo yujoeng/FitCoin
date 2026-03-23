@@ -1,5 +1,6 @@
 import React from 'react';
 import { TrendingUp } from 'lucide-react';
+import { formatPoint } from '@/utils/formatNumber';
 
 interface PointBadgeProps {
     points: number;
@@ -28,7 +29,7 @@ export default function PointBadge({ points }: PointBadgeProps) {
                     className="fc-font-point"
                     style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-primary)' }}
                 >
-                    {points.toLocaleString()}
+                    {formatPoint(points)}
                 </span>
             </div>
         </div>
