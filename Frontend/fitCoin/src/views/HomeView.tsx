@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import RoomView from '@/components/RoomView';
+import AppImage from "@/shared/components/AppImage";
 import StreakBar from '@/components/StreakBar';
 import type { HomePageState } from '@/types/home';
 import PointBadge from '@/components/PointBadge';
@@ -33,7 +34,11 @@ function CircleButton({ imageSrc, onClick, label }: CircleButtonProps) {
                 cursor: 'pointer',
             }}
         >
-            <img src={imageSrc} alt={label} style={{ width: '44px', height: '44px' }} />
+            <AppImage
+              src={imageSrc}
+              alt={label}
+              style={{ width: "44px", height: "44px" }}
+            />
         </button>
     );
 }

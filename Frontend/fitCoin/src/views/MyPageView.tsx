@@ -586,6 +586,9 @@ function StreakCalendar({
           height={18}
           style={{ objectFit: "contain" }}
           priority
+          onError={(e) => {
+            e.currentTarget.src = "/icons/favicon.png";
+          }}
         />
         <span
           style={{
@@ -674,6 +677,9 @@ function StreakCalendar({
                     height={20}
                     style={{ objectFit: "contain" }}
                     priority
+                    onError={(e) => {
+                      e.currentTarget.src = "/icons/error.png";
+                    }}
                   />
                 ) : (
                   day
