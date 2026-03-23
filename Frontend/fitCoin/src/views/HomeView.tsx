@@ -22,27 +22,36 @@ function CircleButton({ imageSrc, onClick, label }: CircleButtonProps) {
             className="fc-pressable"
             style={{
                 width: '55px',
-                height: '55px',
                 borderRadius: '50%',
                 background: 'rgba(255, 255, 255, 0.25)',
                 backdropFilter: 'blur(8px)',
                 border: '1.5px solid rgba(255, 255, 255, 0.7)',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
+                padding: '4px 0',
+                gap: '2px',
             }}
         >
             <AppImage
-              src={imageSrc}
-              alt={label}
-              style={{ width: "44px", height: "44px" }}
+                src={imageSrc}
+                alt={label}
+                style={{ width: '44px', height: '44px' }}
             />
+            <span style={{
+                fontSize: '9px',
+                fontWeight: 600,
+                color: 'var(--color-text-primary)',
+                lineHeight: 1,
+            }}>
+                {label}
+            </span>
         </button>
     );
 }
-
 interface HomeViewProps {
     state: HomePageState;
     onGoMission: () => void;
@@ -153,7 +162,7 @@ export default function HomeView({
                         }}
                     >
                         <CircleButton imageSrc="/icons/btn-exchange.png" onClick={onGoExchange} label="환전소" />
-                        <CircleButton imageSrc="/icons/btn-store.png" onClick={onGoStore} label="상점/인벤토리" />
+                        <CircleButton imageSrc="/icons/btn-store.png" onClick={onGoStore} label="상점" />
                     </div>
 
                     <div
