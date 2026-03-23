@@ -1,27 +1,41 @@
 // src/features/character/components/CharacterDexPage.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getCharacterDex, CharacterDexApiItem } from '../services/characterApi';
 import AppImage from '@/shared/components/AppImage';
-import { CHARACTER_DEX_DATA, TOTAL_CHARACTER_COUNT } from '../data/characterDex';
-import type { CharacterDexItem } from '../types/character';
+
+const TOTAL_CHARACTER_COUNT = 17;
 
 type ImageIndex = 0 | 1 | 2;
 const IMAGE_LABELS = ['졸업 전', '운동 중', '졸업 후'] as const;
 
-function getImageSrc(item: CharacterDexItem, idx: ImageIndex): string {
-  if (idx === 0) return item.images.before;
-  if (idx === 1) return item.images.exercise;
-  return item.images.after;
+function getImageSrc(item: CharacterDexApiItem, idx: ImageIndex): string {
+  return item.imgs[idx];
 }
 
 export default function CharacterDexPage() {
-  const [selectedItem, setSelectedItem] = useState<CharacterDexItem | null>(null);
+  const [dexData, setDexData] = useState<CharacterDexApiItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<CharacterDexApiItem | null>(null);
   const [imageIdx, setImageIdx] = useState<ImageIndex>(0);
 
-  const collectedCount = CHARACTER_DEX_DATA.filter((c) => c.collected).length;
+  useEffect(() => {
+    getCharacterDex()
+      .then((data) => {
+        setDexData(data);
+      })
+      .catch((err) => {
+        console.error('도감 조회 실패:', err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
 
-  function openModal(item: CharacterDexItem) {
+  const collectedCount = dexData.length;
+
+  function openModal(item: CharacterDexApiItem) {
     setSelectedItem(item);
     setImageIdx(0);
   }
@@ -92,85 +106,95 @@ export default function CharacterDexPage() {
           padding: '0 var(--space-3, 12px)',
         }}
       >
-        {CHARACTER_DEX_DATA.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => item.collected && openModal(item)}
-            style={{
-              borderRadius: 'var(--radius-xl, 16px)',
-              background: item.collected ? 'var(--color-bg-card, #FFFFFF)' : '#E8E8E8',
-              border: item.collected
-                ? '1.5px solid var(--color-border, #e0e0e0)'
-                : '1.5px solid #D0D0D0',
-              overflow: 'hidden',
-              cursor: item.collected ? 'pointer' : 'default',
-              boxShadow: item.collected ? 'var(--shadow-sm, 0 1px 4px rgba(0,0,0,0.08))' : 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              padding: '12px 8px 8px',
-              gap: '6px',
-              transition: 'transform 0.12s ease',
-            }}
-            onMouseEnter={(e) => {
-              if (item.collected) (e.currentTarget as HTMLDivElement).style.transform = 'scale(1.03)';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLDivElement).style.transform = 'scale(1)';
-            }}
-          >
-            {/* 이미지 영역 */}
-            <div
-              style={{
-                width: '72px',
-                height: '72px',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {item.collected ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <AppImage
-                  src={item.images.before}
-                  alt={item.name}
-                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                />
-              ) : (
+        {isLoading ? (
+          <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '40px 0', color: '#888' }}>
+            불러오는 중...
+          </div>
+        ) : (
+          Array.from({ length: TOTAL_CHARACTER_COUNT }, (_, i) => i + 1).map((id) => {
+            const item = dexData.find((d) => d.characterId === id);
+            const isCollected = !!item;
+
+            return (
+              <div
+                key={id}
+                onClick={() => isCollected && item && openModal(item)}
+                style={{
+                  borderRadius: 'var(--radius-xl, 16px)',
+                  background: isCollected ? 'var(--color-bg-card, #FFFFFF)' : '#E8E8E8',
+                  border: isCollected
+                    ? '1.5px solid var(--color-border, #e0e0e0)'
+                    : '1.5px solid #D0D0D0',
+                  overflow: 'hidden',
+                  cursor: isCollected ? 'pointer' : 'default',
+                  boxShadow: isCollected ? 'var(--shadow-sm, 0 1px 4px rgba(0,0,0,0.08))' : 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  padding: '12px 8px 8px',
+                  gap: '6px',
+                  transition: 'transform 0.12s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (isCollected) (e.currentTarget as HTMLDivElement).style.transform = 'scale(1.03)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.transform = 'scale(1)';
+                }}
+              >
+                {/* 이미지 영역 */}
                 <div
                   style={{
-                    width: '100%',
-                    height: '100%',
+                    width: '72px',
+                    height: '72px',
+                    position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    filter: 'grayscale(100%)',
-                    fontSize: '32px',
-                    color: '#AAAAAA',
-                    fontWeight: 700,
                   }}
                 >
-                  ?
+                  {isCollected && item ? (
+                    <AppImage
+                      src={item.imgs[0]}
+                      alt={item.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        filter: 'grayscale(100%)',
+                        fontSize: '32px',
+                        color: '#AAAAAA',
+                        fontWeight: 700,
+                      }}
+                    >
+                      ?
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* 이름 */}
-            <span
-              style={{
-                fontSize: 'var(--text-xs, 12px)',
-                fontWeight: 600,
-                color: item.collected
-                  ? 'var(--color-text-primary, #1a1a1a)'
-                  : '#AAAAAA',
-                textAlign: 'center',
-              }}
-            >
-              {item.collected ? item.name : '???'}
-            </span>
-          </div>
-        ))}
+                {/* 이름 */}
+                <span
+                  style={{
+                    fontSize: 'var(--text-xs, 12px)',
+                    fontWeight: 600,
+                    color: isCollected
+                      ? 'var(--color-text-primary, #1a1a1a)'
+                      : '#AAAAAA',
+                    textAlign: 'center',
+                  }}
+                >
+                  {isCollected && item ? item.name : '???'}
+                </span>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* ── 상세 모달 (position: absolute, min-height wrapper 안에서) ── */}
@@ -230,7 +254,7 @@ export default function CharacterDexPage() {
                     fontFamily: 'var(--font-body)',
                   }}
                 >
-                  No.{String(selectedItem.id).padStart(4, '0')}
+                  No.{String(selectedItem.characterId).padStart(4, '0')}
                 </span>
               </div>
               <button
@@ -292,14 +316,13 @@ export default function CharacterDexPage() {
                   gap: '8px',
                 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <AppImage
                   src={getImageSrc(selectedItem, imageIdx)}
                   alt={`${selectedItem.name} - ${IMAGE_LABELS[imageIdx]}`}
                   style={{
-                    width: "140px",
-                    height: "140px",
-                    objectFit: "contain",
+                    width: '140px',
+                    height: '140px',
+                    objectFit: 'contain',
                   }}
                 />
                 {/* 레이블 + 인디케이터 */}
