@@ -4,8 +4,11 @@ import org.a504.fitCoin.domain.room.value.FurniturePosition;
 import org.a504.fitCoin.domain.shop.dto.response.AcquiredFurnitureInfo;
 import org.a504.fitCoin.domain.shop.dto.response.GetItemsResponse;
 import org.a504.fitCoin.domain.shop.dto.response.ItemResponse;
+import org.a504.fitCoin.domain.shop.dto.response.AcquiredGifticonInfo;
 import org.a504.fitCoin.domain.shop.dto.response.PurchaseCoinFurnitureResponse;
+import org.a504.fitCoin.domain.shop.dto.response.PurchaseGifticonResponse;
 import org.a504.fitCoin.domain.shop.dto.response.PurchasePointFurnitureResponse;
+import org.a504.fitCoin.domain.wallet.value.GifticonType;
 import org.a504.fitCoin.domain.shop.service.ShopService;
 import org.a504.fitCoin.domain.shop.value.ShopErrorStatus;
 import org.a504.fitCoin.domain.shop.value.ShopItem.PurchaseType;
@@ -211,6 +214,67 @@ class ShopControllerTest {
     @Test
     void 코인_가구_랜덤_뽑기_인증_없이_요청하면_401_반환() throws Exception {
         mockMvc.perform(post("/shop/gacha/furniture/coin").with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ===== POST /shop/gacha/gifticon =====
+
+    @Test
+    @WithCustomUser
+    void 기프티콘_랜덤_뽑기_성공_당첨() throws Exception {
+        AcquiredGifticonInfo acquired = new AcquiredGifticonInfo(5L, GifticonType.COFFEE, "https://cdn.example.com/gifticon/coffee.png");
+        PurchaseGifticonResponse response = new PurchaseGifticonResponse(30, 970, acquired);
+        given(shopService.purchaseGifticon(any())).willReturn(response);
+
+        mockMvc.perform(post("/shop/gacha/gifticon").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.result.spentCoin").value(30))
+                .andExpect(jsonPath("$.result.remainingCoin").value(970))
+                .andExpect(jsonPath("$.result.acquiredGifticon.gifticonId").value(5))
+                .andExpect(jsonPath("$.result.acquiredGifticon.gifticonType").value("COFFEE"));
+    }
+
+    @Test
+    @WithCustomUser
+    void 기프티콘_랜덤_뽑기_성공_꽝() throws Exception {
+        PurchaseGifticonResponse response = new PurchaseGifticonResponse(30, 970, null);
+        given(shopService.purchaseGifticon(any())).willReturn(response);
+
+        mockMvc.perform(post("/shop/gacha/gifticon").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.result.spentCoin").value(30))
+                .andExpect(jsonPath("$.result.acquiredGifticon").doesNotExist());
+    }
+
+    @Test
+    @WithCustomUser
+    void 기프티콘_랜덤_뽑기_코인_부족_시_400_반환() throws Exception {
+        given(shopService.purchaseGifticon(any()))
+                .willThrow(new CustomException(UserErrorStatus.INSUFFICIENT_COIN));
+
+        mockMvc.perform(post("/shop/gacha/gifticon").with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("US4002"));
+    }
+
+    @Test
+    @WithCustomUser
+    void 기프티콘_랜덤_뽑기_뽑을_기프티콘_없는_경우_404_반환() throws Exception {
+        given(shopService.purchaseGifticon(any()))
+                .willThrow(new CustomException(ShopErrorStatus.NO_GIFTICON_AVAILABLE));
+
+        mockMvc.perform(post("/shop/gacha/gifticon").with(csrf()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("SH4042"));
+    }
+
+    @Test
+    void 기프티콘_랜덤_뽑기_인증_없이_요청하면_401_반환() throws Exception {
+        mockMvc.perform(post("/shop/gacha/gifticon").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 }
