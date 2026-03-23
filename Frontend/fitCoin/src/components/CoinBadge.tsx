@@ -1,5 +1,6 @@
 import React from 'react';
 import { Coins } from 'lucide-react';
+import { formatCoin } from '@/utils/formatNumber';
 
 interface CoinBadgeProps {
     coins: number;
@@ -28,7 +29,7 @@ export default function CoinBadge({ coins }: CoinBadgeProps) {
                     className="fc-font-point"
                     style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-primary)' }}
                 >
-                    {coins.toLocaleString()}
+                    {formatCoin(coins)}
                 </span>
             </div>
         </div>

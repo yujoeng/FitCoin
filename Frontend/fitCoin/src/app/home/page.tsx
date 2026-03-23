@@ -106,7 +106,7 @@ export default function HomePage() {
     <>
       <HomeView
         state={homeState}
-        onGoMission={() => router.push("/missions")}
+        onGoMission={() => router.push("/mission")}
         onEditRoom={() => router.push("/room")}
         onWatchAd={handleAdButtonClick}
         onGoExchange={() => router.push("/exchange")}

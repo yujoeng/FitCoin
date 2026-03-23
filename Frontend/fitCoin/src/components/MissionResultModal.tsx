@@ -3,6 +3,7 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import BaseModal from './common/BaseModal';
+import { formatPoint } from '@/utils/formatNumber';
 
 interface MissionResultModalProps {
   isOpen?: boolean;
@@ -68,7 +69,7 @@ export default function MissionResultModal({
             fontWeight: 900,
             color: 'var(--color-primary)',
           }}>
-            +{rewardPoint.toLocaleString()} P
+            {formatPoint(rewardPoint)}
           </div>
         </div>
 
@@ -83,7 +84,7 @@ export default function MissionResultModal({
             누적 포인트
           </span>
           <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-1)' }}>
-            {totalPoint.toLocaleString()} P
+            {formatPoint(totalPoint)}
           </span>
         </div>
 

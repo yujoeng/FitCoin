@@ -3,6 +3,7 @@
 import React from 'react';
 import { Sofa, Armchair, Gift } from 'lucide-react';
 import { GachaType, StoreItem } from '@/features/store/types/types';
+import { formatPoint, formatCoin } from '@/utils/formatNumber';
 
 interface StoreGachaSectionProps {
   onGacha: (type: GachaType) => void;
@@ -154,8 +155,9 @@ export default function StoreGachaSection({
                     textAlign: 'center',
                   }}
                 >
-                  {price.toLocaleString()}{' '}
-                  {config.priceType === 'POINT' ? 'P' : 'C'}
+                  {config.priceType === 'POINT'
+                    ? formatPoint(price)
+                    : formatCoin(price)}
                 </span>
               )}
             </div>
