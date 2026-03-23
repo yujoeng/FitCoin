@@ -22,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user = userJpaRepository.findByEmail(username)
+                .filter(u -> u.getDeletedAt() == null)
                 .orElseThrow(() -> {
                     log.error("Not found user");
                     return new UsernameNotFoundException("Not found user");
