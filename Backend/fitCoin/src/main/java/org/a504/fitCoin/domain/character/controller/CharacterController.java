@@ -64,4 +64,14 @@ public class CharacterController {
         return ApiResponse.onSuccess(SuccessStatus.OK, response);
     }
 
+    @Operation(summary = "캐릭터 운동 이미지 조회", description = "사용자가 현재 성장시키고 있는 캐릭터의 운동 중 이미지를 조회합니다.")
+    @GetMapping("/exercising")
+    public ResponseEntity<ApiResponse<String>> getExercisingImage(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        String imgUrl = characterService.getExercisingImage(userId);
+        return ApiResponse.onSuccess(SuccessStatus.OK, imgUrl);
+    }
+
 }

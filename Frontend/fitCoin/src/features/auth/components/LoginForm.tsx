@@ -40,6 +40,7 @@ export default function LoginForm() {
 
   // ── 로그인 버튼 클릭 ──────────────────────────
   async function handleLogin() {
+    if (isLoading) return;
     // 1. 입력값 유효성 먼저 검사
     const eErr = checkEmail(email);
     const pErr = checkPassword(password);
@@ -65,7 +66,9 @@ export default function LoginForm() {
 
   // Enter 키로도 로그인 가능하게
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter") handleLogin();
+    if (e.key === "Enter" && !e.nativeEvent.isComposing && !isLoading) {
+      handleLogin();
+    }
   }
 
   // ── 화면 렌더링 ──────────────────────────────

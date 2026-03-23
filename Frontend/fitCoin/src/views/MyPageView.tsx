@@ -70,6 +70,7 @@ interface InputFieldProps {
   type?: string;
   value: string;
   onChange: (v: string) => void;
+  onEnter?: () => void;
   placeholder?: string;
   errorMessage?: string;
 }
@@ -79,9 +80,16 @@ function InputField({
   type = "text",
   value,
   onChange,
+  onEnter,
   placeholder,
   errorMessage,
 }: InputFieldProps) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.nativeEvent.isComposing && onEnter) {
+      e.preventDefault();
+      onEnter();
+    }
+  };
   return (
     <div
       style={{
@@ -105,6 +113,7 @@ function InputField({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         style={{
           width: "100%",
@@ -243,6 +252,7 @@ function NicknameModal({
         label="새 닉네임"
         value={nickname}
         onChange={setNickname}
+        onEnter={handleSubmit}
         placeholder="2~10자로 입력해주세요"
         errorMessage={error}
       />
@@ -327,18 +337,21 @@ function PasswordModal({ onClose, onSubmit }: PasswordModalProps) {
         type="password"
         value={password}
         onChange={setPassword}
+        onEnter={handleSubmit}
       />
       <InputField
         label="새 비밀번호"
         type="password"
         value={newPassword}
         onChange={setNewPassword}
+        onEnter={handleSubmit}
       />
       <InputField
         label="새 비밀번호 확인"
         type="password"
         value={confirmPassword}
         onChange={setConfirmPassword}
+        onEnter={handleSubmit}
         errorMessage={error}
       />
       <div
@@ -417,6 +430,7 @@ function DeleteModal({ onClose, onSubmit }: DeleteModalProps) {
         type="password"
         value={password}
         onChange={setPassword}
+        onEnter={handleSubmit}
         placeholder="현재 비밀번호를 입력해주세요"
         errorMessage={error}
       />
@@ -586,6 +600,9 @@ function StreakCalendar({
           height={18}
           style={{ objectFit: "contain" }}
           priority
+          onError={(e) => {
+            e.currentTarget.src = "/icons/favicon.png";
+          }}
         />
         <span
           style={{
@@ -674,6 +691,9 @@ function StreakCalendar({
                     height={20}
                     style={{ objectFit: "contain" }}
                     priority
+                    onError={(e) => {
+                      e.currentTarget.src = "/icons/error.png";
+                    }}
                   />
                 ) : (
                   day

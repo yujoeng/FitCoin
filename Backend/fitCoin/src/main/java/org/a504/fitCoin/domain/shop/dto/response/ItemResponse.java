@@ -1,7 +1,7 @@
-package org.a504.fitCoin.domain.item.dto.response;
+package org.a504.fitCoin.domain.shop.dto.response;
 
-import org.a504.fitCoin.domain.item.entity.Item;
-import org.a504.fitCoin.domain.item.entity.Item.PurchaseType;
+import org.a504.fitCoin.domain.shop.value.ShopItem;
+import org.a504.fitCoin.domain.shop.value.ShopItem.PurchaseType;
 
 public record ItemResponse(
         String name,
@@ -9,11 +9,11 @@ public record ItemResponse(
         PurchaseType priceType,
         int price
 ) {
-    public static ItemResponse from(Item item) {
+    public static ItemResponse from(ShopItem item) {
         return new ItemResponse(
                 item.getName(),
                 item.getDescription(),
-                item.getType(),
+                item.getPurchaseType(),
                 item.getPrice()
         );
     }

@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, CheckCircle2 } from "lucide-react";
 import {
   requestPasswordReset,
   resetPassword,
@@ -85,7 +85,7 @@ function StepRequestEmail() {
           gap: "16px",
         }}
       >
-        <p style={{ fontSize: "40px", margin: 0 }}>📧</p>
+        <Mail size={48} color="#96B95B" />
         <p
           style={{
             color: "#2C3E1F",
@@ -160,7 +160,12 @@ function StepRequestEmail() {
           placeholder="이메일"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+          onKeyDown={(e) =>
+            e.key === "Enter" &&
+            !e.nativeEvent.isComposing &&
+            !isLoading &&
+            handleSubmit()
+          }
           style={inputStyle(!!emailError)}
         />
         {emailError && <p style={errorText}>{emailError}</p>}
@@ -230,7 +235,7 @@ function StepResetPassword({ token }: { token: string }) {
           gap: "16px",
         }}
       >
-        <p style={{ fontSize: "40px", margin: 0 }}>✅</p>
+        <CheckCircle2 size={48} color="#96B95B" />
         <p
           style={{
             color: "#2C3E1F",
@@ -293,6 +298,12 @@ function StepResetPassword({ token }: { token: string }) {
             placeholder="새 비밀번호 (8자 이상, 2종류 이상)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              !e.nativeEvent.isComposing &&
+              !isLoading &&
+              handleSubmit()
+            }
             style={{ ...inputStyle(!!errors.password), paddingRight: "48px" }}
           />
           <button
@@ -325,7 +336,12 @@ function StepResetPassword({ token }: { token: string }) {
             placeholder="비밀번호 확인"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              !e.nativeEvent.isComposing &&
+              !isLoading &&
+              handleSubmit()
+            }
             style={{ ...inputStyle(!!errors.confirm), paddingRight: "48px" }}
           />
           <button
@@ -432,6 +448,9 @@ function PasswordResetContent() {
           height={50}
           priority
           style={{ objectFit: "contain" }}
+          onError={(e) => {
+            e.currentTarget.src = "/icons/error.png";
+          }}
         />
       </div>
 

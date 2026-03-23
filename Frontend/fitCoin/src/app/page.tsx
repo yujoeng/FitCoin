@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { hasAccessToken } from "@/features/auth/utils/tokenUtils";
+import { getCharacterMe } from "@/features/user/services/userApi";
 
 const SplashScreen = dynamic(() => import("@/components/SplashScreen"), {
   ssr: false,
@@ -13,9 +14,19 @@ const SplashScreen = dynamic(() => import("@/components/SplashScreen"), {
 export default function AppPage() {
   const router = useRouter();
 
-  const handleSplashFinish = useCallback(() => {
+  const handleSplashFinish = useCallback(async () => {
     if (hasAccessToken()) {
-      router.replace("/home");
+      try {
+        const character = await getCharacterMe();
+        if (character) {
+          router.replace("/home");
+        } else {
+          router.replace("/character/adopt");
+        }
+      } catch (err) {
+        console.error("Failed to load character info:", err);
+        router.replace("/login");
+      }
     } else {
       router.replace("/login");
     }

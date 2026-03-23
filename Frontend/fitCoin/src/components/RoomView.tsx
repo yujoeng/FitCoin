@@ -1,4 +1,5 @@
 import type { RoomConfig, UserCharacter, FurnitureSlot } from '@/types/home';
+import AppImage from '@/shared/components/AppImage';
 
 interface RoomViewProps {
     roomConfig: RoomConfig;
@@ -31,7 +32,7 @@ function SlotImage({
 }) {
     if (src) {
         return (
-            <img
+            <AppImage
                 src={src}
                 alt={alt}
                 className="fc-no-drag"

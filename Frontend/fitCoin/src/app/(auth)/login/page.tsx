@@ -47,6 +47,9 @@ export default function LoginPage() {
         height={70}
         priority
         style={{ objectFit: "contain" }}
+        onError={(e) => {
+          e.currentTarget.src = "/icons/error.png";
+        }}
       />
 
       {/* 캐릭터 이미지 */}
@@ -66,6 +69,9 @@ export default function LoginPage() {
           fill
           style={{ objectFit: "contain" }}
           priority
+          onError={(e) => {
+            e.currentTarget.src = "/icons/error.png";
+          }}
         />
       </div>
 

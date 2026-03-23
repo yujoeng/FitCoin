@@ -26,6 +26,9 @@ const AdAlreadyWatchedModal: React.FC<AdAlreadyWatchedModalProps> = ({ isOpen, o
             sizes="(max-width: 320px) 100vw, 320px"
             style={{ objectFit: 'contain' }}
             priority
+            onError={(e) => {
+              e.currentTarget.src = "/icons/error.png";
+            }}
           />
         </div>
         <h3

@@ -1,5 +1,5 @@
 package org.a504.fitCoin.domain.character.value;
 
 public enum CharacterStatus {
-    DEFAULT, GRADUATED, EXERCISING
+    DEFAULT, EXERCISING, GRADUATED
 }

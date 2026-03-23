@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.a504.fitCoin.domain.user.value.ExerciseLevel;
+import org.a504.fitCoin.domain.user.value.UserErrorStatus;
+import org.a504.fitCoin.global.exception.CustomException;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +26,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String nickname;
 
     @Enumerated(EnumType.STRING)
@@ -66,5 +68,23 @@ public class User {
 
     public void addPoint(int amount) {
         this.point += amount;
+    }
+
+    public void deductPoint(int amount) {
+        if (this.point < amount) {
+            throw new CustomException(UserErrorStatus.INSUFFICIENT_POINT);
+        }
+        this.point -= amount;
+    }
+
+    public void addCoin(int amount) {
+        this.coin += amount;
+    }
+
+    public void deductCoin(int amount) {
+        if (this.coin < amount) {
+            throw new CustomException(UserErrorStatus.INSUFFICIENT_COIN);
+        }
+        this.coin -= amount;
     }
 }
