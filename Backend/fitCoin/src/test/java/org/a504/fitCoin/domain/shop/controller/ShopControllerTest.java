@@ -1,10 +1,17 @@
 package org.a504.fitCoin.domain.shop.controller;
 
+import org.a504.fitCoin.domain.room.value.FurniturePosition;
+import org.a504.fitCoin.domain.shop.dto.response.AcquiredFurnitureInfo;
 import org.a504.fitCoin.domain.shop.dto.response.GetItemsResponse;
 import org.a504.fitCoin.domain.shop.dto.response.ItemResponse;
+import org.a504.fitCoin.domain.shop.dto.response.PurchasePointFurnitureResponse;
 import org.a504.fitCoin.domain.shop.service.ShopService;
+import org.a504.fitCoin.domain.shop.value.ShopErrorStatus;
 import org.a504.fitCoin.domain.shop.value.ShopItem.PurchaseType;
+import org.a504.fitCoin.domain.user.value.UserErrorStatus;
 import org.a504.fitCoin.global.config.property.CorsConfigProperties;
+import org.a504.fitCoin.global.exception.CustomException;
+import org.a504.fitCoin.support.WithCustomUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,8 +22,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,6 +42,8 @@ class ShopControllerTest {
 
     @MockitoBean
     private CorsConfigProperties corsConfigProperties;
+
+    // ===== GET /shop/items =====
 
     @Test
     @WithMockUser
@@ -58,6 +70,91 @@ class ShopControllerTest {
     @Test
     void 상점_아이템_목록_조회_인증_없이_요청하면_401_반환() throws Exception {
         mockMvc.perform(get("/shop/items"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ===== POST /shop/purchase/point-furniture =====
+
+    @Test
+    @WithCustomUser
+    void 포인트_가구_랜덤_뽑기_성공() throws Exception {
+        AcquiredFurnitureInfo acquired = new AcquiredFurnitureInfo(
+                12L, FurniturePosition.WINDOW, 3L, "벚꽃 창문", "https://cdn.example.com/furniture/12.png", true);
+        PurchasePointFurnitureResponse response = new PurchasePointFurnitureResponse(300, 700, acquired, null);
+        given(shopService.purchasePointFurniture(any())).willReturn(response);
+
+        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.result.spentPoint").value(300))
+                .andExpect(jsonPath("$.result.remainingPoint").value(700))
+                .andExpect(jsonPath("$.result.acquiredFurniture.furnitureId").value(12))
+                .andExpect(jsonPath("$.result.acquiredFurniture.position").value("WINDOW"))
+                .andExpect(jsonPath("$.result.acquiredFurniture.themeId").value(3))
+                .andExpect(jsonPath("$.result.acquiredFurniture.isNewAcquired").value(true))
+                .andExpect(jsonPath("$.result.unlockedHiddenFurniture").doesNotExist());
+    }
+
+    @Test
+    @WithCustomUser
+    void 포인트_가구_랜덤_뽑기_성공_이미_보유한_가구_재획득() throws Exception {
+        AcquiredFurnitureInfo acquired = new AcquiredFurnitureInfo(
+                12L, FurniturePosition.WINDOW, 3L, "벚꽃 창문", "https://cdn.example.com/furniture/12.png", false);
+        PurchasePointFurnitureResponse response = new PurchasePointFurnitureResponse(300, 700, acquired, null);
+        given(shopService.purchasePointFurniture(any())).willReturn(response);
+
+        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.result.acquiredFurniture.isNewAcquired").value(false))
+                .andExpect(jsonPath("$.result.unlockedHiddenFurniture").doesNotExist());
+    }
+
+    @Test
+    @WithCustomUser
+    void 포인트_가구_랜덤_뽑기_성공_테마_완성으로_히든_가구_해금() throws Exception {
+        AcquiredFurnitureInfo acquired = new AcquiredFurnitureInfo(
+                12L, FurniturePosition.WINDOW, 3L, "벚꽃 창문", "https://cdn.example.com/furniture/12.png", true);
+        AcquiredFurnitureInfo hidden = new AcquiredFurnitureInfo(
+                20L, FurniturePosition.HIDDEN, 3L, "벚꽃 히든 아이템", "https://cdn.example.com/furniture/20.png", true);
+        PurchasePointFurnitureResponse response = new PurchasePointFurnitureResponse(300, 700, acquired, hidden);
+        given(shopService.purchasePointFurniture(any())).willReturn(response);
+
+        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.result.acquiredFurniture.furnitureId").value(12))
+                .andExpect(jsonPath("$.result.unlockedHiddenFurniture.furnitureId").value(20))
+                .andExpect(jsonPath("$.result.unlockedHiddenFurniture.position").value("HIDDEN"));
+    }
+
+    @Test
+    @WithCustomUser
+    void 포인트_가구_랜덤_뽑기_포인트_부족_시_400_반환() throws Exception {
+        given(shopService.purchasePointFurniture(any()))
+                .willThrow(new CustomException(UserErrorStatus.INSUFFICIENT_POINT));
+
+        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("US4001"));
+    }
+
+    @Test
+    @WithCustomUser
+    void 포인트_가구_랜덤_뽑기_뽑을_가구_없는_경우_404_반환() throws Exception {
+        given(shopService.purchasePointFurniture(any()))
+                .willThrow(new CustomException(ShopErrorStatus.NO_FURNITURE_AVAILABLE));
+
+        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("SH4041"));
+    }
+
+    @Test
+    void 포인트_가구_랜덤_뽑기_인증_없이_요청하면_401_반환() throws Exception {
+        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 }
