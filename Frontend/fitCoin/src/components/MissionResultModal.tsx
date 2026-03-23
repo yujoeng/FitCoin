@@ -2,35 +2,24 @@
 
 import React from 'react';
 import { Check } from 'lucide-react';
+import BaseModal from './common/BaseModal';
 
 interface MissionResultModalProps {
+  isOpen?: boolean;
   rewardPoint: number;
   totalPoint: number;
   onConfirm: () => void;
 }
 
 export default function MissionResultModal({
+  isOpen = true,
   rewardPoint,
   totalPoint,
   onConfirm,
 }: MissionResultModalProps) {
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      background: 'rgba(0,0,0,0.45)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '0 24px',
-    }}>
-      <div className="fc-card fc-anim-scale" style={{
-        width: '100%',
-        maxWidth: 360,
-        padding: '32px 24px 24px',
-        textAlign: 'center',
-      }}>
+    <BaseModal isOpen={isOpen} zIndex={1000}>
+      <div style={{ width: '100%', maxWidth: 360, textAlign: 'center' }}>
         <div style={{
           width: 56,
           height: 56,
@@ -106,6 +95,6 @@ export default function MissionResultModal({
           확인
         </button>
       </div>
-    </div>
+    </BaseModal>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import BaseModal from '@/components/common/BaseModal';
 
 interface AdExitModalProps {
   isOpen: boolean;
@@ -9,30 +10,12 @@ interface AdExitModalProps {
 }
 
 const AdExitModal: React.FC<AdExitModalProps> = ({ isOpen, onExitConfirm, onExitCancel }) => {
-  if (!isOpen) return null;
-
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 200, // AdPlayer(100)보다 높게
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(4px)',
-      }}
-    >
+    <BaseModal isOpen={isOpen} zIndex={200}>
       <div
         style={{
           width: '100%',
           maxWidth: '320px',
-          backgroundColor: 'var(--color-bg-card)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '24px',
-          boxShadow: 'var(--shadow-lg)',
           textAlign: 'center',
         }}
       >
@@ -94,7 +77,7 @@ const AdExitModal: React.FC<AdExitModalProps> = ({ isOpen, onExitConfirm, onExit
           </button>
         </div>
       </div>
-    </div>
+    </BaseModal>
   );
 };
 

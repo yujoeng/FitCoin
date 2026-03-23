@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import BaseModal from '@/components/common/BaseModal';
 
 interface AdRewardModalProps {
   isOpen: boolean;
@@ -8,30 +9,12 @@ interface AdRewardModalProps {
 }
 
 const AdRewardModal: React.FC<AdRewardModalProps> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(4px)',
-      }}
-    >
+    <BaseModal isOpen={isOpen}>
       <div
         style={{
           width: '100%',
           maxWidth: '320px',
-          backgroundColor: 'var(--color-bg-card)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '24px',
-          boxShadow: 'var(--shadow-lg)',
           textAlign: 'center',
         }}
       >
@@ -75,7 +58,7 @@ const AdRewardModal: React.FC<AdRewardModalProps> = ({ isOpen, onClose }) => {
           확인
         </button>
       </div>
-    </div>
+    </BaseModal>
   );
 };
 
