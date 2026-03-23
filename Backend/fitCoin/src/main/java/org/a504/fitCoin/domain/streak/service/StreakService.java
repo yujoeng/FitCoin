@@ -1,6 +1,7 @@
 package org.a504.fitCoin.domain.streak.service;
 
 import lombok.RequiredArgsConstructor;
+import org.a504.fitCoin.domain.streak.dto.MonthlyStreakResponse;
 import org.a504.fitCoin.domain.streak.dto.RecentStreakResponse;
 import org.a504.fitCoin.domain.streak.entity.Streak;
 import org.a504.fitCoin.domain.streak.repository.StreakJpaRepository;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,44 @@ import java.util.stream.Collectors;
 public class StreakService {
 
     private final StreakJpaRepository streakJpaRepository;
+
+    public MonthlyStreakResponse getMonthlyStreak(Long userId, int year, int month) {
+        YearMonth yearMonth  = YearMonth.of(year, month);
+        LocalDate  monthStart = yearMonth.atDay(1);
+        LocalDate  monthEnd   = yearMonth.atEndOfMonth();
+        LocalDate  today      = LocalDate.now();
+
+        // 1. 해당 월 스트릭 조회
+        Map<LocalDate, Streak> streakMap = streakJpaRepository
+                .findByUserIdAndMonthBetween(userId, monthStart, monthStart)
+                .stream()
+                .collect(Collectors.toMap(Streak::getYearAndMonth, s -> s));
+
+        // 2. 해당 월 일별 출석 여부 목록 생성 (오늘 이후는 포함하지 않음)
+        List<MonthlyStreakResponse.DailyStreak> monthlyStreak = new ArrayList<>();
+        for (int day = 1; day <= monthEnd.getDayOfMonth(); day++) {
+            LocalDate date = monthStart.withDayOfMonth(day);
+            if (date.isAfter(today)) break; // 오늘 이후 날짜 제외
+
+            Streak  streak  = streakMap.get(monthStart);
+            boolean checked = streak != null && streak.isChecked(day);
+
+            monthlyStreak.add(MonthlyStreakResponse.DailyStreak.builder()
+                    .date(date)
+                    .checked(checked)
+                    .build());
+        }
+
+        // 3. 연속 스트릭 계산
+        int currentStreak = calcCurrentStreak(userId, streakMap, today);
+
+        return MonthlyStreakResponse.builder()
+                .year(year)
+                .month(month)
+                .currentStreak(currentStreak)
+                .monthlyStreak(monthlyStreak)
+                .build();
+    }
 
     public RecentStreakResponse getRecentStreak(Long userId) {
         LocalDate today = LocalDate.now();
@@ -48,13 +88,22 @@ public class StreakService {
         }
 
         // 3. 연속 스트릭 계산 (오늘 미출석이면 어제부터 역순으로 카운트)
+        int currentStreak = calcCurrentStreak(userId, streakMap, today);
+
+        return RecentStreakResponse.builder()
+                .currentStreak(currentStreak)
+                .weeklyStreak(weeklyStreak)
+                .build();
+    }
+
+    // 연속 스트릭 계산 공통 메서드
+    private int calcCurrentStreak(Long userId, Map<LocalDate, Streak> streakMap, LocalDate today) {
         int       currentStreak = 0;
         LocalDate cursor        = isChecked(streakMap, today) ? today : today.minusDays(1);
 
         while (true) {
             LocalDate cursorMonth = cursor.withDayOfMonth(1);
 
-            // 해당 월 데이터 없으면 캐시에서 추가 조회
             if (!streakMap.containsKey(cursorMonth)) {
                 Optional<Streak> extra = streakJpaRepository.findByUserIdAndYearAndMonth(userId, cursorMonth);
                 if (extra.isEmpty()) break;
@@ -67,10 +116,7 @@ public class StreakService {
             cursor = cursor.minusDays(1);
         }
 
-        return RecentStreakResponse.builder()
-                .currentStreak(currentStreak)
-                .weeklyStreak(weeklyStreak)
-                .build();
+        return currentStreak;
     }
 
     private boolean isChecked(Map<LocalDate, Streak> streakMap, LocalDate date) {
