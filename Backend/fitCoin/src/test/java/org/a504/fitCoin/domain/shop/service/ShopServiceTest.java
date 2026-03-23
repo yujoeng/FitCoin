@@ -2,6 +2,13 @@ package org.a504.fitCoin.domain.shop.service;
 
 import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.PointLogJpaRepository;
+import org.a504.fitCoin.domain.shop.dto.response.PurchaseGifticonResponse;
+import org.a504.fitCoin.domain.user.entity.UserGifticon;
+import org.a504.fitCoin.domain.wallet.entity.Gifticon;
+import org.a504.fitCoin.domain.wallet.repository.GifticonJpaRepository;
+import org.a504.fitCoin.domain.wallet.repository.WalletJpaRepository;
+import org.a504.fitCoin.domain.wallet.value.GifticonType;
+import org.mockito.MockedStatic;
 import org.a504.fitCoin.domain.room.entity.Furniture;
 import org.a504.fitCoin.domain.room.entity.Theme;
 import org.a504.fitCoin.domain.room.repository.FurnitureJpaRepository;
@@ -26,6 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,6 +41,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mockStatic;
 
 @ExtendWith(MockitoExtension.class)
 class ShopServiceTest {
@@ -42,6 +51,8 @@ class ShopServiceTest {
     @Mock private UserFurnitureJpaRepository userFurnitureJpaRepository;
     @Mock private PointLogJpaRepository pointLogJpaRepository;
     @Mock private CoinLogJpaRepository coinLogJpaRepository;
+    @Mock private GifticonJpaRepository gifticonJpaRepository;
+    @Mock private WalletJpaRepository walletJpaRepository;
 
     @InjectMocks
     private ShopService shopService;
@@ -329,6 +340,105 @@ class ShopServiceTest {
         given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> shopService.purchaseCoinFurniture(USER_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(UserErrorStatus.USER_NOT_FOUND));
+    }
+
+    // ===== purchaseGifticon =====
+
+    @Test
+    void purchaseGifticon_성공_당첨() {
+        User user = mock(User.class);
+        given(user.getCoin()).willReturn(970);
+
+        Gifticon gifticon = mock(Gifticon.class);
+        given(gifticon.getType()).willReturn(GifticonType.COFFEE);
+        given(gifticon.getUrl()).willReturn("https://cdn.example.com/gifticon/coffee.png");
+
+        UserGifticon savedGifticon = mock(UserGifticon.class);
+        given(savedGifticon.getId()).willReturn(5L);
+
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.of(user));
+        given(gifticonJpaRepository.findAll()).willReturn(List.of(gifticon));
+        given(walletJpaRepository.save(any())).willReturn(savedGifticon);
+
+        try (MockedStatic<ThreadLocalRandom> tlr = mockStatic(ThreadLocalRandom.class)) {
+            ThreadLocalRandom mockRandom = mock(ThreadLocalRandom.class);
+            tlr.when(ThreadLocalRandom::current).thenReturn(mockRandom);
+            given(mockRandom.nextInt(100)).willReturn(5);  // < 10 → 당첨
+            given(mockRandom.nextInt(1)).willReturn(0);    // 후보 1개 중 첫 번째 선택
+
+            PurchaseGifticonResponse response = shopService.purchaseGifticon(USER_ID);
+
+            assertThat(response.spentCoin()).isEqualTo(ShopItem.COIN_GIFTICON_DRAW.getPrice());
+            assertThat(response.remainingCoin()).isEqualTo(970);
+            assertThat(response.acquiredGifticon()).isNotNull();
+            assertThat(response.acquiredGifticon().gifticonId()).isEqualTo(5L);
+            assertThat(response.acquiredGifticon().gifticonType()).isEqualTo(GifticonType.COFFEE);
+            verify(walletJpaRepository).save(any());
+            verify(coinLogJpaRepository).save(any());
+        }
+    }
+
+    @Test
+    void purchaseGifticon_성공_꽝() {
+        User user = mock(User.class);
+        given(user.getCoin()).willReturn(970);
+
+        Gifticon gifticon = mock(Gifticon.class);
+
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.of(user));
+        given(gifticonJpaRepository.findAll()).willReturn(List.of(gifticon));
+
+        try (MockedStatic<ThreadLocalRandom> tlr = mockStatic(ThreadLocalRandom.class)) {
+            ThreadLocalRandom mockRandom = mock(ThreadLocalRandom.class);
+            tlr.when(ThreadLocalRandom::current).thenReturn(mockRandom);
+            given(mockRandom.nextInt(100)).willReturn(50); // >= 10 → 꽝
+
+            PurchaseGifticonResponse response = shopService.purchaseGifticon(USER_ID);
+
+            assertThat(response.acquiredGifticon()).isNull();
+            verify(walletJpaRepository, never()).save(any());
+            verify(coinLogJpaRepository).save(any()); // 꽝이어도 코인 소모
+        }
+    }
+
+    @Test
+    void purchaseGifticon_코인_부족한_경우_예외_발생() {
+        User user = mock(User.class);
+        Gifticon gifticon = mock(Gifticon.class);
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.of(user));
+        given(gifticonJpaRepository.findAll()).willReturn(List.of(gifticon));
+        willThrow(new CustomException(UserErrorStatus.INSUFFICIENT_COIN)).given(user).deductCoin(anyInt());
+
+        assertThatThrownBy(() -> shopService.purchaseGifticon(USER_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(UserErrorStatus.INSUFFICIENT_COIN));
+
+        verify(walletJpaRepository, never()).save(any());
+    }
+
+    @Test
+    void purchaseGifticon_뽑을_기프티콘이_없는_경우_예외_발생() {
+        User user = mock(User.class);
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.of(user));
+        given(gifticonJpaRepository.findAll()).willReturn(List.of());
+
+        assertThatThrownBy(() -> shopService.purchaseGifticon(USER_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ShopErrorStatus.NO_GIFTICON_AVAILABLE));
+
+        verify(coinLogJpaRepository, never()).save(any()); // 코인 차감 전 예외
+    }
+
+    @Test
+    void purchaseGifticon_사용자를_찾을_수_없는_경우_예외_발생() {
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> shopService.purchaseGifticon(USER_ID))
                 .isInstanceOf(CustomException.class)
                 .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
                         .isEqualTo(UserErrorStatus.USER_NOT_FOUND));

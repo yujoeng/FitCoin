@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.shop.dto.response.GetItemsResponse;
 import org.a504.fitCoin.domain.shop.dto.response.PurchaseCoinFurnitureResponse;
+import org.a504.fitCoin.domain.shop.dto.response.PurchaseGifticonResponse;
 import org.a504.fitCoin.domain.shop.dto.response.PurchasePointFurnitureResponse;
 import org.a504.fitCoin.domain.shop.service.ShopService;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
@@ -44,5 +45,14 @@ public class ShopController {
     ) {
         return ApiResponse.onSuccess(SuccessStatus.OK,
                 shopService.purchaseCoinFurniture(userDetails.getUserId()));
+    }
+
+    @PostMapping("/gacha/gifticon")
+    @Operation(summary = "기프티콘 랜덤 뽑기", description = "코인을 소비하여 10% 확률로 기프티콘을 획득합니다. 꽝이어도 코인은 소비됩니다.")
+    public ResponseEntity<ApiResponse<PurchaseGifticonResponse>> purchaseGifticon(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return ApiResponse.onSuccess(SuccessStatus.OK,
+                shopService.purchaseGifticon(userDetails.getUserId()));
     }
 }
