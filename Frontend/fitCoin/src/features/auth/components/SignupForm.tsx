@@ -107,6 +107,7 @@ export default function SignupForm() {
   const [isLoadingSignup, setIsLoadingSignup] = useState(false);
 
   async function handleSendCode() {
+    if (isLoadingSend) return;
     const emailErr = checkEmail(email);
     setErrors((prev) => ({ ...prev, email: emailErr }));
     if (emailErr) return;
@@ -128,6 +129,7 @@ export default function SignupForm() {
   }
 
   async function handleVerifyCode() {
+    if (isLoadingVerify) return;
     if (!code) {
       setErrors((prev) => ({ ...prev, code: "인증 코드를 입력해주세요." }));
       return;
@@ -147,6 +149,7 @@ export default function SignupForm() {
   }
 
   async function handleSignup() {
+    if (isLoadingSignup) return;
     if (!isEmailVerified) {
       setApiError("이메일 인증을 완료해주세요.");
       return;
@@ -194,6 +197,13 @@ export default function SignupForm() {
     }
   }
 
+  // Enter 키 핸들러
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+      action();
+    }
+  };
+
   return (
     <div
       style={{
@@ -211,6 +221,7 @@ export default function SignupForm() {
             placeholder="이메일 주소"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, handleSendCode)}
             disabled={isEmailVerified}
             style={{ ...inputStyle(!!errors.email), flex: 1 }}
           />
@@ -249,6 +260,7 @@ export default function SignupForm() {
               placeholder="인증번호 6자리"
               value={code}
               onChange={(e) => setCode(e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e, handleVerifyCode)}
               maxLength={6}
               style={{ ...inputStyle(!!errors.code), flex: 1 }}
             />
@@ -281,6 +293,7 @@ export default function SignupForm() {
           placeholder="닉네임 (2~10자)"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
+          onKeyDown={(e) => handleKeyDown(e, handleSignup)}
           style={inputStyle(!!errors.nickname)}
         />
         {errors.nickname && <p style={errorText}>{errors.nickname}</p>}
@@ -293,6 +306,7 @@ export default function SignupForm() {
             placeholder="비밀번호 (8자 이상, 영문/숫자/특수문자 조합)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, handleSignup)}
             style={{ ...inputStyle(!!errors.password), paddingRight: "48px" }}
           />
           <button
@@ -325,6 +339,7 @@ export default function SignupForm() {
             placeholder="비밀번호 확인"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, handleSignup)}
             style={{
               ...inputStyle(!!errors.passwordConfirm),
               paddingRight: "48px",

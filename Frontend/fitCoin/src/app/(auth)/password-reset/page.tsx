@@ -160,7 +160,12 @@ function StepRequestEmail() {
           placeholder="이메일"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+          onKeyDown={(e) =>
+            e.key === "Enter" &&
+            !e.nativeEvent.isComposing &&
+            !isLoading &&
+            handleSubmit()
+          }
           style={inputStyle(!!emailError)}
         />
         {emailError && <p style={errorText}>{emailError}</p>}
@@ -293,6 +298,12 @@ function StepResetPassword({ token }: { token: string }) {
             placeholder="새 비밀번호 (8자 이상, 2종류 이상)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              !e.nativeEvent.isComposing &&
+              !isLoading &&
+              handleSubmit()
+            }
             style={{ ...inputStyle(!!errors.password), paddingRight: "48px" }}
           />
           <button
@@ -325,7 +336,12 @@ function StepResetPassword({ token }: { token: string }) {
             placeholder="비밀번호 확인"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              !e.nativeEvent.isComposing &&
+              !isLoading &&
+              handleSubmit()
+            }
             style={{ ...inputStyle(!!errors.confirm), paddingRight: "48px" }}
           />
           <button
