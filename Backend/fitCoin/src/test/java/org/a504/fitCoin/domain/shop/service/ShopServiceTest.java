@@ -1,5 +1,6 @@
 package org.a504.fitCoin.domain.shop.service;
 
+import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.PointLogJpaRepository;
 import org.a504.fitCoin.domain.room.entity.Furniture;
 import org.a504.fitCoin.domain.room.entity.Theme;
@@ -7,6 +8,7 @@ import org.a504.fitCoin.domain.room.repository.FurnitureJpaRepository;
 import org.a504.fitCoin.domain.room.value.FurniturePosition;
 import org.a504.fitCoin.domain.room.value.PurchaseType;
 import org.a504.fitCoin.domain.shop.dto.response.GetItemsResponse;
+import org.a504.fitCoin.domain.shop.dto.response.PurchaseCoinFurnitureResponse;
 import org.a504.fitCoin.domain.shop.dto.response.PurchasePointFurnitureResponse;
 import org.a504.fitCoin.domain.shop.value.ShopErrorStatus;
 import org.a504.fitCoin.domain.shop.value.ShopItem;
@@ -39,6 +41,7 @@ class ShopServiceTest {
     @Mock private FurnitureJpaRepository furnitureJpaRepository;
     @Mock private UserFurnitureJpaRepository userFurnitureJpaRepository;
     @Mock private PointLogJpaRepository pointLogJpaRepository;
+    @Mock private CoinLogJpaRepository coinLogJpaRepository;
 
     @InjectMocks
     private ShopService shopService;
@@ -233,6 +236,99 @@ class ShopServiceTest {
         given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> shopService.purchasePointFurniture(USER_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(UserErrorStatus.USER_NOT_FOUND));
+    }
+
+    // ===== purchaseCoinFurniture =====
+
+    @Test
+    void purchaseCoinFurniture_성공_신규_가구_획득() {
+        User user = mock(User.class);
+        given(user.getId()).willReturn(USER_ID);
+        given(user.getCoin()).willReturn(990);
+
+        Furniture furniture = buildFurnitureMock(1L);
+        Theme theme = furniture.getTheme();
+        Furniture otherFurniture = buildFurnitureIdOnlyMock(2L);
+
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.of(user));
+        given(furnitureJpaRepository.findAllByType(PurchaseType.COIN)).willReturn(List.of(furniture));
+        given(userFurnitureJpaRepository.existsByUserAndFurniture(user, furniture)).willReturn(false);
+        given(furnitureJpaRepository.findAllByThemeAndPositionNot(theme, FurniturePosition.HIDDEN))
+                .willReturn(List.of(furniture, otherFurniture));
+        given(userFurnitureJpaRepository.findFurnitureIdsByUserId(USER_ID)).willReturn(Set.of(1L));
+
+        PurchaseCoinFurnitureResponse response = shopService.purchaseCoinFurniture(USER_ID);
+
+        assertThat(response.spentCoin()).isEqualTo(ShopItem.COIN_FURNITURE_DRAW.getPrice());
+        assertThat(response.remainingCoin()).isEqualTo(990);
+        assertThat(response.acquiredFurniture().furnitureId()).isEqualTo(1L);
+        assertThat(response.acquiredFurniture().isNewAcquired()).isTrue();
+        assertThat(response.unlockedHiddenFurniture()).isNull();
+        verify(userFurnitureJpaRepository).save(any());
+        verify(coinLogJpaRepository).save(any());
+    }
+
+    @Test
+    void purchaseCoinFurniture_성공_테마_완성으로_히든_가구_해금() {
+        User user = mock(User.class);
+        given(user.getId()).willReturn(USER_ID);
+        given(user.getCoin()).willReturn(990);
+
+        Furniture furniture1 = buildFurnitureMock(1L);
+        Theme theme = furniture1.getTheme();
+        Furniture furniture2 = buildFurnitureIdOnlyMock(2L);
+        Furniture hiddenFurniture = buildFurnitureMock(10L, theme, FurniturePosition.HIDDEN);
+
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.of(user));
+        given(furnitureJpaRepository.findAllByType(PurchaseType.COIN)).willReturn(List.of(furniture1));
+        given(userFurnitureJpaRepository.existsByUserAndFurniture(user, furniture1)).willReturn(false);
+        given(furnitureJpaRepository.findAllByThemeAndPositionNot(theme, FurniturePosition.HIDDEN))
+                .willReturn(List.of(furniture1, furniture2));
+        given(userFurnitureJpaRepository.findFurnitureIdsByUserId(USER_ID)).willReturn(Set.of(1L, 2L));
+        given(furnitureJpaRepository.findByThemeAndPosition(theme, FurniturePosition.HIDDEN))
+                .willReturn(Optional.of(hiddenFurniture));
+
+        PurchaseCoinFurnitureResponse response = shopService.purchaseCoinFurniture(USER_ID);
+
+        assertThat(response.unlockedHiddenFurniture()).isNotNull();
+        assertThat(response.unlockedHiddenFurniture().furnitureId()).isEqualTo(10L);
+        verify(userFurnitureJpaRepository, times(2)).save(any());
+    }
+
+    @Test
+    void purchaseCoinFurniture_코인_부족한_경우_예외_발생() {
+        User user = mock(User.class);
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.of(user));
+        willThrow(new CustomException(UserErrorStatus.INSUFFICIENT_COIN)).given(user).deductCoin(anyInt());
+
+        assertThatThrownBy(() -> shopService.purchaseCoinFurniture(USER_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(UserErrorStatus.INSUFFICIENT_COIN));
+
+        verify(furnitureJpaRepository, never()).findAllByType(any());
+    }
+
+    @Test
+    void purchaseCoinFurniture_뽑을_가구가_없는_경우_예외_발생() {
+        User user = mock(User.class);
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.of(user));
+        given(furnitureJpaRepository.findAllByType(PurchaseType.COIN)).willReturn(List.of());
+
+        assertThatThrownBy(() -> shopService.purchaseCoinFurniture(USER_ID))
+                .isInstanceOf(CustomException.class)
+                .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
+                        .isEqualTo(ShopErrorStatus.NO_FURNITURE_AVAILABLE));
+    }
+
+    @Test
+    void purchaseCoinFurniture_사용자를_찾을_수_없는_경우_예외_발생() {
+        given(userJpaRepository.findByIdWithLock(USER_ID)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> shopService.purchaseCoinFurniture(USER_ID))
                 .isInstanceOf(CustomException.class)
                 .satisfies(e -> assertThat(((CustomException) e).getErrorCode())
                         .isEqualTo(UserErrorStatus.USER_NOT_FOUND));
