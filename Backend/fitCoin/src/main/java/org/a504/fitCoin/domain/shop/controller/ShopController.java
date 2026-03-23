@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.shop.dto.response.GetItemsResponse;
+import org.a504.fitCoin.domain.shop.dto.response.PurchaseCoinFurnitureResponse;
 import org.a504.fitCoin.domain.shop.dto.response.PurchasePointFurnitureResponse;
 import org.a504.fitCoin.domain.shop.service.ShopService;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
@@ -34,5 +35,14 @@ public class ShopController {
     ) {
         return ApiResponse.onSuccess(SuccessStatus.OK,
                 shopService.purchasePointFurniture(userDetails.getUserId()));
+    }
+
+    @PostMapping("/gacha/furniture/coin")
+    @Operation(summary = "코인 가구 랜덤 뽑기", description = "코인을 소비하여 가구를 랜덤으로 획득합니다. 테마가 완성되면 히든 가구가 자동으로 지급됩니다.")
+    public ResponseEntity<ApiResponse<PurchaseCoinFurnitureResponse>> purchaseCoinFurniture(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return ApiResponse.onSuccess(SuccessStatus.OK,
+                shopService.purchaseCoinFurniture(userDetails.getUserId()));
     }
 }

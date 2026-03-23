@@ -1,7 +1,9 @@
 package org.a504.fitCoin.domain.shop.service;
 
 import lombok.RequiredArgsConstructor;
+import org.a504.fitCoin.domain.asset.entity.CoinLog;
 import org.a504.fitCoin.domain.asset.entity.PointLog;
+import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.PointLogJpaRepository;
 import org.a504.fitCoin.domain.asset.value.TransactionType;
 import org.a504.fitCoin.domain.room.entity.Furniture;
@@ -11,6 +13,7 @@ import org.a504.fitCoin.domain.room.value.PurchaseType;
 import org.a504.fitCoin.domain.shop.dto.response.AcquiredFurnitureInfo;
 import org.a504.fitCoin.domain.shop.dto.response.GetItemsResponse;
 import org.a504.fitCoin.domain.shop.dto.response.ItemResponse;
+import org.a504.fitCoin.domain.shop.dto.response.PurchaseCoinFurnitureResponse;
 import org.a504.fitCoin.domain.shop.dto.response.PurchasePointFurnitureResponse;
 import org.a504.fitCoin.domain.shop.value.ShopErrorStatus;
 import org.a504.fitCoin.domain.shop.value.ShopItem;
@@ -36,6 +39,7 @@ public class ShopService {
     private final FurnitureJpaRepository furnitureJpaRepository;
     private final UserFurnitureJpaRepository userFurnitureJpaRepository;
     private final PointLogJpaRepository pointLogJpaRepository;
+    private final CoinLogJpaRepository coinLogJpaRepository;
 
     public GetItemsResponse getItems() {
         List<ItemResponse> items = Arrays.stream(ShopItem.values())
@@ -72,6 +76,39 @@ public class ShopService {
         return new PurchasePointFurnitureResponse(
                 price,
                 user.getPoint(),
+                AcquiredFurnitureInfo.of(acquired, isNewAcquired),
+                hiddenInfo
+        );
+    }
+
+    @Transactional
+    public PurchaseCoinFurnitureResponse purchaseCoinFurniture(Long userId) {
+        User user = userJpaRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new CustomException(UserErrorStatus.USER_NOT_FOUND));
+
+        int price = ShopItem.COIN_FURNITURE_DRAW.getPrice();
+        user.deductCoin(price);
+        coinLogJpaRepository.save(CoinLog.of(user, price, TransactionType.USE));
+
+        // 코인 가구 중 랜덤 선택
+        List<Furniture> candidates = furnitureJpaRepository.findAllByType(PurchaseType.COIN);
+        if (candidates.isEmpty()) {
+            throw new CustomException(ShopErrorStatus.NO_FURNITURE_AVAILABLE);
+        }
+        Furniture acquired = candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+
+        // 미보유 시 인벤토리에 추가
+        boolean isNewAcquired = !userFurnitureJpaRepository.existsByUserAndFurniture(user, acquired);
+        if (isNewAcquired) {
+            userFurnitureJpaRepository.save(UserFurniture.of(user, acquired));
+        }
+
+        // 테마 완성 여부 확인 → 히든 가구 해금
+        AcquiredFurnitureInfo hiddenInfo = checkAndUnlockHidden(user, acquired);
+
+        return new PurchaseCoinFurnitureResponse(
+                price,
+                user.getCoin(),
                 AcquiredFurnitureInfo.of(acquired, isNewAcquired),
                 hiddenInfo
         );
