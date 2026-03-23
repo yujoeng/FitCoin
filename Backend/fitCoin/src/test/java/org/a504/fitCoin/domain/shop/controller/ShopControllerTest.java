@@ -73,7 +73,7 @@ class ShopControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    // ===== POST /shop/purchase/point-furniture =====
+    // ===== POST /shop/gacha/furniture/point =====
 
     @Test
     @WithCustomUser
@@ -83,7 +83,7 @@ class ShopControllerTest {
         PurchasePointFurnitureResponse response = new PurchasePointFurnitureResponse(300, 700, acquired, null);
         given(shopService.purchasePointFurniture(any())).willReturn(response);
 
-        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+        mockMvc.perform(post("/shop/gacha/furniture/point").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isSuccess").value(true))
                 .andExpect(jsonPath("$.result.spentPoint").value(300))
@@ -103,7 +103,7 @@ class ShopControllerTest {
         PurchasePointFurnitureResponse response = new PurchasePointFurnitureResponse(300, 700, acquired, null);
         given(shopService.purchasePointFurniture(any())).willReturn(response);
 
-        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+        mockMvc.perform(post("/shop/gacha/furniture/point").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isSuccess").value(true))
                 .andExpect(jsonPath("$.result.acquiredFurniture.isNewAcquired").value(false))
@@ -120,7 +120,7 @@ class ShopControllerTest {
         PurchasePointFurnitureResponse response = new PurchasePointFurnitureResponse(300, 700, acquired, hidden);
         given(shopService.purchasePointFurniture(any())).willReturn(response);
 
-        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+        mockMvc.perform(post("/shop/gacha/furniture/point").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isSuccess").value(true))
                 .andExpect(jsonPath("$.result.acquiredFurniture.furnitureId").value(12))
@@ -134,7 +134,7 @@ class ShopControllerTest {
         given(shopService.purchasePointFurniture(any()))
                 .willThrow(new CustomException(UserErrorStatus.INSUFFICIENT_POINT));
 
-        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+        mockMvc.perform(post("/shop/gacha/furniture/point").with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("US4001"));
@@ -146,7 +146,7 @@ class ShopControllerTest {
         given(shopService.purchasePointFurniture(any()))
                 .willThrow(new CustomException(ShopErrorStatus.NO_FURNITURE_AVAILABLE));
 
-        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+        mockMvc.perform(post("/shop/gacha/furniture/point").with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("SH4041"));
@@ -154,7 +154,7 @@ class ShopControllerTest {
 
     @Test
     void 포인트_가구_랜덤_뽑기_인증_없이_요청하면_401_반환() throws Exception {
-        mockMvc.perform(post("/shop/purchase/point-furniture").with(csrf()))
+        mockMvc.perform(post("/shop/gacha/furniture/point").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 }

@@ -27,7 +27,7 @@ public class ShopController {
         return ApiResponse.onSuccess(SuccessStatus.OK, shopService.getItems());
     }
 
-    @PostMapping("/purchase/point-furniture")
+    @PostMapping("/gacha/furniture/point")
     @Operation(summary = "포인트 가구 랜덤 뽑기", description = "포인트를 소비하여 가구를 랜덤으로 획득합니다. 테마가 완성되면 히든 가구가 자동으로 지급됩니다.")
     public ResponseEntity<ApiResponse<PurchasePointFurnitureResponse>> purchasePointFurniture(
             @AuthenticationPrincipal CustomUserDetails userDetails
