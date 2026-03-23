@@ -30,9 +30,12 @@ public class UserService {
         return new MyPageResponse(user.getEmail(), user.getNickname(), user.getExerciseLevel());
     }
 
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long userId, String password) {
 
         User user = findUser(userId);
+
+        if (!passwordEncoder.matches(password, user.getPassword()))
+            throw new CustomException(ErrorStatus.BAD_REQUEST);
 
         user.delete();
 

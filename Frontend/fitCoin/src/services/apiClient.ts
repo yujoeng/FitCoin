@@ -1,9 +1,27 @@
 import axios from 'axios';
 import { getAccessToken, saveAccessToken, removeAccessToken } from '@/features/auth/utils/tokenUtils';
 
+// ─────────────────────────────────────────────
+// API Base URL 설정
+// 1. NEXT_PUBLIC_API_BASE_URL 가 있으면 우선 사용 (뒤에 /api 붙임)
+// 2. NEXT_PUBLIC_API_URL 이 있으면 사용 (기존 호환성)
+// 3. 둘 다 없으면 현재 접속 도메인 기준 /api 사용 (배포 환경 대응)
+// ─────────────────────────────────────────────
+const getBaseURL = () => {
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (base) {
+    return base.endsWith('/api') ? base : `${base}/api`;
+  }
+  // 배포 환경(브라우저)에서 설정이 없으면 현재 도메인 사용
+  if (typeof window !== 'undefined') {
+    return `${window.location.protocol}//${window.location.host}/api`;
+  }
+  return 'http://localhost:8080/api';
+};
+
 // Axios 인스턴스
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
+  baseURL: getBaseURL(),
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
@@ -108,8 +126,15 @@ apiClient.interceptors.response.use(
 
     // GLOBAL-401: 블랙리스트/유효하지 않은 토큰 → 재발급 없이 로그인으로
     if (error.response?.status === 401) {
-      removeAccessToken();
-      window.location.href = '/login';
+      // DELETE /users/me 요청(회원탈퇴)의 401은 "비밀번호 틀림"이므로 리다이렉트 제외
+      const isDeleteUser =
+        originalRequest.url?.endsWith("/users/me") &&
+        originalRequest.method?.toLowerCase() === "delete";
+
+      if (!isDeleteUser) {
+        removeAccessToken();
+        window.location.href = "/login";
+      }
     }
 
     // 403: 백엔드 AuthenticationEntryPoint 미설정 시 Spring Security가 반환하는 403

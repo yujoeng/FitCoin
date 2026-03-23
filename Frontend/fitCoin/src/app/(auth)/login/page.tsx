@@ -8,8 +8,13 @@ import { hasAccessToken } from "@/features/auth/utils/tokenUtils";
 
 const LoginForm = dynamic(
   () => import("@/features/auth/components/LoginForm"),
-  { ssr: false },
+  { ssr: false, loading: () => <div style={{ height: "300px" }} /> },
 );
+
+const SplashScreen = dynamic(() => import("@/components/SplashScreen"), {
+  ssr: false,
+  loading: () => <div style={{ width: "100%", height: "100dvh", backgroundColor: "#FFF8E7" }} />,
+});
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,6 +47,9 @@ export default function LoginPage() {
         height={70}
         priority
         style={{ objectFit: "contain" }}
+        onError={(e) => {
+          e.currentTarget.src = "/icons/error.png";
+        }}
       />
 
       {/* 캐릭터 이미지 */}
@@ -61,6 +69,9 @@ export default function LoginPage() {
           fill
           style={{ objectFit: "contain" }}
           priority
+          onError={(e) => {
+            e.currentTarget.src = "/icons/error.png";
+          }}
         />
       </div>
 

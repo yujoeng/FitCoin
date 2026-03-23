@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Settings } from "lucide-react";
+import SettingModal from "@/components/SettingModal";
 import { useMyPage } from "@/features/user/hooks/useMyPage";
 import {
   EXERCISE_LEVEL_LABELS,
@@ -380,8 +382,8 @@ function DeleteModal({ onClose, onSubmit }: DeleteModalProps) {
       setLoading(true);
       setError("");
       await onSubmit(password);
-    } catch {
-      setError("비밀번호가 올바르지 않아요.");
+    } catch (err: any) {
+      setError(err.message || "탈퇴 처리 중 오류가 발생했어요.");
     } finally {
       setLoading(false);
     }
@@ -485,8 +487,8 @@ function StreakCalendar({
       style={{
         borderRadius: "var(--radius-xl)",
         padding: "var(--space-4)",
-        background: "var(--color-bg-dark)",
-        flex: 1,
+        background: "var(--color-primary-light)",
+        flexShrink: 0,
         display: "flex",
         flexDirection: "column",
       }}
@@ -509,8 +511,8 @@ function StreakCalendar({
             borderRadius: "50%",
             border: "none",
             cursor: "pointer",
-            background: "rgba(255,255,255,0.15)",
-            color: "var(--color-text-inverse)",
+            background: "rgba(44, 62, 31, 0.1)",
+            color: "var(--color-text-primary)",
             fontSize: "18px",
             display: "flex",
             alignItems: "center",
@@ -523,7 +525,7 @@ function StreakCalendar({
           <p
             style={{
               fontSize: "var(--text-xs)",
-              color: "rgba(255,255,255,0.6)",
+              color: "var(--color-text-secondary)",
               margin: 0,
               fontFamily: "var(--font-body)",
             }}
@@ -536,7 +538,7 @@ function StreakCalendar({
             style={{
               fontSize: "var(--text-2xl)",
               fontWeight: 700,
-              color: "var(--color-text-inverse)",
+              color: "var(--color-text-primary)",
               margin: 0,
               lineHeight: 1.1,
             }}
@@ -553,8 +555,8 @@ function StreakCalendar({
             borderRadius: "50%",
             border: "none",
             cursor: "pointer",
-            background: "rgba(255,255,255,0.15)",
-            color: "var(--color-text-inverse)",
+            background: "rgba(44, 62, 31, 0.1)",
+            color: "var(--color-text-primary)",
             fontSize: "18px",
             display: "flex",
             alignItems: "center",
@@ -574,20 +576,30 @@ function StreakCalendar({
           marginBottom: "var(--space-3)",
           padding: "var(--space-2) var(--space-3)",
           borderRadius: "var(--radius-lg)",
-          background: "rgba(255,255,255,0.1)",
+          background: "rgba(44, 62, 31, 0.08)",
         }}
       >
-        <span style={{ fontSize: "16px" }}>💧</span>
+        <Image
+          src="/icons/streak.png"
+          alt="학습"
+          width={18}
+          height={18}
+          style={{ objectFit: "contain" }}
+          priority
+          onError={(e) => {
+            e.currentTarget.src = "/icons/favicon.png";
+          }}
+        />
         <span
           style={{
             fontFamily: "var(--font-body)",
             fontSize: "var(--text-sm)",
             fontWeight: 600,
-            color: "rgba(255,255,255,0.85)",
+            color: "var(--color-text-secondary)",
           }}
         >
           연속 학습{" "}
-          <span style={{ color: "var(--color-primary)" }}>
+          <span style={{ color: "var(--color-bg-dark)" }}>
             {currentStreak}일
           </span>
         </span>
@@ -608,7 +620,7 @@ function StreakCalendar({
               textAlign: "center",
               fontSize: "var(--text-xs)",
               padding: "var(--space-1) 0",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--color-text-secondary)",
               fontFamily: "var(--font-body)",
             }}
           >
@@ -649,14 +661,29 @@ function StreakCalendar({
                   fontSize: done ? "16px" : "var(--text-xs)",
                   fontWeight: 500,
                   background: done ? "var(--color-primary)" : "transparent",
+                  border: done ? "2px solid var(--color-bg-dark)" : "none",
                   color: done
                     ? "var(--color-text-inverse)"
-                    : "rgba(255,255,255,0.45)",
+                    : "var(--color-text-primary)",
                   fontFamily: done ? undefined : "var(--font-body)",
                   transition: "var(--transition-fast)",
                 }}
               >
-                {done ? "⭐" : day}
+                {done ? (
+                  <Image
+                    src="/icons/streak.png"
+                    alt="완료"
+                    width={20}
+                    height={20}
+                    style={{ objectFit: "contain" }}
+                    priority
+                    onError={(e) => {
+                      e.currentTarget.src = "/icons/error.png";
+                    }}
+                  />
+                ) : (
+                  day
+                )}
               </div>
             </div>
           );
@@ -670,8 +697,11 @@ function StreakCalendar({
 // 메인 컴포넌트: MyPageView
 // ─────────────────────────────────────────────
 export default function MyPageView() {
+  const [settingModalOpen, setSettingModalOpen] = useState(false);
+
   const {
     userInfo,
+    characterInfo,
     recentStreak,
     monthStreak,
     isLoading,
@@ -699,7 +729,7 @@ export default function MyPageView() {
     return (
       <div
         style={{
-          minHeight: "100vh",
+          height: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -716,7 +746,7 @@ export default function MyPageView() {
     return (
       <div
         style={{
-          minHeight: "100vh",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -775,11 +805,12 @@ export default function MyPageView() {
           display: "flex",
           flexDirection: "column",
           height: "100%",
+          overflow: "hidden",
         }}
       >
         {/* 상단 로고 — public/logo.png */}
         <div
-          style={{ padding: "var(--space-5) var(--space-4) var(--space-4)" }}
+          style={{ padding: "var(--space-3) var(--space-4) var(--space-2)" }}
         >
           <Image
             src="/logo.png"
@@ -793,12 +824,15 @@ export default function MyPageView() {
         </div>
 
         <div
+          className="fc-hide-scrollbar"
           style={{
             padding: "0 var(--space-4)",
             display: "flex",
             flexDirection: "column",
             gap: "var(--space-4)",
             flex: 1,
+            overflowY: "auto",
+            minHeight: 0,
           }}
         >
           {/* ── 프로필 카드 ── */}
@@ -808,8 +842,30 @@ export default function MyPageView() {
               padding: "var(--space-5)",
               boxShadow: "var(--shadow-sm)",
               background: "var(--color-bg-card)",
+              position: "relative",
             }}
           >
+            {/* 설정 버튼 */}
+            <button
+              onClick={() => setSettingModalOpen(true)}
+              className="fc-pressable"
+              style={{
+                position: "absolute",
+                top: "var(--space-5)",
+                right: "var(--space-5)",
+                zIndex: 10,
+                color: "var(--color-text-secondary)",
+                padding: "var(--space-1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <Settings size={22} />
+            </button>
             {/* 캐릭터 이미지 + 정보 */}
             <div
               style={{
@@ -832,8 +888,19 @@ export default function MyPageView() {
                   background: "var(--color-primary-light)",
                 }}
               >
-                {/* TODO: 실제 캐릭터 이미지로 교체 — GET /characters/me API 연동 필요 */}
-                <span style={{ fontSize: "36px" }}>🐾</span>
+                {/* GET /characters/me 연동 완료 */}
+                {characterInfo?.imgUrl ? (
+                  <Image
+                    src={characterInfo.imgUrl}
+                    alt="내 캐릭터"
+                    width={72}
+                    height={72}
+                    style={{ objectFit: "cover" }}
+                    priority
+                  />
+                ) : (
+                  <span style={{ fontSize: "36px" }}>🐾</span>
+                )}
               </div>
 
               {/* 텍스트 정보 */}
@@ -895,7 +962,7 @@ export default function MyPageView() {
                   </button>
                 </div>
 
-                {/* 로그아웃 / 비밀번호 재설정 / 회원탈퇴 */}
+                {/* 로그아웃 / 비밀번호 변경 / 회원탈퇴 */}
                 <div
                   style={{
                     display: "flex",
@@ -911,7 +978,7 @@ export default function MyPageView() {
                       color: "var(--color-text-secondary)",
                     },
                     {
-                      label: "비밀번호 재설정",
+                      label: "비밀번호 변경",
                       onClick: () => setPasswordModalOpen(true),
                       bg: "var(--color-primary-light)",
                       color: "var(--color-text-secondary)",
@@ -1115,6 +1182,9 @@ export default function MyPageView() {
           onClose={() => setDeleteModalOpen(false)}
           onSubmit={handleDeleteUser}
         />
+      )}
+      {settingModalOpen && (
+        <SettingModal onClose={() => setSettingModalOpen(false)} />
       )}
     </>
   );

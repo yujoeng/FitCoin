@@ -2,9 +2,6 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Webcam from 'react-webcam';
-import { Pose, POSE_CONNECTIONS } from '@mediapipe/pose';
-import * as cam from '@mediapipe/camera_utils';
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
 import {
   Activity, RotateCcw, CheckCircle, AlertTriangle, ArrowDown, Camera,
 } from 'lucide-react';
@@ -79,55 +76,72 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
 
   useEffect(() => {
     if (!webcamRef.current) return;
-    const pose = new Pose({
-      locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
-    });
-    pose.setOptions({
-      modelComplexity: 1, smoothLandmarks: true, enableSegmentation: false,
-      minDetectionConfidence: 0.55, minTrackingConfidence: 0.55,
-    });
-    pose.onResults((results) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      setLoading(false);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-      if (results.poseLandmarks) {
-        drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS,
-          { color: 'rgba(255,159,115,0.7)', lineWidth: 2 });
-        drawLandmarks(ctx, results.poseLandmarks,
-          { color: '#E07845', fillColor: 'rgba(224,120,69,0.4)', lineWidth: 1, radius: 3.5 });
 
-        const result = detectFn(results.poseLandmarks, statusRef.current, syncCount, syncStatus) as unknown;
-        if (result && typeof result === 'object') {
-          const r = result as { angle?: number; feedback?: string };
-          setAngle(r.angle ?? 0);
-          const now = Date.now();
-          if (now - throttleRef.current > 350) {
-            throttleRef.current = now;
-            const key = r.feedback ?? 'good';
-            setFeedbackKey(key);
-            onFeedback?.(key);
+    let camera: any = null;
+    let pose: any = null;
+
+    const initMediapipe = async () => {
+      // 동적 import
+      const { Pose, POSE_CONNECTIONS } = await import('@mediapipe/pose');
+      const cam = await import('@mediapipe/camera_utils');
+      const { drawConnectors, drawLandmarks } = await import('@mediapipe/drawing_utils');
+
+      pose = new Pose({
+        locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+      });
+      pose.setOptions({
+        modelComplexity: 1, smoothLandmarks: true, enableSegmentation: false,
+        minDetectionConfidence: 0.55, minTrackingConfidence: 0.55,
+      });
+      pose.onResults((results: any) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        setLoading(false);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+        if (results.poseLandmarks) {
+          drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS,
+            { color: 'rgba(255,159,115,0.7)', lineWidth: 2 });
+          drawLandmarks(ctx, results.poseLandmarks,
+            { color: '#E07845', fillColor: 'rgba(224,120,69,0.4)', lineWidth: 1, radius: 3.5 });
+
+          const result = detectFn(results.poseLandmarks, statusRef.current, syncCount, syncStatus) as unknown;
+          if (result && typeof result === 'object') {
+            const r = result as { angle?: number; feedback?: string };
+            setAngle(r.angle ?? 0);
+            const now = Date.now();
+            if (now - throttleRef.current > 350) {
+              throttleRef.current = now;
+              const key = r.feedback ?? 'good';
+              setFeedbackKey(key);
+              onFeedback?.(key);
+            }
+          } else if (typeof result === 'number') {
+            setAngle(result);
           }
-        } else if (typeof result === 'number') {
-          setAngle(result);
+        } else {
+          setFeedbackKey('no_pose');
         }
-      } else {
-        setFeedbackKey('no_pose');
-      }
-    });
-    const videoEl = (webcamRef.current as unknown as { video: HTMLVideoElement }).video;
-    const camera = new cam.Camera(videoEl, {
-      onFrame: async () => {
-        const video = (webcamRef.current as unknown as { video: HTMLVideoElement })?.video;
-        if (video) await pose.send({ image: video });
-      },
-      width: 640, height: 480,
-    });
-    camera.start();
-    return () => { camera.stop(); };
+      });
+      
+      const videoEl = (webcamRef.current as unknown as { video: HTMLVideoElement }).video;
+      camera = new cam.Camera(videoEl, {
+        onFrame: async () => {
+          const video = (webcamRef.current as unknown as { video: HTMLVideoElement })?.video;
+          if (video) await pose.send({ image: video });
+        },
+        width: 640, height: 480,
+      });
+      camera.start();
+    };
+
+    initMediapipe();
+
+    return () => { 
+      if (camera) camera.stop(); 
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exercise.id]);
 

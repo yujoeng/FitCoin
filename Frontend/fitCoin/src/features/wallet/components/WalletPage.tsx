@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAssets } from '../hooks/useAssets';
 import { Gifticon } from '../types/assets';
+import AppImage from '@/shared/components/AppImage';
+import BaseModal from '@/components/common/BaseModal';
 
 const GIFTICON_TYPE_LABEL: Record<string, string> = {
   COFFEE: '커피',
@@ -53,13 +55,13 @@ export const WalletPage = () => {
       <h1 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '24px', margin: '0 0 24px 0' }}>내가 받은 기프티콘</h1>
 
       {/* 목록 */}
-      {!isLoading && (!gifticons || gifticons.length === 0) ? (
+      {!isLoading && (!gifticons || !Array.isArray(gifticons) || gifticons.length === 0) ? (
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'var(--color-text-secondary)', fontSize: '16px', fontWeight: 'bold' }}>
           보유한 기프티콘이 없습니다
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-          {gifticons?.map(g => (
+          {(Array.isArray(gifticons) ? gifticons : []).map(g => (
             <div 
               key={g.gifticonId} 
               onClick={() => setSelectedGifticon(g)}
@@ -67,7 +69,11 @@ export const WalletPage = () => {
             >
               <div style={{ width: '100%', aspectRatio: '1 / 1', backgroundColor: '#f3f4f6', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
                 {g.imageUrl ? (
-                  <img src={g.imageUrl} alt="gifticon" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <AppImage
+                    src={g.imageUrl}
+                    alt="gifticon"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 ) : (
                   <span style={{ color: 'var(--color-text-secondary)', fontSize: '12px' }}>이미지 없음</span>
                 )}
@@ -82,9 +88,9 @@ export const WalletPage = () => {
       )}
 
       {/* 모달 */}
-      {selectedGifticon && (
-        <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100, padding: '20px' }}>
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+      <BaseModal isOpen={!!selectedGifticon} onClose={() => setSelectedGifticon(null)} zIndex={100}>
+        {selectedGifticon && (
+          <div style={{ margin: '-24px', backgroundColor: '#ffffff', borderRadius: 'inherit', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
             <button 
               onClick={() => setSelectedGifticon(null)}
               style={{ position: 'absolute', top: '12px', right: '12px', width: '30px', height: '30px', backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: '50%', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '16px', zIndex: 10 }}
@@ -93,7 +99,11 @@ export const WalletPage = () => {
             </button>
             <div style={{ width: '100%', aspectRatio: '1 / 1', backgroundColor: '#f3f4f6', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {selectedGifticon.imageUrl ? (
-                <img src={selectedGifticon.imageUrl} alt="gifticon detail" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <AppImage
+                  src={selectedGifticon.imageUrl}
+                  alt="gifticon detail"
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                />
               ) : (
                 <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>이미지 없음</span>
               )}
@@ -110,8 +120,8 @@ export const WalletPage = () => {
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </BaseModal>
     </div>
   );
 };

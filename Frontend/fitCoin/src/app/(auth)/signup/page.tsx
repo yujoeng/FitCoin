@@ -51,6 +51,9 @@ export default function SignupPage() {
           height={50}
           priority
           style={{ objectFit: 'contain' }}
+          onError={(e) => {
+            e.currentTarget.src = "/icons/error.png";
+          }}
         />
       </div>
 

@@ -174,5 +174,20 @@ public class CharacterService {
                 .collect(java.util.stream.Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public String getExercisingImage(Long userId) {
+
+        // GROWING, AVAILABLE 상태 캐릭터 조회
+        UserCharacter userCharacter = userCharacterJpaRepository
+                .findByUserIdAndStatusNot(userId, UserCharacterStatus.GRADUATED)
+                .orElseThrow(() -> new CustomException(CharacterErrorStatus.CHARACTER_NOT_ACTIVE));
+
+        // EXERCISING 이미지 URL 조회
+        return characterDetailJpaRepository
+                .findByCharactersIdAndStatus(userCharacter.getCharacters().getId(), CharacterStatus.EXERCISING)
+                .map(CharacterDetail::getUrl)
+                .orElse(null);
+    }
+
 
 }
