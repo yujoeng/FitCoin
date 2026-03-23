@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import AppImage from '@/shared/components/AppImage';
 import { CHARACTER_DEX_DATA, TOTAL_CHARACTER_COUNT } from '../data/characterDex';
 import type { CharacterDexItem } from '../types/character';
 
@@ -131,10 +132,10 @@ export default function CharacterDexPage() {
             >
               {item.collected ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <AppImage
                   src={item.images.before}
                   alt={item.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
                 />
               ) : (
                 <div
@@ -292,13 +293,13 @@ export default function CharacterDexPage() {
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <AppImage
                   src={getImageSrc(selectedItem, imageIdx)}
                   alt={`${selectedItem.name} - ${IMAGE_LABELS[imageIdx]}`}
                   style={{
-                    width: '140px',
-                    height: '140px',
-                    objectFit: 'contain',
+                    width: "140px",
+                    height: "140px",
+                    objectFit: "contain",
                   }}
                 />
                 {/* 레이블 + 인디케이터 */}

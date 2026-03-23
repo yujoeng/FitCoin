@@ -32,6 +32,9 @@ const STATUS_STYLE: Record<
         height={18}
         style={{ objectFit: "contain" }}
         priority
+        onError={(e) => {
+          e.currentTarget.src = "/icons/error.png";
+        }}
       />
     ),
   },
@@ -95,6 +98,9 @@ export default function StreakBar({
             height={18}
             style={{ objectFit: "contain" }}
             priority
+            onError={(e) => {
+              e.currentTarget.src = "/icons/error.png";
+            }}
           />
           <span
             style={{

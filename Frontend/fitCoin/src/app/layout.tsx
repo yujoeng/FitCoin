@@ -6,6 +6,9 @@ import AppShellProvider from '@/components/AppShellProvider';
 export const metadata: Metadata = {
   title: 'FitCoin',
   description: '운동하고 코인 모으자, FitCoin',
+  icons: {
+    icon: '/icons/favicon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

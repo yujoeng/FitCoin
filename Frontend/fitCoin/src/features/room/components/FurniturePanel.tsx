@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { FurnitureItem, FurnitureType } from '../types/room';
+import AppImage from '@/shared/components/AppImage';
 
 interface FurniturePanelProps {
   inventory: FurnitureItem[];
@@ -145,7 +146,7 @@ export default function FurniturePanel({
             gap: '12px',
           }}
         >
-          {filteredItems.map((item) => {
+          {filteredItems.map((item: FurnitureItem) => {
             const isSelected = currentFurnitureId === item.furnitureId;
             const isOwned = item.owned;
 
@@ -209,13 +210,13 @@ export default function FurniturePanel({
                   }}
                 >
                   {isOwned ? (
-                    <img
+                    <AppImage
                       src={item.imageUrl}
                       alt={item.furnitureName}
                       style={{
-                        maxWidth: '100%',
-                        maxHeight: '100%',
-                        objectFit: 'contain',
+                        maxWidth: "100%",
+                        maxHeight: "100%",
+                        objectFit: "contain",
                       }}
                     />
                   ) : (

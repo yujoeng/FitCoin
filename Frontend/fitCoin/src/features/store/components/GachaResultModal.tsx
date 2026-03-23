@@ -99,6 +99,9 @@ export default function GachaResultModal({
                   alt={itemName ?? '획득 아이템'}
                   fill
                   style={{ objectFit: 'contain' }}
+                  onError={(e) => {
+                    e.currentTarget.src = "/icons/error.png";
+                  }}
                 />
               </div>
             )}
