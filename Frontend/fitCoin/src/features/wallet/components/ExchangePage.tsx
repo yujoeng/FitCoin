@@ -26,7 +26,7 @@ export const ExchangePage = () => {
   const expectedCoin = calcExpectedCoin(pointInput);
 
   const handleExchange = async () => {
-    if (!pointInput) return;
+    if (isLoading || !pointInput) return;
     const point = parseInt(pointInput, 10);
     if (isNaN(point) || point <= 0) {
       setErrorMessage('유효한 포인트 값을 입력하세요.');
@@ -101,6 +101,12 @@ export const ExchangePage = () => {
             type="text" 
             value={pointInput}
             onChange={handleInputChange}
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              !e.nativeEvent.isComposing &&
+              !isLoading &&
+              handleExchange()
+            }
             style={{ boxSizing: 'border-box', width: '100%', backgroundColor: '#ffffff', border: '1px solid #e5e7eb', outline: 'none', borderRadius: '12px', padding: '12px 16px', fontSize: '16px', textAlign: 'left', color: 'var(--color-text-primary)', fontFamily: 'var(--font-body)' }}
             placeholder="0"
           />
