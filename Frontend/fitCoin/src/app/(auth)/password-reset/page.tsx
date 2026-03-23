@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, CheckCircle2 } from "lucide-react";
 import {
   requestPasswordReset,
   resetPassword,
@@ -85,7 +85,7 @@ function StepRequestEmail() {
           gap: "16px",
         }}
       >
-        <p style={{ fontSize: "40px", margin: 0 }}>📧</p>
+        <Mail size={48} color="#96B95B" />
         <p
           style={{
             color: "#2C3E1F",
@@ -230,7 +230,7 @@ function StepResetPassword({ token }: { token: string }) {
           gap: "16px",
         }}
       >
-        <p style={{ fontSize: "40px", margin: 0 }}>✅</p>
+        <CheckCircle2 size={48} color="#96B95B" />
         <p
           style={{
             color: "#2C3E1F",
@@ -432,6 +432,9 @@ function PasswordResetContent() {
           height={50}
           priority
           style={{ objectFit: "contain" }}
+          onError={(e) => {
+            e.currentTarget.src = "/icons/error.png";
+          }}
         />
       </div>
 
