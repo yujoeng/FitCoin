@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { getCharacterDex, CharacterDexApiItem } from '../services/characterApi';
+import AppImage from '@/shared/components/AppImage';
 
 const TOTAL_CHARACTER_COUNT = 17;
 
@@ -105,55 +106,6 @@ export default function CharacterDexPage() {
           padding: '0 var(--space-3, 12px)',
         }}
       >
-<<<<<<< HEAD
-  {
-    CHARACTER_DEX_DATA.map((item) => (
-      <div
-        key={item.id}
-        onClick={() => item.collected && openModal(item)}
-        style={{
-          borderRadius: 'var(--radius-xl, 16px)',
-          background: item.collected ? 'var(--color-bg-card, #FFFFFF)' : '#E8E8E8',
-          border: item.collected
-            ? '1.5px solid var(--color-border, #e0e0e0)'
-            : '1.5px solid #D0D0D0',
-          overflow: 'hidden',
-          cursor: item.collected ? 'pointer' : 'default',
-          boxShadow: item.collected ? 'var(--shadow-sm, 0 1px 4px rgba(0,0,0,0.08))' : 'none',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: '12px 8px 8px',
-          gap: '6px',
-          transition: 'transform 0.12s ease',
-        }}
-        onMouseEnter={(e) => {
-          if (item.collected) (e.currentTarget as HTMLDivElement).style.transform = 'scale(1.03)';
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLDivElement).style.transform = 'scale(1)';
-        }}
-      >
-        {/* 이미지 영역 */}
-        <div
-          style={{
-            width: '72px',
-            height: '72px',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {item.collected ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <AppImage
-              src={item.images.before}
-              alt={item.name}
-              style={{ width: "100%", height: "100%", objectFit: "contain" }}
-            />
-          ) : (
-=======
         {isLoading ? (
           <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '40px 0', color: '#888' }}>
             불러오는 중...
@@ -191,64 +143,62 @@ export default function CharacterDexPage() {
                 }}
               >
                 {/* 이미지 영역 */}
->>>>>>> b594527 (feat(fe): 캐릭터 도감 API 연동, 홈화면 캐릭터 API 연동 및 목데이터 제거)
-            <div
-              style={{
-                width: '72px',
-                height: '72px',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {isCollected && item ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={item.imgs[0]}
-                  alt={item.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                />
-              ) : (
                 <div
                   style={{
-                    width: '100%',
-                    height: '100%',
+                    width: '72px',
+                    height: '72px',
+                    position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    filter: 'grayscale(100%)',
-                    fontSize: '32px',
-                    color: '#AAAAAA',
-                    fontWeight: 700,
                   }}
                 >
-                  ?
+                  {isCollected && item ? (
+                    <AppImage
+                      src={item.imgs[0]}
+                      alt={item.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        filter: 'grayscale(100%)',
+                        fontSize: '32px',
+                        color: '#AAAAAA',
+                        fontWeight: 700,
+                      }}
+                    >
+                      ?
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
                 {/* 이름 */}
-          <span
-            style={{
-              fontSize: 'var(--text-xs, 12px)',
-              fontWeight: 600,
-              color: isCollected
-                ? 'var(--color-text-primary, #1a1a1a)'
-                : '#AAAAAA',
-              textAlign: 'center',
-            }}
-          >
-            {isCollected && item ? item.name : '???'}
-          </span>
-        </div>
-        );
+                <span
+                  style={{
+                    fontSize: 'var(--text-xs, 12px)',
+                    fontWeight: 600,
+                    color: isCollected
+                      ? 'var(--color-text-primary, #1a1a1a)'
+                      : '#AAAAAA',
+                    textAlign: 'center',
+                  }}
+                >
+                  {isCollected && item ? item.name : '???'}
+                </span>
+              </div>
+            );
           })
         )}
       </div>
 
-      {/* ── 상세 모달 (position: absolute, min-height wrapper 안에서) ── */ }
-      { selectedItem && (
+      {/* ── 상세 모달 (position: absolute, min-height wrapper 안에서) ── */}
+      {selectedItem && (
         <div
           onClick={closeModal}
           style={{
@@ -366,14 +316,13 @@ export default function CharacterDexPage() {
                   gap: '8px',
                 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <AppImage
                   src={getImageSrc(selectedItem, imageIdx)}
                   alt={`${selectedItem.name} - ${IMAGE_LABELS[imageIdx]}`}
                   style={{
-                    width: "140px",
-                    height: "140px",
-                    objectFit: "contain",
+                    width: '140px',
+                    height: '140px',
+                    objectFit: 'contain',
                   }}
                 />
                 {/* 레이블 + 인디케이터 */}
@@ -463,6 +412,6 @@ export default function CharacterDexPage() {
           </div>
         </div>
       )}
-    </div >
+    </div>
   );
 }
