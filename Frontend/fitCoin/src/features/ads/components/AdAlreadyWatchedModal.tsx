@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import BaseModal from '@/components/common/BaseModal';
 
 interface AdAlreadyWatchedModalProps {
   isOpen: boolean;
@@ -8,31 +9,12 @@ interface AdAlreadyWatchedModalProps {
 }
 
 const AdAlreadyWatchedModal: React.FC<AdAlreadyWatchedModalProps> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(4px)',
-      }}
-    >
+    <BaseModal isOpen={isOpen}>
       <div
-        className="fc-popIn"
         style={{
           width: '100%',
           maxWidth: '320px',
-          backgroundColor: 'var(--color-bg-card)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '24px',
-          boxShadow: 'var(--shadow-lg)',
           textAlign: 'center',
         }}
       >
@@ -107,7 +89,7 @@ const AdAlreadyWatchedModal: React.FC<AdAlreadyWatchedModalProps> = ({ isOpen, o
           </button>
         </div>
       </div>
-    </div>
+    </BaseModal>
   );
 };
 

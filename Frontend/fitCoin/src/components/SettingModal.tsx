@@ -3,8 +3,10 @@
 import React from "react";
 import { X } from "lucide-react";
 import { useBgm } from "@/hooks/useBgm";
+import BaseModal from "./common/BaseModal";
 
 interface SettingModalProps {
+  isOpen?: boolean;
   onClose: () => void;
 }
 
@@ -12,7 +14,7 @@ interface SettingModalProps {
  * 환경 설정 모달 컴포넌트
  * BGM, 알림, 언어 설정을 제공한다.
  */
-export default function SettingModal({ onClose }: SettingModalProps) {
+export default function SettingModal({ isOpen = true, onClose }: SettingModalProps) {
   const {
     isEnabled,
     volume,
@@ -23,31 +25,11 @@ export default function SettingModal({ onClose }: SettingModalProps) {
   } = useBgm();
 
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0,0,0,0.45)",
-        backdropFilter: "blur(4px)",
-        // index.css의 fc-fadeIn 애니메이션 활용
-        animation: "fc-fadeIn 0.2s ease",
-      }}
-    >
+    <BaseModal isOpen={isOpen} onClose={onClose} zIndex={1000}>
       <div
-        onClick={(e) => e.stopPropagation()}
         style={{
-          width: "320px",
-          borderRadius: "var(--radius-xl)",
-          padding: "var(--space-6)",
-          boxShadow: "0 20px 60px rgba(44, 62, 31, 15%)",
-          background: "var(--color-bg-card)",
-          // index.css의 fc-popIn 애니메이션 활용
-          animation: "fc-popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          width: "100%",
+          maxWidth: "320px",
           display: "flex",
           flexDirection: "column",
         }}
@@ -230,6 +212,6 @@ export default function SettingModal({ onClose }: SettingModalProps) {
           </div>
         </div>
       </div>
-    </div>
+    </BaseModal>
   );
 }

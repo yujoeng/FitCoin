@@ -3,6 +3,7 @@
 import { Sparkles, AlertCircle } from 'lucide-react';
 import { FurnitureGachaResult, GifticonGachaResult } from '@/features/store/types/types';
 import Image from 'next/image';
+import BaseModal from '@/components/common/BaseModal';
 
 interface GachaResultModalProps {
   isOpen: boolean;
@@ -32,34 +33,15 @@ export default function GachaResultModal({
     : null;
 
   return (
-    /* 오버레이 */
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '16px',
-      }}
-    >
-      {/* 모달 카드 */}
+    <BaseModal isOpen={isOpen} onClose={onClose} zIndex={1000}>
       <div
-        onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: 'var(--color-bg-card)',
-          borderRadius: '20px',
-          padding: '32px 24px 24px',
           maxWidth: '320px',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: '16px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
         }}
       >
         {error ? (
@@ -158,6 +140,6 @@ export default function GachaResultModal({
           확인
         </button>
       </div>
-    </div>
+    </BaseModal>
   );
 }

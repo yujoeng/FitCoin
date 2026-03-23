@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import BaseModal from '@/components/common/BaseModal';
 
 interface AdConfirmModalProps {
   isOpen: boolean;
@@ -10,31 +11,12 @@ interface AdConfirmModalProps {
 }
 
 const AdConfirmModal: React.FC<AdConfirmModalProps> = ({ isOpen, isLoading, onConfirm, onCancel }) => {
-  if (!isOpen) return null;
-
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(4px)',
-      }}
-    >
+    <BaseModal isOpen={isOpen}>
       <div
-        className="fc-animate-fade-in"
         style={{
           width: '100%',
           maxWidth: '320px',
-          backgroundColor: 'var(--color-bg-card)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '24px',
-          boxShadow: 'var(--shadow-lg)',
           textAlign: 'center',
         }}
       >
@@ -98,7 +80,7 @@ const AdConfirmModal: React.FC<AdConfirmModalProps> = ({ isOpen, isLoading, onCo
           </button>
         </div>
       </div>
-    </div>
+    </BaseModal>
   );
 };
 
