@@ -126,8 +126,15 @@ apiClient.interceptors.response.use(
 
     // GLOBAL-401: 블랙리스트/유효하지 않은 토큰 → 재발급 없이 로그인으로
     if (error.response?.status === 401) {
-      removeAccessToken();
-      window.location.href = '/login';
+      // DELETE /users/me 요청(회원탈퇴)의 401은 "비밀번호 틀림"이므로 리다이렉트 제외
+      const isDeleteUser =
+        originalRequest.url?.endsWith("/users/me") &&
+        originalRequest.method?.toLowerCase() === "delete";
+
+      if (!isDeleteUser) {
+        removeAccessToken();
+        window.location.href = "/login";
+      }
     }
 
     // 403: 백엔드 AuthenticationEntryPoint 미설정 시 Spring Security가 반환하는 403

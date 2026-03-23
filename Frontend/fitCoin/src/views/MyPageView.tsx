@@ -382,8 +382,8 @@ function DeleteModal({ onClose, onSubmit }: DeleteModalProps) {
       setLoading(true);
       setError("");
       await onSubmit(password);
-    } catch {
-      setError("비밀번호가 올바르지 않아요.");
+    } catch (err: any) {
+      setError(err.message || "탈퇴 처리 중 오류가 발생했어요.");
     } finally {
       setLoading(false);
     }
