@@ -22,3 +22,19 @@ export async function adoptCharacter(): Promise<AdoptCharacterResponse> {
   const response = await apiClient.post<ApiResponse<AdoptCharacterResponse>>("/characters/adopt");
   return response.data.result;
 }
+
+export interface CharacterDexApiItem {
+  characterId: number;
+  name: string;
+  description: string;
+  imgs: string[];
+}
+
+/**
+ * 캐릭터 도감 조회
+ * GET /characters/dex
+ */
+export async function getCharacterDex(): Promise<CharacterDexApiItem[]> {
+  const response = await apiClient.get<ApiResponse<CharacterDexApiItem[]>>("/characters/dex");
+  return response.data.result;
+}

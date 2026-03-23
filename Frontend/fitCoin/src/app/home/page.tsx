@@ -6,6 +6,7 @@ import HomeView from "@/views/HomeView";
 import { DEFAULT_ROOM_CONFIG } from "@/data/roomThemes";
 import type { HomePageState, StreakDay } from "@/types/home";
 import { getRoomLayout } from "@/features/room/services/roomApi";
+import { getCharacterMe } from "@/features/user/services/userApi";
 import { convertLayoutToRoomConfig } from "@/features/room/hooks/useRoom";
 
 import {
@@ -38,14 +39,7 @@ const INITIAL_STATE: HomePageState = {
   coins: 2,
   streakCount: 4,
   streakDays: createMockStreakDays(),
-  character: {
-    id: "user-char-01",
-    characterTypeId: "강아지",
-    name: "강아지",
-    exp: 4,
-    stage: 2,
-    imageSrc: "/characters/before/강아지.png",
-  },
+  character: null,
   roomConfig: DEFAULT_ROOM_CONFIG,
 };
 
@@ -54,16 +48,37 @@ export default function HomePage() {
   const [homeState, setHomeState] = useState<HomePageState>(INITIAL_STATE);
   const [isMounted, setIsMounted] = useState(false);
 
-  // 1. 방 데이터 최신화 (visibilitychange 대응)
+  // 1. 방/캐릭터 데이터 최신화 (visibilitychange 대응)
   useEffect(() => {
     const handleVisibility = async () => {
       if (document.visibilityState === 'visible') {
-        const res = await getRoomLayout();
-        if (res.isSuccess && res.result) {
+        try {
+          const roomRes = await getRoomLayout();
+          if (roomRes.isSuccess && roomRes.result) {
+            setHomeState(prev => ({
+              ...prev,
+              roomConfig: convertLayoutToRoomConfig(roomRes.result)
+            }));
+          }
+        } catch (e) {
+          console.error("방 정보 로드 실패:", e);
+        }
+
+        try {
+          const char = await getCharacterMe();
           setHomeState(prev => ({
             ...prev,
-            roomConfig: convertLayoutToRoomConfig(res.result)
+            character: char ? {
+              id: char.characterId.toString(),
+              characterTypeId: char.characterId.toString(),
+              name: "내 캐릭터",
+              exp: char.currentExp,
+              stage: 1,
+              imageSrc: char.imgUrl,
+            } : null
           }));
+        } catch (e) {
+          console.error("캐릭터 정보 로드 실패:", e);
         }
       }
     };
