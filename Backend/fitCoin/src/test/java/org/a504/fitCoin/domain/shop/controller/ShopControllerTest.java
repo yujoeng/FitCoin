@@ -4,6 +4,7 @@ import org.a504.fitCoin.domain.room.value.FurniturePosition;
 import org.a504.fitCoin.domain.shop.dto.response.AcquiredFurnitureInfo;
 import org.a504.fitCoin.domain.shop.dto.response.GetItemsResponse;
 import org.a504.fitCoin.domain.shop.dto.response.ItemResponse;
+import org.a504.fitCoin.domain.shop.dto.response.PurchaseCoinFurnitureResponse;
 import org.a504.fitCoin.domain.shop.dto.response.PurchasePointFurnitureResponse;
 import org.a504.fitCoin.domain.shop.service.ShopService;
 import org.a504.fitCoin.domain.shop.value.ShopErrorStatus;
@@ -155,6 +156,61 @@ class ShopControllerTest {
     @Test
     void 포인트_가구_랜덤_뽑기_인증_없이_요청하면_401_반환() throws Exception {
         mockMvc.perform(post("/shop/gacha/furniture/point").with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ===== POST /shop/gacha/furniture/coin =====
+
+    @Test
+    @WithCustomUser
+    void 코인_가구_랜덤_뽑기_성공() throws Exception {
+        AcquiredFurnitureInfo acquired = new AcquiredFurnitureInfo(
+                5L, FurniturePosition.WALLPAPER, 1L, "벚꽃 벽지", "https://cdn.example.com/furniture/5.png", true);
+        PurchaseCoinFurnitureResponse response = new PurchaseCoinFurnitureResponse(10, 990, acquired, null);
+        given(shopService.purchaseCoinFurniture(any())).willReturn(response);
+
+        mockMvc.perform(post("/shop/gacha/furniture/coin").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.result.spentCoin").value(10))
+                .andExpect(jsonPath("$.result.remainingCoin").value(990))
+                .andExpect(jsonPath("$.result.acquiredFurniture.furnitureId").value(5))
+                .andExpect(jsonPath("$.result.acquiredFurniture.position").value("WALLPAPER"))
+                .andExpect(jsonPath("$.result.acquiredFurniture.isNewAcquired").value(true))
+                .andExpect(jsonPath("$.result.unlockedHiddenFurniture").doesNotExist());
+    }
+
+    @Test
+    @WithCustomUser
+    void 코인_가구_랜덤_뽑기_성공_테마_완성으로_히든_가구_해금() throws Exception {
+        AcquiredFurnitureInfo acquired = new AcquiredFurnitureInfo(
+                5L, FurniturePosition.WALLPAPER, 1L, "벚꽃 벽지", "https://cdn.example.com/furniture/5.png", true);
+        AcquiredFurnitureInfo hidden = new AcquiredFurnitureInfo(
+                20L, FurniturePosition.HIDDEN, 1L, "벚꽃 히든 아이템", "https://cdn.example.com/furniture/20.png", true);
+        PurchaseCoinFurnitureResponse response = new PurchaseCoinFurnitureResponse(10, 990, acquired, hidden);
+        given(shopService.purchaseCoinFurniture(any())).willReturn(response);
+
+        mockMvc.perform(post("/shop/gacha/furniture/coin").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.unlockedHiddenFurniture.furnitureId").value(20))
+                .andExpect(jsonPath("$.result.unlockedHiddenFurniture.position").value("HIDDEN"));
+    }
+
+    @Test
+    @WithCustomUser
+    void 코인_가구_랜덤_뽑기_코인_부족_시_400_반환() throws Exception {
+        given(shopService.purchaseCoinFurniture(any()))
+                .willThrow(new CustomException(UserErrorStatus.INSUFFICIENT_COIN));
+
+        mockMvc.perform(post("/shop/gacha/furniture/coin").with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("US4002"));
+    }
+
+    @Test
+    void 코인_가구_랜덤_뽑기_인증_없이_요청하면_401_반환() throws Exception {
+        mockMvc.perform(post("/shop/gacha/furniture/coin").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 }
