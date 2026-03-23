@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
+import org.a504.fitCoin.domain.user.dto.request.DeleteUserRequest;
 import org.a504.fitCoin.domain.user.dto.request.ExerciseLevelRequest;
 import org.a504.fitCoin.domain.user.dto.request.NewPasswordRequest;
 import org.a504.fitCoin.domain.user.dto.request.NicknameRequest;
@@ -37,9 +38,10 @@ public class UserController {
 
     @DeleteMapping("/me")
     public ResponseEntity<ApiResponse<Void>> deleteUser(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody DeleteUserRequest request) {
 
-        userService.deleteUser(userDetails.getUserId());
+        userService.deleteUser(userDetails.getUserId(), request.password());
         return ApiResponse.onSuccess(SuccessStatus.OK);
     }
 
