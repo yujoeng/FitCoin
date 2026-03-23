@@ -26,6 +26,11 @@ public class MissionRedisRepository {
         redisTemplate.opsForValue().set(key, value, Duration.ofMinutes(IN_PROGRESS_TTL_MINUTES));
     }
 
+    // 진행 중 미션 조회 후 즉시 삭제 (원자적 처리)
+    public String findAndDeleteInProgress(Long userId) {
+        return redisTemplate.opsForValue().getAndDelete(IN_PROGRESS_KEY + userId);
+    }
+
     // 진행 중 미션 조회
     public String findInProgress(Long userId) {
         return redisTemplate.opsForValue().get(IN_PROGRESS_KEY + userId);

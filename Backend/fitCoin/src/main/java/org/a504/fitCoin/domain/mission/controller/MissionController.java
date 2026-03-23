@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
-import org.a504.fitCoin.domain.mission.dto.MissionAvailabilityResponse;
-import org.a504.fitCoin.domain.mission.dto.MissionCandidateListResponse;
-import org.a504.fitCoin.domain.mission.dto.MissionStartRequest;
-import org.a504.fitCoin.domain.mission.dto.MissionStartResponse;
+import org.a504.fitCoin.domain.mission.dto.*;
 import org.a504.fitCoin.domain.mission.service.MissionService;
 import org.a504.fitCoin.global.response.ApiResponse;
 import org.a504.fitCoin.global.response.status.SuccessStatus;
@@ -31,6 +28,17 @@ public class MissionController {
             @RequestBody MissionStartRequest request
     ) {
         MissionStartResponse result = missionService.startMission(userDetails.getUserId(), request);
+        return ApiResponse.onSuccess(SuccessStatus.OK, result);
+    }
+
+    @Operation(summary = "미션 완료",
+            description = "미션 완료 처리를 요청합니다. 완료 시각을 포함해야 합니다.")
+    @PostMapping("/complete")
+    public ResponseEntity<ApiResponse<MissionCompleteResponse>> completeMission(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody MissionCompleteRequest request
+    ) {
+        MissionCompleteResponse result = missionService.completeMission(userDetails.getUserId(), request);
         return ApiResponse.onSuccess(SuccessStatus.OK, result);
     }
 

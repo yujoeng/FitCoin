@@ -32,4 +32,11 @@ public class MissionLog {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public static MissionLog of(User user, Mission mission) {
+        MissionLog log = new MissionLog();
+        log.user = user;
+        log.mission = mission;
+        return log;
+    }
 }
