@@ -191,9 +191,20 @@ export function useMyPage(): UseMyPageReturn {
 
   /** 회원 탈퇴: 서버 Soft Delete → 로컬 토큰 삭제 → 로그인 화면으로 이동 */
   const handleDeleteUser = async (password: string) => {
-    await deleteUser({ password });
-    removeAccessToken();
-    router.replace("/");
+    try {
+      await deleteUser({ password });
+      removeAccessToken();
+      router.replace("/");
+    } catch (err: any) {
+      const status = err.response?.status;
+      if (status === 400) {
+        throw new Error("비밀번호가 올바르지 않아요.");
+      }
+      if (status === 401) {
+        throw new Error("비밀번호가 올바르지 않아요.");
+      }
+      throw new Error("탈퇴 처리 중 오류가 발생했어요.");
+    }
   };
 
   const handleCalendarPrev = () => {
