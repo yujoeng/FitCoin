@@ -13,15 +13,21 @@ import org.a504.fitCoin.domain.room.value.PurchaseType;
 import org.a504.fitCoin.domain.shop.dto.response.AcquiredFurnitureInfo;
 import org.a504.fitCoin.domain.shop.dto.response.GetItemsResponse;
 import org.a504.fitCoin.domain.shop.dto.response.ItemResponse;
+import org.a504.fitCoin.domain.shop.dto.response.AcquiredGifticonInfo;
 import org.a504.fitCoin.domain.shop.dto.response.PurchaseCoinFurnitureResponse;
+import org.a504.fitCoin.domain.shop.dto.response.PurchaseGifticonResponse;
 import org.a504.fitCoin.domain.shop.dto.response.PurchasePointFurnitureResponse;
 import org.a504.fitCoin.domain.shop.value.ShopErrorStatus;
 import org.a504.fitCoin.domain.shop.value.ShopItem;
 import org.a504.fitCoin.domain.user.entity.User;
 import org.a504.fitCoin.domain.user.entity.UserFurniture;
+import org.a504.fitCoin.domain.user.entity.UserGifticon;
 import org.a504.fitCoin.domain.user.repository.UserFurnitureJpaRepository;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
 import org.a504.fitCoin.domain.user.value.UserErrorStatus;
+import org.a504.fitCoin.domain.wallet.entity.Gifticon;
+import org.a504.fitCoin.domain.wallet.repository.GifticonJpaRepository;
+import org.a504.fitCoin.domain.wallet.repository.WalletJpaRepository;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +46,10 @@ public class ShopService {
     private final UserFurnitureJpaRepository userFurnitureJpaRepository;
     private final PointLogJpaRepository pointLogJpaRepository;
     private final CoinLogJpaRepository coinLogJpaRepository;
+    private final GifticonJpaRepository gifticonJpaRepository;
+    private final WalletJpaRepository walletJpaRepository;
+
+    private static final int GIFTICON_WIN_PROBABILITY = 10; // 10%
 
     public GetItemsResponse getItems() {
         List<ItemResponse> items = Arrays.stream(ShopItem.values())
@@ -111,6 +121,40 @@ public class ShopService {
                 user.getCoin(),
                 AcquiredFurnitureInfo.of(acquired, isNewAcquired),
                 hiddenInfo
+        );
+    }
+
+    @Transactional
+    public PurchaseGifticonResponse purchaseGifticon(Long userId) {
+        User user = userJpaRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new CustomException(UserErrorStatus.USER_NOT_FOUND));
+
+        // 뽑기 전 기프티콘 존재 여부 확인
+        List<Gifticon> gifticons = gifticonJpaRepository.findAll();
+        if (gifticons.isEmpty()) {
+            throw new CustomException(ShopErrorStatus.NO_GIFTICON_AVAILABLE);
+        }
+
+        int price = ShopItem.COIN_GIFTICON_DRAW.getPrice();
+        user.deductCoin(price);
+        coinLogJpaRepository.save(CoinLog.of(user, price, TransactionType.USE));
+
+        // 10% 확률 당첨 체크
+        boolean isWin = ThreadLocalRandom.current().nextInt(100) < GIFTICON_WIN_PROBABILITY;
+        if (!isWin) {
+            return new PurchaseGifticonResponse(price, user.getCoin(), null);
+        }
+
+        // 랜덤 기프티콘 선택 후 지갑에 추가
+        Gifticon gifticon = gifticons.get(ThreadLocalRandom.current().nextInt(gifticons.size()));
+        UserGifticon saved = walletJpaRepository.save(
+                UserGifticon.builder().user(user).gifticon(gifticon).build()
+        );
+
+        return new PurchaseGifticonResponse(
+                price,
+                user.getCoin(),
+                new AcquiredGifticonInfo(saved.getId(), gifticon.getType(), gifticon.getUrl())
         );
     }
 
