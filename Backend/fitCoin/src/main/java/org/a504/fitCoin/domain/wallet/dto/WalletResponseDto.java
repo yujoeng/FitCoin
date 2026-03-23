@@ -6,23 +6,38 @@ import org.a504.fitCoin.domain.wallet.entity.Gifticon;
 import org.a504.fitCoin.domain.user.entity.UserGifticon;
 import org.a504.fitCoin.domain.wallet.value.GifticonType;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
 public class WalletResponseDto {
 
-    private Long gifticonId;   // 보유 기프티콘 고유 ID
-    private String imageUrl;    // 기프티콘 이미지 URL
-    private GifticonType gifticonType; // 기프티콘 종류 (COFFEE, CHICKEN, BURGER)
-    private LocalDateTime issuedAt;   // 획득 일시
+    private List<GifticonDto> gifticons;
 
-    public static WalletResponseDto from(UserGifticon userGifticon) {
-        Gifticon gifticon = userGifticon.getGifticon();
+    public static WalletResponseDto of(List<GifticonDto> gifticons) {
         return WalletResponseDto.builder()
-                .gifticonId(userGifticon.getId())
-                .imageUrl(gifticon.getUrl())
-                .gifticonType(gifticon.getType())
-                .issuedAt(userGifticon.getCreatedAt())
+                .gifticons(gifticons)
                 .build();
+    }
+
+    @Getter
+    @Builder
+    public static class GifticonDto {
+
+        private Long gifticonId;
+        private GifticonType gifticonType;
+        private String imageUrl;
+        private LocalDateTime issuedAt;
+
+        // GifticonDto 변환
+        public static GifticonDto from(UserGifticon userGifticon) {
+            Gifticon gifticon = userGifticon.getGifticon();
+            return GifticonDto.builder()
+                    .gifticonId(userGifticon.getId())
+                    .gifticonType(gifticon.getType())
+                    .imageUrl(gifticon.getUrl())
+                    .issuedAt(userGifticon.getCreatedAt())
+                    .build();
+        }
     }
 }
