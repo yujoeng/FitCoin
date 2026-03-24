@@ -18,7 +18,12 @@ export default function PageHeader({ title, onBack }: PageHeaderProps) {
     >
       {onBack && (
         <button
-          onClick={onBack}
+          onClick={() => {
+            if (onBack) {
+              (window as any).__FC_ALLOW_BACK__ = true;
+              onBack();
+            }
+          }}
           aria-label="뒤로가기"
           style={{
             background: 'none',

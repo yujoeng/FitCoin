@@ -65,7 +65,10 @@ export const ExchangePage = () => {
       {/* 1. 상단 헤더 */}
       <header style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px', paddingTop: '8px', paddingBottom: '8px' }}>
         <button 
-          onClick={() => router.back()}
+          onClick={() => {
+            (window as any).__FC_ALLOW_BACK__ = true;
+            router.push('/wallet');
+          }}
           style={{ fontSize: '20px', padding: '0 4px', fontWeight: 'bold', color: 'var(--color-text-primary)', background: 'none', border: 'none', cursor: 'pointer' }}
         >
           ←

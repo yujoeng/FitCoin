@@ -19,7 +19,10 @@ export default function SignupPage() {
       {/* 뒤로가기 — 독립적으로 고정 */}
       <button
         type="button"
-        onClick={() => router.back()}
+        onClick={() => {
+          (window as any).__FC_ALLOW_BACK__ = true;
+          router.back();
+        }}
         style={{
           position: 'absolute',
           top: '16px',
