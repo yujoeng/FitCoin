@@ -8,6 +8,7 @@ import org.a504.fitCoin.domain.mission.entity.MissionLog;
 import org.a504.fitCoin.domain.mission.repository.MissionLogRepository;
 import org.a504.fitCoin.domain.mission.repository.MissionRedisRepository;
 import org.a504.fitCoin.domain.mission.repository.MissionRepository;
+import org.a504.fitCoin.domain.streak.service.StreakService;
 import org.a504.fitCoin.domain.user.entity.User;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
 import org.a504.fitCoin.global.exception.CustomException;
@@ -35,6 +36,7 @@ public class MissionService {
     private final MissionRepository    missionRepository;
     private final MissionRedisRepository  missionRedisRepository;
     private final UserJpaRepository userJpaRepository;
+    private final StreakService streakService;
 
     @Transactional
     public MissionStartResponse startMission(Long userId, MissionStartRequest request) {
@@ -104,7 +106,9 @@ public class MissionService {
         user.addPoint(rewardPoint);
 
         // 11. 스트릭 증가 (첫 번째 미션만)
-        // TODO: StreakService.increaseStreak(userId) 연동
+        if (isFirstMission) {
+            streakService.checkStreak(user);
+        }
 
         // 12. 캐릭터 경험치 +1 (첫 번째 미션만)
         // TODO: CharacterService.addExp(userId) 연동
