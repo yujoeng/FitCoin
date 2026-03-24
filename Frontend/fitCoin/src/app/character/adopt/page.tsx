@@ -7,23 +7,22 @@ import { adoptCharacter, AdoptCharacterResponse } from '@/features/character/ser
 export default function CharacterAdoptPage() {
   const router = useRouter();
   const [character, setCharacter] = useState<AdoptCharacterResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchAdopt = async () => {
-      try {
-        const data = await adoptCharacter();
-        setCharacter(data);
-      } catch (err: any) {
-        console.error('캐릭터 입양 실패:', err);
-        setError('이미 캐릭터를 보유하고 있습니다.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchAdopt();
-  }, []);
+  const handleAdopt = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      const data = await adoptCharacter();
+      setCharacter(data);
+    } catch (err: any) {
+      console.error('캐릭터 입양 실패:', err);
+      setError('이미 캐릭터를 보유하고 있습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -114,9 +113,20 @@ export default function CharacterAdoptPage() {
             {character.name}
           </h2>
         </div>
-      ) : (
+      ) : error ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-          <p style={{ color: 'red', fontWeight: 600, textAlign: 'center' }}>{error || '캐릭터 정보를 불러올 수 없습니다.'}</p>
+          <p style={{ color: 'red', fontWeight: 600, textAlign: 'center' }}>{error}</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '20px 0' }}>
+          <button
+            className="fc-btn-primary"
+            onClick={handleAdopt}
+            disabled={isLoading}
+            style={{ width: 'auto', padding: '12px 32px', borderRadius: 'var(--radius-xl)', fontSize: '18px', border: 'none', fontWeight: 700 }}
+          >
+            입양하기
+          </button>
         </div>
       )}
 

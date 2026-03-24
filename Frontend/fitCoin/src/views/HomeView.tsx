@@ -61,6 +61,7 @@ interface HomeViewProps {
     onGoStore: () => void;
     onGoSettings: () => void;
     onViewCalendar: () => void;
+    onGraduate: () => void;
 }
 
 export default function HomeView({
@@ -72,6 +73,7 @@ export default function HomeView({
     onGoStore,
     onGoSettings,
     onViewCalendar,
+    onGraduate,
 }: HomeViewProps) {
     const router = useRouter();
     const { points, coins, streakCount, streakDays, character, roomConfig } = state;
@@ -258,6 +260,15 @@ export default function HomeView({
                                     }}
                                 />
                             </div>
+                            {character.isGraduatable && (
+                                <button
+                                    className="fc-btn-primary"
+                                    onClick={onGraduate}
+                                    style={{ width: '100%', marginTop: '12px' }}
+                                >
+                                    졸업하기
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

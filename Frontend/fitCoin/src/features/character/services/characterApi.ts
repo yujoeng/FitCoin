@@ -38,3 +38,12 @@ export async function getCharacterDex(): Promise<CharacterDexApiItem[]> {
   const response = await apiClient.get<ApiResponse<CharacterDexApiItem[]>>("/characters/dex");
   return response.data.result;
 }
+
+/**
+ * 캐릭터 졸업
+ * POST /characters/graduate
+ */
+export async function graduateCharacter(): Promise<ApiResponse<null>> {
+  const response = await apiClient.patch<ApiResponse<null>>("/characters/graduate");
+  return response.data;
+}
