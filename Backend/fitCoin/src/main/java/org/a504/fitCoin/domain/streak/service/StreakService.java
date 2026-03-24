@@ -5,6 +5,7 @@ import org.a504.fitCoin.domain.streak.dto.MonthlyStreakResponse;
 import org.a504.fitCoin.domain.streak.dto.RecentStreakResponse;
 import org.a504.fitCoin.domain.streak.entity.Streak;
 import org.a504.fitCoin.domain.streak.repository.StreakJpaRepository;
+import org.a504.fitCoin.domain.user.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,20 @@ import java.util.stream.Collectors;
 public class StreakService {
 
     private final StreakJpaRepository streakJpaRepository;
+
+    @Transactional
+    public void checkStreak(User user) {
+        LocalDate today    = LocalDate.now();
+        LocalDate monthKey = today.withDayOfMonth(1);
+
+        // 해당 월 streak 조회, 없으면 새로 생성
+        Streak streak = streakJpaRepository
+                .findByUserIdAndYearAndMonth(user.getId(), monthKey)
+                .orElseGet(() -> streakJpaRepository.save(Streak.of(user, monthKey)));
+
+        // 오늘 날짜 비트 ON
+        streak.checkDay(today.getDayOfMonth());
+    }
 
     public MonthlyStreakResponse getMonthlyStreak(Long userId, int year, int month) {
         YearMonth yearMonth  = YearMonth.of(year, month);
