@@ -7,6 +7,9 @@ import StreakBar from '@/components/StreakBar';
 import type { HomePageState } from '@/types/home';
 import PointBadge from '@/components/PointBadge';
 import CoinBadge from '@/components/CoinBadge';
+import ExpProgressBar from '@/components/ExpProgressBar';
+
+const MAX_EXP = 10;
 
 interface CircleButtonProps {
     imageSrc: string;
@@ -77,7 +80,6 @@ export default function HomeView({
 }: HomeViewProps) {
     const router = useRouter();
     const { points, coins, streakCount, streakDays, character, roomConfig } = state;
-    const expPercent = character ? (character.exp / 10) * 100 : 0;
 
     return (
         <div
@@ -188,89 +190,12 @@ export default function HomeView({
             {/* ── 하단: 경험치 바 카드 ── */}
             {character && (
                 <div style={{ padding: '10px 10px 0px', flexShrink: 0 }}>
-                    <div
-                        style={{
-                            borderRadius: 'var(--radius-xl)',
-                            padding: 'var(--space-4)',
-                            background: 'var(--color-bg-card)',
-                            boxShadow: 'var(--shadow-sm)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--space-5)',
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: '52px',
-                                height: '52px',
-                                borderRadius: 'var(--radius-lg)',
-                                background: 'var(--color-primary)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexShrink: 0,
-                            }}
-                        >
-                            <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontFamily: 'var(--font-body)' }}>
-                                Lv.
-                            </span>
-                            <span
-                                className="fc-font-point"
-                                style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: '#fff', lineHeight: 1 }}
-                            >
-                                {character.stage}
-                            </span>
-                        </div>
-
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    marginBottom: 'var(--space-1)',
-                                }}
-                            >
-                                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)' }}>
-                                    경험치
-                                </span>
-                                <span
-                                    className="fc-font-point"
-                                    style={{ fontSize: 'var(--text-sm)', color: 'var(--color-primary)', fontWeight: 700 }}
-                                >
-                                    {character.exp} / 10
-                                </span>
-                            </div>
-                            <div
-                                style={{
-                                    height: '10px',
-                                    width: '100%',
-                                    borderRadius: 'var(--radius-full)',
-                                    background: 'var(--color-primary-light)',
-                                    overflow: 'hidden',
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        height: '100%',
-                                        width: `${expPercent}%`,
-                                        borderRadius: 'var(--radius-full)',
-                                        background: 'linear-gradient(90deg, var(--color-primary), var(--color-primary-dark))',
-                                        transition: 'width var(--transition-slow)',
-                                    }}
-                                />
-                            </div>
-                            {character.isGraduatable && (
-                                <button
-                                    className="fc-btn-primary"
-                                    onClick={onGraduate}
-                                    style={{ width: '100%', marginTop: '12px' }}
-                                >
-                                    졸업하기
-                                </button>
-                            )}
-                        </div>
-                    </div>
+                    <ExpProgressBar
+                        exp={character.exp}
+                        maxExp={MAX_EXP}
+                        isGraduatable={character.isGraduatable}
+                        onGraduate={onGraduate}
+                    />
                 </div>
             )}
         </div>

@@ -47,7 +47,7 @@ export interface UserCharacter {
     name: string;
     /** 현재 경험치 (0~10) */
     exp: number;
-    stage: CharacterStage;
+    stage?: CharacterStage;
     isGraduatable: boolean;
     /** 홈 화면에 표시할 이미지 (단계별) */
     imageSrc: string;
