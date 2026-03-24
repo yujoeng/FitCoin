@@ -24,6 +24,7 @@ const MOCK_CHARACTER: UserCharacter = {
     name: '강아지',
     exp: 4,
     stage: 2,
+    isGraduatable: false,
     imageSrc: '/characters/before/강아지.png',
 };
 
