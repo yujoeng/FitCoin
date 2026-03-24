@@ -2,6 +2,7 @@ package org.a504.fitCoin.domain.mission.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.a504.fitCoin.domain.character.service.CharacterService;
 import org.a504.fitCoin.domain.mission.dto.*;
 import org.a504.fitCoin.domain.mission.entity.Mission;
 import org.a504.fitCoin.domain.mission.entity.MissionLog;
@@ -37,6 +38,7 @@ public class MissionService {
     private final MissionRedisRepository  missionRedisRepository;
     private final UserJpaRepository userJpaRepository;
     private final StreakService streakService;
+    private final CharacterService characterService;
 
     @Transactional
     public MissionStartResponse startMission(Long userId, MissionStartRequest request) {
@@ -111,7 +113,9 @@ public class MissionService {
         }
 
         // 12. 캐릭터 경험치 +1 (첫 번째 미션만)
-        // TODO: CharacterService.addExp(userId) 연동
+        if(isFirstMission){
+            characterService.addExp(user);
+        }
 
         // 13. 일일 완료 횟수 +1
         missionRedisRepository.incrementDailyCount(userId);
