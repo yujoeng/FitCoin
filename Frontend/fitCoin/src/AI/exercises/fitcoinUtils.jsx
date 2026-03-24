@@ -111,7 +111,7 @@ export function resetSmoothingBuffer() {
 // ─────────────────────────────────────────
 
 let _lastCountTime = 0;
-const COUNT_COOLDOWN_MS = 800;
+let COUNT_COOLDOWN_MS = 800;
 
 export function tryIncreaseCount(setCount) {
   const now = Date.now();
@@ -140,4 +140,28 @@ export function isVisible(...landmarks) {
   return landmarks.every(
     (lm) => lm && (lm.visibility ?? 1) >= VISIBILITY_THRESHOLD
   );
+}
+
+// ─────────────────────────────────────────
+// [추가] 움직임 감지 (정지 상태 필터링)
+// ─────────────────────────────────────────
+// hasMovement 전용 이전 좌표 저장소 (smoothLandmark 버퍼와 별도)
+const _prevLandmark = {};
+
+export function hasMovement(index, current, threshold = 0.01) {
+  const prev = _prevLandmark[index];
+  _prevLandmark[index] = { x: current.x, y: current.y };
+
+  // 첫 프레임은 비교 대상이 없으므로 움직임으로 간주
+  if (!prev) return true;
+
+  const dist = Math.sqrt((current.x - prev.x) ** 2 + (current.y - prev.y) ** 2);
+  return dist > threshold;
+}
+
+// ─────────────────────────────────────────
+// [추가] 쿨다운 시간 상수 외부 노출
+// ─────────────────────────────────────────
+export function setCooldownMs(ms) {
+  COUNT_COOLDOWN_MS = ms;
 }
