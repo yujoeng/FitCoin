@@ -1,4 +1,4 @@
-package org.a504.fitCoin.domain.auth.service;
+package org.a504.fitCoin.global.util;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -7,12 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class MailService {
+public class MailClient {
 
     private final JavaMailSender javaMailSender;
 

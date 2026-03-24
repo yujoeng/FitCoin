@@ -18,6 +18,7 @@ import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.a504.fitCoin.global.response.status.ErrorStatus;
+import org.a504.fitCoin.global.util.MailClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,7 +40,7 @@ public class AuthService {
     private final AccessTokenRepository accessTokenRepository;
     private final PasswordResetRepository passwordResetRepository;
     private final UserJpaRepository userJpaRepository;
-    private final MailService mailService;
+    private final MailClient mailClient;
     private final TemplateEngine templateEngine;
     private final PasswordEncoder passwordEncoder;
 
@@ -144,7 +145,7 @@ public class AuthService {
         Context context = new Context();
         context.setVariable("resetUrl", resetLink);
         String htmlContent = templateEngine.process("mail-password-reset", context);
-        mailService.sendEmail(email, subject, htmlContent);
+        mailClient.sendEmail(email, subject, htmlContent);
     }
 
     public void resetPassword(ResetPasswordRequest request) {
