@@ -22,6 +22,8 @@ import {
   AdRewardModal,
 } from "@/features/ads";
 
+const MAX_EXP = 10;
+
 // ─── 임시 스트릭 mock 데이터 생성 ───
 function createMockStreakDays(): StreakDay[] {
   const labels = ["월", "화", "수", "목", "금", "토", "일"];
@@ -83,7 +85,6 @@ export default function HomePage() {
               characterTypeId: char.characterId.toString(),
               name: "내 캐릭터",
               exp: char.currentExp,
-              stage: 1,
               isGraduatable: char.isGraduatable,
               imageSrc: char.imgUrl,
             }
