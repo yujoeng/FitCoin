@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAssets } from "../hooks/useAssets";
 import ExchangeRateChart from "./ExchangeRateChart";
+import ExchangeSuccessModal from "@/components/ExchangeSuccessModal";
 
 export const ExchangePage = () => {
   const router = useRouter();
@@ -15,6 +16,7 @@ export const ExchangePage = () => {
     setErrorMessage,
   } = useAssets();
   const [pointInput, setPointInput] = useState<string>("");
+  const [successCoin, setSuccessCoin] = useState<number | null>(null);
 
   const calcExpectedCoin = (pointStr: string) => {
     if (!exchangeRate) return 0;
@@ -35,7 +37,7 @@ export const ExchangePage = () => {
     const result = await exchange(point);
     if (result) {
       setPointInput("");
-      alert(`환전 완료! 코인 ${result.receivedCoin}개를 획득했습니다.`);
+      setSuccessCoin(result.receivedCoin);
     }
   };
 
@@ -68,6 +70,11 @@ export const ExchangePage = () => {
         color: "var(--color-text-primary)",
       }}
     >
+      <ExchangeSuccessModal
+        isOpen={successCoin !== null}
+        receivedCoin={successCoin ?? 0}
+        onClose={() => setSuccessCoin(null)}
+      />
       {/* 로딩 딤 처리 */}
       {isLoading && (
         <div
