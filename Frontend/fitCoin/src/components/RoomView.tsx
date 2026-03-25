@@ -50,6 +50,7 @@ function SlotImage({
 }
 
 export default function RoomView({ roomConfig, character, onEditRoom, hideEditButton = false }: RoomViewProps) {
+
     const { wallpaper, floor, window: windowItem, left, right, hidden } = roomConfig;
     const isEmpty = !wallpaper?.imageUrl && !floor?.imageUrl && !windowItem?.imageUrl && !left?.imageUrl && !right?.imageUrl && !hidden?.imageUrl;
 
@@ -73,7 +74,8 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
 
             {/* 레이어 2: 바닥 */}
             {floor?.imageUrl && (
-                <div style={{
+                <div 
+                    style={{
                     position: 'absolute',
                     bottom: 0,
                     left: 0,
@@ -81,9 +83,9 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
                     height: 'var(--room-floor-height)',
                     zIndex: 1,
                     backgroundImage: `url('${floor.imageUrl}')`,
-                    backgroundRepeat: 'repeat-x',
-                    backgroundPosition: 'bottom left',
-                    backgroundSize: 'auto 100%',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    backgroundSize: '100% 100%',
                 }} />
             )}
 
