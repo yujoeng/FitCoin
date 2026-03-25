@@ -56,6 +56,8 @@ export default function HomePage() {
   const [isGraduateModalOpen, setIsGraduateModalOpen] = useState(false);
   const [gifticonImageUrl, setGifticonImageUrl] = useState<string | null>(null);
 
+
+
   // 1. 방/캐릭터 데이터 최신화 (visibilitychange 대응)
   useEffect(() => {
     const handleVisibility = async () => {
