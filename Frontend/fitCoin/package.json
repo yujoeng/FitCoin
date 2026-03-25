@@ -13,12 +13,12 @@
     "@mediapipe/drawing_utils": "^0.3.1675466124",
     "@mediapipe/pose": "^0.5.1675469404",
     "axios": "^1.6.8",
+    "lightweight-charts": "^5.1.0",
     "lucide-react": "^0.575.0",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18",
     "react-webcam": "^7.2.0",
-    "recharts": "^3.8.0",
     "three": "^0.183.2"
   },
   "devDependencies": {
