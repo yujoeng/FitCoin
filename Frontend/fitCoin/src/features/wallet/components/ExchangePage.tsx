@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useAssets } from "../hooks/useAssets";
 import ExchangeRateChart from "./ExchangeRateChart";
 import ExchangeSuccessModal from "@/components/ExchangeSuccessModal";
+import PageHeader from "@/components/PageHeader";
 
 export const ExchangePage = () => {
   const router = useRouter();
@@ -59,293 +60,270 @@ export const ExchangePage = () => {
   }));
 
   return (
-    <div
-      style={{
-        position: "relative",
-        minHeight: "100vh",
-        padding: "24px 20px 0 20px",
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: "var(--color-bg)",
-        color: "var(--color-text-primary)",
-      }}
-    >
-      <ExchangeSuccessModal
-        isOpen={successCoin !== null}
-        receivedCoin={successCoin ?? 0}
-        onClose={() => setSuccessCoin(null)}
-      />
-      {/* 로딩 딤 처리 */}
-      {isLoading && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            backgroundColor: "rgba(0,0,0,0.2)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 50,
-          }}
-        >
-          <div
-            style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "50%",
-              border: "4px solid transparent",
-              borderTopColor: "var(--color-primary)",
-              animation: "fc-spin-once 1s linear infinite",
-            }}
-          />
-        </div>
-      )}
-
+    <>
       {/* 1. 상단 헤더 */}
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "32px",
-          paddingTop: "8px",
-          paddingBottom: "8px",
-        }}
-      >
-        <button
-          onClick={() => router.push("/wallet")}
-          style={{
-            fontSize: "20px",
-            padding: "0 4px",
-            fontWeight: "bold",
-            color: "var(--color-text-primary)",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          ←
-        </button>
-        <h1 style={{ fontSize: "20px", fontWeight: "bold", margin: 0 }}>
-          환전소
-        </h1>
-      </header>
+      <PageHeader title="환전소" onBack={() => router.push("/home")} />
 
-      {/* 2. 잔액 카드 (카드 형태 제거, 텍스트 형태) */}
-      <section style={{ marginBottom: "24px" }}>
-        <h2
-          style={{
-            fontSize: "18px",
-            fontWeight: "bold",
-            marginBottom: "16px",
-            margin: 0,
-            color: "var(--color-text-primary)",
-          }}
-        >
-          내 자산
-        </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              코인
-            </span>
-            <span
-              style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                color: "var(--color-text-primary)",
-              }}
-            >
-              {assets?.coin || 0}
-            </span>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              포인트
-            </span>
-            <span
-              style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                color: "var(--color-text-primary)",
-              }}
-            >
-              {assets?.point || 0}
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. 환율 안내 */}
       <div
         style={{
-          fontSize: "12px",
-          fontWeight: 600,
-          marginBottom: "24px",
-          color: "var(--color-text-secondary)",
+          position: "relative",
+          minHeight: "100vh",
+          padding: "24px 20px 0 20px",
+          display: "flex",
+          flexDirection: "column",
+          backgroundColor: "var(--color-bg)",
+          color: "var(--color-text-primary)",
         }}
       >
-        현재 환율 : {exchangeRate?.rate?.toLocaleString("ko-KR") || "-"}P =
-        1코인
-      </div>
-
-      {/* 4. 환전 입력 영역 */}
-      <section style={{ marginBottom: "24px" }}>
-        <div style={{ marginBottom: "16px" }}>
-          <label
+        <ExchangeSuccessModal
+          isOpen={successCoin !== null}
+          receivedCoin={successCoin ?? 0}
+          onClose={() => setSuccessCoin(null)}
+        />
+        {/* 로딩 딤 처리 */}
+        {isLoading && (
+          <div
             style={{
-              display: "block",
-              fontSize: "14px",
-              fontWeight: "bold",
-              marginBottom: "8px",
-              color: "var(--color-text-secondary)",
+              position: "absolute",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              backgroundColor: "rgba(0,0,0,0.2)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 50,
             }}
           >
-            모바일 환전할 포인트
-          </label>
-          <input
-            type="text"
-            value={pointInput}
-            onChange={handleInputChange}
-            onKeyDown={(e) =>
-              e.key === "Enter" &&
-              !e.nativeEvent.isComposing &&
-              !isLoading &&
-              handleExchange()
-            }
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                border: "4px solid transparent",
+                borderTopColor: "var(--color-primary)",
+                animation: "fc-spin-once 1s linear infinite",
+              }}
+            />
+          </div>
+        )}
+
+        {/* 2. 잔액 카드 (카드 형태 제거, 텍스트 형태) */}
+        <section style={{ marginBottom: "24px" }}>
+          <h2
+            style={{
+              fontSize: "18px",
+              fontWeight: "bold",
+              marginBottom: "16px",
+              margin: 0,
+              color: "var(--color-text-primary)",
+            }}
+          >
+            내 자산
+          </h2>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "var(--color-text-secondary)",
+                }}
+              >
+                코인
+              </span>
+              <span
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {assets?.coin || 0}
+              </span>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "var(--color-text-secondary)",
+                }}
+              >
+                포인트
+              </span>
+              <span
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {assets?.point || 0}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. 환율 안내 */}
+        <div
+          style={{
+            fontSize: "12px",
+            fontWeight: 600,
+            marginBottom: "24px",
+            color: "var(--color-text-secondary)",
+          }}
+        >
+          현재 환율 : {exchangeRate?.rate?.toLocaleString("ko-KR") || "-"}P =
+          1코인
+        </div>
+
+        {/* 4. 환전 입력 영역 */}
+        <section style={{ marginBottom: "24px" }}>
+          <div style={{ marginBottom: "16px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "bold",
+                marginBottom: "8px",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              모바일 환전할 포인트
+            </label>
+            <input
+              type="text"
+              value={pointInput}
+              onChange={handleInputChange}
+              onKeyDown={(e) =>
+                e.key === "Enter" &&
+                !e.nativeEvent.isComposing &&
+                !isLoading &&
+                handleExchange()
+              }
+              style={{
+                boxSizing: "border-box",
+                width: "100%",
+                backgroundColor: "#ffffff",
+                border: "1px solid #e5e7eb",
+                outline: "none",
+                borderRadius: "12px",
+                padding: "12px 16px",
+                fontSize: "16px",
+                textAlign: "left",
+                color: "var(--color-text-primary)",
+                fontFamily: "var(--font-body)",
+              }}
+              placeholder="0"
+            />
+          </div>
+          <div
+            style={{
+              textAlign: "left",
+              fontSize: "14px",
+              marginBottom: "16px",
+              color: "var(--color-text-primary)",
+            }}
+          >
+            = <span style={{ fontWeight: 600, fontSize: "16px" }}>C</span>{" "}
+            {expectedCoin} 코인
+          </div>
+
+          {errorMessage && (
+            <p
+              style={{
+                color: "#ef4444",
+                fontSize: "14px",
+                fontWeight: 600,
+                marginBottom: "16px",
+                textAlign: "center",
+              }}
+            >
+              {errorMessage}
+            </p>
+          )}
+        </section>
+
+        {/* 5. 환율 그래프 */}
+        <section style={{ marginBottom: "96px" }}>
+          <h2
+            style={{
+              fontSize: "18px",
+              fontWeight: "bold",
+              marginBottom: "16px",
+              margin: 0,
+              color: "var(--color-text-primary)",
+            }}
+          >
+            환율 변동 내역
+          </h2>
+
+          {/* 그래프를 감싸는 흰색 카드 영역 */}
+          <ExchangeRateChart data={rateHistory} />
+        </section>
+
+        {/* 하단 버튼 영역 */}
+        <div
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "100%",
+            maxWidth: "412px",
+            backgroundColor: "var(--color-bg)",
+          }}
+        >
+          {/* 탭바 등 여백을 고려한 mb-24 위치, 버튼 스타일 */}
+          <div
             style={{
               boxSizing: "border-box",
+              padding: "0 20px",
+              marginBottom: "96px",
               width: "100%",
-              backgroundColor: "#ffffff",
-              border: "1px solid #e5e7eb",
-              outline: "none",
-              borderRadius: "12px",
-              padding: "12px 16px",
-              fontSize: "16px",
-              textAlign: "left",
-              color: "var(--color-text-primary)",
-              fontFamily: "var(--font-body)",
-            }}
-            placeholder="0"
-          />
-        </div>
-        <div
-          style={{
-            textAlign: "left",
-            fontSize: "14px",
-            marginBottom: "16px",
-            color: "var(--color-text-primary)",
-          }}
-        >
-          = <span style={{ fontWeight: 600, fontSize: "16px" }}>C</span>{" "}
-          {expectedCoin} 코인
-        </div>
-
-        {errorMessage && (
-          <p
-            style={{
-              color: "#ef4444",
-              fontSize: "14px",
-              fontWeight: 600,
-              marginBottom: "16px",
-              textAlign: "center",
             }}
           >
-            {errorMessage}
-          </p>
-        )}
-      </section>
-
-      {/* 5. 환율 그래프 */}
-      <section style={{ marginBottom: "96px" }}>
-        <h2
-          style={{
-            fontSize: "18px",
-            fontWeight: "bold",
-            marginBottom: "16px",
-            margin: 0,
-            color: "var(--color-text-primary)",
-          }}
-        >
-          환율 변동 내역
-        </h2>
-
-        {/* 그래프를 감싸는 흰색 카드 영역 */}
-        <ExchangeRateChart data={rateHistory} />
-      </section>
-
-      {/* 하단 버튼 영역 */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "100%",
-          maxWidth: "412px",
-          backgroundColor: "var(--color-bg)",
-        }}
-      >
-        {/* 탭바 등 여백을 고려한 mb-24 위치, 버튼 스타일 */}
-        <div
-          style={{
-            boxSizing: "border-box",
-            padding: "0 20px",
-            marginBottom: "96px",
-            width: "100%",
-          }}
-        >
-          <button
-            onClick={handleExchange}
-            disabled={!pointInput || expectedCoin <= 0}
-            style={{
-              width: "100%",
-              padding: "14px 0",
-              backgroundColor:
-                !pointInput || expectedCoin <= 0
-                  ? "var(--color-primary-light)"
-                  : "var(--color-primary)",
-              color: "var(--color-text-inverse)",
-              borderRadius: "12px",
-              fontWeight: "bold",
-              fontSize: "16px",
-              border: "none",
-              cursor:
-                !pointInput || expectedCoin <= 0 ? "not-allowed" : "pointer",
-              opacity: 1,
-            }}
-          >
-            환전하기
-          </button>
+            <button
+              onClick={handleExchange}
+              disabled={!pointInput || expectedCoin <= 0}
+              style={{
+                width: "100%",
+                padding: "14px 0",
+                backgroundColor:
+                  !pointInput || expectedCoin <= 0
+                    ? "var(--color-primary-light)"
+                    : "var(--color-primary)",
+                color: "var(--color-text-inverse)",
+                borderRadius: "12px",
+                fontWeight: "bold",
+                fontSize: "16px",
+                border: "none",
+                cursor:
+                  !pointInput || expectedCoin <= 0 ? "not-allowed" : "pointer",
+                opacity: 1,
+              }}
+            >
+              환전하기
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
