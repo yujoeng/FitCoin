@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>환율 계산 실패 알림</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f0eb; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;">
+
+<div style="background-color: #f5f0eb; padding: 40px 0;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #fffdf9; border-radius: 10px; overflow: hidden; border: 0.5px solid #e8dfd4;">
+
+        <div style="background-color: #c8a882; padding: 30px; text-align: center;">
+            <h1 style="color: #fffdf9; margin: 0; font-size: 26px; font-weight: 500; letter-spacing: 1px;">FitCoin</h1>
+        </div>
+
+        <div style="padding: 44px 36px; color: #5a4a3a;">
+
+            <h2 style="font-size: 20px; font-weight: 500; margin: 0 0 24px; color: #3a2d22; text-align: center;">
+                환율 자동 계산 실패
+            </h2>
+
+            <div style="background-color: #fdf3f0; border-left: 4px solid #c0392b; border-radius: 4px; padding: 16px 20px; margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 14px; color: #7a2020; font-weight: 500;">
+                    3회 재시도가 모두 실패하여 전날 환율로 대체 저장되었습니다.
+                </p>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #5a4a3a;">
+                <tr style="border-bottom: 0.5px solid #e8dfd4;">
+                    <td style="padding: 12px 8px; color: #9a8272; width: 30%;">날짜</td>
+                    <td style="padding: 12px 8px; font-weight: 500;" th:text="${date}">2025-01-01</td>
+                </tr>
+                <tr style="border-bottom: 0.5px solid #e8dfd4;">
+                    <td style="padding: 12px 8px; color: #9a8272;">대체 환율</td>
+                    <td style="padding: 12px 8px; font-weight: 500;">
+                        <span th:text="${fallbackRate}">1000</span> 원/코인
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px 8px; color: #9a8272; vertical-align: top;">원인</td>
+                    <td style="padding: 12px 8px; word-break: break-all;" th:text="${errorMessage}">오류 메시지</td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="background-color: #f0e8de; padding: 20px; text-align: center; font-size: 12px; color: #9a8272; border-top: 0.5px solid #e8dfd4;">
+            <p style="margin: 0;">본 메일은 FitCoin 시스템에서 자동 발송되었습니다.</p>
+            <p style="margin: 6px 0 0;">관리자 확인 후 필요 시 수동으로 환율을 조정해 주세요.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

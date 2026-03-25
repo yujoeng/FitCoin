@@ -29,7 +29,13 @@ public enum ErrorStatus implements BaseErrorCode {
     MISSION_DAILY_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "MS4002", "오늘의 미션을 모두 완료했습니다."),
     MISSION_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "MS4003", "미션 토큰이 유효하지 않습니다."),
     MISSION_LOG_NOT_FOUND(HttpStatus.BAD_REQUEST, "MS4004", "미션 수행 정보를 찾을 수 없습니다."),
-    MISSION_ALREADY_IN_PROGRESS(HttpStatus.CONFLICT, "MS4005", "이미 진행 중인 미션이 있습니다.")
+    MISSION_ALREADY_IN_PROGRESS(HttpStatus.CONFLICT, "MS4005", "이미 진행 중인 미션이 있습니다."),
+
+    // 자산 에러
+    EXCHANGE_RATE_NOT_AVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "ASSET-503", "현재 환율 정보를 조회할 수 없습니다."),
+    EXCHANGE_RATE_CHANGED(HttpStatus.CONFLICT, "ASSET-409", "환율 정보가 변경되었습니다."),
+    INSUFFICIENT_POINT(HttpStatus.BAD_REQUEST, "ASSET-400", "보유 포인트가 부족합니다."),
+    INVALID_EXCHANGE_AMOUNT(HttpStatus.BAD_REQUEST, "ASSET-400", "교환 가능한 포인트 단위가 아닙니다."),
     ;
 
     private final HttpStatus httpStatus;

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AppTabBar } from "@/components/AppShell";
 import { hasAccessToken } from "@/features/auth/utils/tokenUtils";
 import { BgmProvider } from "@/hooks/useBgm";
+import { usePreventBack } from "@/hooks/usePreventBack";
 
 // 탭바가 필요 없는 페이지 경로 목록
 const NO_TABBAR_PATHS = ["/login", "/signup", "/password-reset", "/"];
@@ -26,28 +27,10 @@ export default function AppShellProvider({
   const showTabBar = !NO_TABBAR_PATHS.includes(pathname);
   const isBgmOff = NO_TABBAR_PATHS.includes(pathname) || NO_BGM_PATHS.includes(pathname);
 
+  usePreventBack();
+
   useEffect(() => {
     setIsMounted(true);
-
-    // [작업 4] 전역 뒤로가기 차단 (PWA 요구사항)
-    // 최초 진입 시 현재 상태를 히스토리 스택에 한 번 더 쌓음 (뒤로가기 유도용)
-    window.history.pushState({ globalBlock: true }, '', window.location.href);
-
-    const handleGlobalPopState = (event: PopStateEvent) => {
-      // 컴포넌트 내부에서 명시적으로 뒤로가기를 허용한 경우 (예: AdPlayer 닫기) 차단하지 않음
-      if ((window as any).__FC_ALLOW_BACK__) {
-        return;
-      }
-
-      // 브라우저/디바이스 뒤로가기 시도 시 다시 pushState하여 현재 위치 고정
-      window.history.pushState({ globalBlock: true }, '', window.location.href);
-    };
-
-    window.addEventListener('popstate', handleGlobalPopState);
-
-    return () => {
-      window.removeEventListener('popstate', handleGlobalPopState);
-    };
   }, []);
 
   // ── 인증 체크 ──────────────────────────────────────────

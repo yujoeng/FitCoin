@@ -9,13 +9,14 @@ import org.a504.fitCoin.domain.auth.dto.request.EmailVerifyRequest;
 import org.a504.fitCoin.domain.auth.dto.request.RegisterRequest;
 import org.a504.fitCoin.domain.auth.dto.response.EmailVerifyConfirmResponse;
 import org.a504.fitCoin.domain.auth.repository.EmailVerifyRepository;
-import org.a504.fitCoin.domain.user.entity.UserRoom;
-import org.a504.fitCoin.domain.user.repository.UserRoomJpaRepository;
 import org.a504.fitCoin.domain.user.entity.User;
+import org.a504.fitCoin.domain.user.entity.UserRoom;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
+import org.a504.fitCoin.domain.user.repository.UserRoomJpaRepository;
 import org.a504.fitCoin.global.config.property.EmailProperties;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.a504.fitCoin.global.response.status.ErrorStatus;
+import org.a504.fitCoin.global.util.MailClient;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -33,7 +34,7 @@ public class RegisterService {
     private final UserRoomJpaRepository userRoomJpaRepository;
     private final EmailVerifyRepository emailVerifyRepository;
     private final TemplateEngine templateEngine;
-    private final MailService mailService;
+    private final MailClient mailClient;
     private final PasswordEncoder passwordEncoder;
     private final EmailProperties emailProperties;
 
@@ -53,7 +54,7 @@ public class RegisterService {
         context.setVariable("code", code);
         context.setVariable("expiredTime", emailProperties.getCode().getExpiredTime() / (1000 * 60));
         String htmlContent = templateEngine.process("mail-auth", context);
-        mailService.sendEmail(email, subject, htmlContent);
+        mailClient.sendEmail(email, subject, htmlContent);
     }
 
     private void validateUser(String email) {

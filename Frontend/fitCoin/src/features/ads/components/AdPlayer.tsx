@@ -19,13 +19,8 @@ const AdPlayer: React.FC<AdPlayerProps> = ({ isOpen, adUrl, onEnded, onExitReque
     if (!isOpen || isClosingRef.current) return;
     isClosingRef.current = true;
     
-    // 전역 차단 해제 후 뒤로가기 실행
-    (window as any).__FC_ALLOW_BACK__ = true;
+    // 광고가 추가했던 해시 팝
     window.history.back();
-    setTimeout(() => {
-      (window as any).__FC_ALLOW_BACK__ = false;
-    }, 100);
-
     onExitRequest();
   };
 
@@ -33,13 +28,8 @@ const AdPlayer: React.FC<AdPlayerProps> = ({ isOpen, adUrl, onEnded, onExitReque
     if (!isOpen || isClosingRef.current) return;
     isClosingRef.current = true;
 
-    // 전역 차단 해제 후 뒤로가기 실행
-    (window as any).__FC_ALLOW_BACK__ = true;
+    // 광고가 추가했던 해시 팝
     window.history.back();
-    setTimeout(() => {
-      (window as any).__FC_ALLOW_BACK__ = false;
-    }, 100);
-
     onEnded();
   };
 
