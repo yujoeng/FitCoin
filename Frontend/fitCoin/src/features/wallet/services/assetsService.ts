@@ -20,7 +20,7 @@ export const assetsService = {
 
   async getExchangeRate(): Promise<ExchangeRate> {
     if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
-      return { date: "2026-03-17", pointToCoinRate: 10 };
+      return { date: "2026-03-17", rate: 10000 };
     }
     const response = await apiClient.get("/assets/exchange-rate");
     // [확인 필요] 단일 객체 리턴인지 result 분리 래핑 구조인지 명세 확인 필요

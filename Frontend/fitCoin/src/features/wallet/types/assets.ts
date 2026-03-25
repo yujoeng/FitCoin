@@ -7,7 +7,7 @@ export interface Assets {
 // 현재 환율
 export interface ExchangeRate {
   date: string;
-  pointToCoinRate: number;
+  rate: number;
 }
 
 // 환율 히스토리 항목

@@ -20,7 +20,7 @@ export const ExchangePage = () => {
     if (!exchangeRate) return 0;
     const point = parseInt(pointStr, 10);
     if (isNaN(point)) return 0;
-    return Math.floor(point / exchangeRate.pointToCoinRate);
+    return Math.floor(point / exchangeRate.rate);
   };
 
   const expectedCoin = calcExpectedCoin(pointInput);
@@ -205,7 +205,8 @@ export const ExchangePage = () => {
           color: "var(--color-text-secondary)",
         }}
       >
-        현재 환율 : {exchangeRate?.pointToCoinRate || "-"}P = 1코인
+        현재 환율 : {exchangeRate?.rate?.toLocaleString("ko-KR") || "-"}P =
+        1코인
       </div>
 
       {/* 4. 환전 입력 영역 */}
