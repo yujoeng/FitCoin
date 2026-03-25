@@ -2,8 +2,16 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { X, Play } from 'lucide-react';
 import type { Exercise } from '@/types';
+
+const GLB_MAP: Record<string, string> = {
+  squat: '/models/squat.glb',
+  plank: '/models/plank.glb',
+  bicepCurl: '/models/bicep_curl.glb',
+};
 
 /* ─────────────────────────────────────────
    운동별 3D 데모 설정
@@ -40,6 +48,7 @@ const DEMO_CONFIG: Record<string, DemoConfig> = {
   squat: {
     label: '스쿼트',
     hint: '발을 어깨 너비로 벌리고\n무릎을 90°까지 굽혔다 펴세요',
+    cameraOverride: { position: [0, 1.5, 8.0], lookAt: [0, 0.8, 0] },
     animate: (parts, t) => {
       const phase = (Math.sin(t * 1.3) + 1) / 2;
       const wave  = phase * phase * (3 - 2 * phase);
@@ -74,7 +83,7 @@ const DEMO_CONFIG: Record<string, DemoConfig> = {
   calfRaise: {
     label: '카프레이즈',
     hint: '발뒤꿈치를 최대한 높이\n올렸다 천천히 내려주세요',
-    cameraOverride: { position: [3.2, 1.0, 1.0], lookAt: [0, 0.4, 0] },
+    cameraOverride: { position: [4.5, 1.5, 4.5], lookAt: [0, 0.5, 0] },
     animate: (parts, t) => {
       const cycle = (t * 1.0) % (Math.PI * 2);
       const raw   = Math.sin(cycle);
@@ -110,6 +119,7 @@ const DEMO_CONFIG: Record<string, DemoConfig> = {
   plank: {
     label: '플랭크',
     hint: '팔을 뻗어 몸을 일직선으로\n유지하세요 (10초 유지)',
+    cameraOverride: { position: [5.0, 3.5, 5.0], lookAt: [0, 0.3, 0] },
     animate: (parts, t) => {
       const wb = Math.sin(t * 1.2) * 0.025;
       parts.torso.position.y = 0.72 + wb;
@@ -144,7 +154,7 @@ const DEMO_CONFIG: Record<string, DemoConfig> = {
   sideStretch: {
     label: '옆구리 스트레칭',
     hint: '몸통을 좌우로 기울여\n옆구리를 충분히 늘려주세요',
-    cameraOverride: { position: [0, 1.4, 3.2], lookAt: [0, 1.1, 0] },
+    cameraOverride: { position: [0, 1.5, 7.5], lookAt: [0, 1.0, 0] },
     animate: (parts, t) => {
       const sw = Math.sin(t * 0.9);
       parts.torso.rotation.z = sw * 0.38;
@@ -177,6 +187,7 @@ const DEMO_CONFIG: Record<string, DemoConfig> = {
   bicepCurl: {
     label: '바이셉 컬',
     hint: '팔꿈치를 굽혔다 펴며\n이두를 수축시키세요',
+    cameraOverride: { position: [0, 1.5, 8.0], lookAt: [0, 0.8, 0] },
     animate: (parts, t) => {
       const sw = Math.sin(t * 1.4);
       const LW = (sw + 1) / 2; const RW = (-sw + 1) / 2;
@@ -224,7 +235,7 @@ const DEMO_CONFIG: Record<string, DemoConfig> = {
     label: '가슴 펴기',
     hint: '팔을 T자로 벌린 뒤\n상체를 뒤로 젖혀 가슴을 펴주세요',
     disableGroupRotation: true,
-    cameraOverride: { position: [3.2, 1.3, 0.5], lookAt: [0, 1.05, 0] },
+    cameraOverride: { position: [4.5, 1.5, 4.5], lookAt: [0, 1.0, 0] },
     animate: (parts, t) => {
       parts.group.rotation.y = Math.PI / 2;
       parts.torso.rotation.z = 0;
@@ -247,7 +258,7 @@ const DEMO_CONFIG: Record<string, DemoConfig> = {
   wristStretch: {
     label: '손목 스트레칭',
     hint: '팔을 앞으로 뻗고\n손목을 천천히 꺾어주세요',
-    cameraOverride: { position: [0, 1.05, 2.3], lookAt: [0, 0.88, 0] },
+    cameraOverride: { position: [0, 1.5, 7.5], lookAt: [0, 1.0, 0] },
     animate: (parts, t) => {
       parts.leftArm.rotation.x  = -1.57;
       parts.rightArm.rotation.x = -1.57;
@@ -288,7 +299,7 @@ const DEMO_CONFIG: Record<string, DemoConfig> = {
   neckFrontStretch: {
     label: '목 앞뒤 스트레칭',
     hint: '고개를 앞으로 숙였다가\n뒤로 젖혀주세요',
-    cameraOverride: { position: [0, 1.3, 3.2], lookAt: [0, 1.2, 0] },
+    cameraOverride: { position: [0, 1.5, 7.5], lookAt: [0, 1.2, 0] },
     disableGroupRotation: true,
     animate: (parts, t) => {
       parts.group.rotation.y = Math.PI / 2;
@@ -498,8 +509,8 @@ export default function ExerciseDemoModal({ exercise, onStart, onClose }: Exerci
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
-    const camPos  = cfg.cameraOverride?.position ?? [0, 0.5, 4.2];
-    const camLook = cfg.cameraOverride?.lookAt   ?? [0, 0.6, 0];
+    const camPos  = cfg.cameraOverride?.position ?? [0, 1.5, 7.5];
+    const camLook = cfg.cameraOverride?.lookAt   ?? [0, 1.0, 0];
     camera.position.set(...camPos);
     camera.lookAt(...camLook);
 
@@ -529,21 +540,55 @@ export default function ExerciseDemoModal({ exercise, onStart, onClose }: Exerci
     rightCircle.position.set(0.13, -0.73, 0);
     scene.add(rightCircle);
 
-    const parts = buildStickman(scene);
-    parts.group.position.y = -0.45;
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = true;
+    controls.autoRotate = false;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
 
+    let parts: Parts | null = null;
+    let mixer: THREE.AnimationMixer | null = null;
     let t = 0;
     let lastTime = performance.now();
+    let isGLB = false;
+
+    const glbPath = exercise?.id ? GLB_MAP[exercise.id] : null;
+
+    if (glbPath) {
+      isGLB = true;
+      const loader = new GLTFLoader();
+      loader.load(glbPath, (gltf) => {
+        gltf.scene.position.y = -0.74; // 바닥 높이에 맞춤
+        scene.add(gltf.scene);
+
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(gltf.scene);
+          const rootAction = mixer.clipAction(gltf.animations[0]);
+          rootAction.play();
+        }
+      });
+    } else {
+      parts = buildStickman(scene);
+      parts.group.position.y = -0.45;
+    }
+
     const animate = (now = performance.now()) => {
       rafRef.current = requestAnimationFrame(animate);
       const dt = Math.min((now - lastTime) / 1000, 0.05);
       lastTime = now;
       t += dt;
 
-      cfg.animate(parts, t);
+      controls.update();
 
-      if (!cfg.disableGroupRotation) {
-        parts.group.rotation.y = Math.sin(t * 0.3) * 0.25;
+      if (isGLB) {
+        if (mixer) mixer.update(dt);
+      } else {
+        if (parts) {
+          cfg.animate(parts, t);
+          if (!cfg.disableGroupRotation) {
+            parts.group.rotation.y = Math.sin(t * 0.3) * 0.25;
+          }
+        }
       }
 
       renderer.render(scene, camera);
@@ -562,6 +607,7 @@ export default function ExerciseDemoModal({ exercise, onStart, onClose }: Exerci
     return () => {
       window.removeEventListener('resize', onResize);
       cancelAnimationFrame(rafRef.current);
+      controls.dispose();
       renderer.dispose();
       if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
     };

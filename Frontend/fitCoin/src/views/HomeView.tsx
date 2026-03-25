@@ -87,7 +87,7 @@ export default function HomeView({
             style={{
                 display: 'flex',
                 flexDirection: 'column',
-                background: 'var(--color-bg)',
+                background: 'linear-gradient(135deg, #F0F7E0 0%, #FFF8E7 40%, #E8F4E0 70%, #F5F0E8 100%)',
                 maxWidth: '430px',
                 margin: '0 auto',
                 width: '100%',
@@ -97,28 +97,27 @@ export default function HomeView({
             {/* ── 상단: 스트릭바 + 포인트/코인 ── */}
             <div
                 style={{
-                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 'var(--space-3)',
                     padding: 'var(--space-3) var(--space-3) 0',
                     flexShrink: 0,
+                    width: '100%',
                 }}
             >
-                <div style={{ paddingRight: '105px' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
                     <StreakBar
                         streakCount={streakCount}
                         streakDays={streakDays}
                         onViewCalendar={onViewCalendar}
                     />
                 </div>
-
                 <div
                     style={{
-                        position: 'absolute',
-                        top: 'var(--space-3)',
-                        right: 'var(--space-3)',
-                        bottom: 0,
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 'var(--space-1)',
+                        flexShrink: 0,
                     }}
                 >
                     <PointBadge points={points} />

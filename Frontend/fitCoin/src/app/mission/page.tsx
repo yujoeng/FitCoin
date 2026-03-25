@@ -55,7 +55,6 @@ function MissionPageContent() {
 
   const handleStart = async (mission: MissionCandidate) => {
     await startMission(mission.id);
-    // TODO: userLevel은 현재 0(초급) 고정. 추후 사용자 설정 반영 시 수정 필요
     const exercise = mergeWithExercise(mission, FITCOIN_EXERCISES, 0);
     if (!exercise) {
       alert('해당 운동을 찾을 수 없습니다');
