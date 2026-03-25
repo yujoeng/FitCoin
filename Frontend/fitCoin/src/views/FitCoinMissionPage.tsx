@@ -5,6 +5,19 @@ import {
   RefreshCw, Play, Check, Activity, Info,
 } from 'lucide-react';
 import type { MissionCandidate } from '@/types';
+import { FITCOIN_EXERCISES } from '@/data/exercises';
+import { useMyPage } from '@/features/user/hooks/useMyPage';
+
+// 서버 미션 name → FITCOIN_EXERCISES 항목 찾기
+export function findExerciseByName(serverName: string) {
+  return FITCOIN_EXERCISES.find((ex) => ex.name === serverName) ?? null;
+}
+
+function getTargetCount(count: number[], exerciseLevel: string): number {
+  if (exerciseLevel === 'INTERMEDIATE') return count[1];
+  if (exerciseLevel === 'ADVANCED') return count[2];
+  return count[0]; // BEGINNER 또는 기본값
+}
 // 백드롭 페이드인 keyframe 주입 (한 번만, 브라우저 환경 체크)
 if (typeof document !== 'undefined' && !document.getElementById('sq-demo-style')) {
   const st = document.createElement('style');
@@ -24,10 +37,10 @@ interface FitCoinMissionPageProps {
   candidates: MissionCandidate[];
   dailyMissionCount: number;
   onStart: (mission: MissionCandidate) => void;
-  userLevel?: number; // 0: 초급, 1: 중급, 2: 고급
 }
 
-export default function FitCoinMissionPage({ candidates, dailyMissionCount, onStart, userLevel = 0 }: FitCoinMissionPageProps) {
+export default function FitCoinMissionPage({ candidates, dailyMissionCount, onStart }: FitCoinMissionPageProps) {
+  const { userInfo } = useMyPage();
   const [mission, setMission] = useState<MissionCandidate>(() => candidates[Math.floor(Math.random() * candidates.length)]);
   const [spinning, setSpinning] = useState(false);
 
@@ -43,7 +56,7 @@ export default function FitCoinMissionPage({ candidates, dailyMissionCount, onSt
   };
 
   const isLocked = dailyMissionCount >= 3;
-  const targetCount = mission.count[userLevel] ?? mission.count[0];
+  const targetCount = getTargetCount(mission.count, userInfo?.exerciseLevel || 'BEGINNER');
 
   return (
     <div className="fc-anim-fade" style={{ padding: '16px 16px 0' }}>
