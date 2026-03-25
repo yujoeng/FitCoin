@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.a504.fitCoin.domain.asset.entity.Exchange;
 import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.ExchangeJpaRepository;
+import org.a504.fitCoin.domain.asset.repository.ExchangeRateHistoryRepository;
 import org.a504.fitCoin.global.config.property.ExchangeProperties;
 import org.a504.fitCoin.global.util.MailClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,8 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -26,6 +29,7 @@ public class ExchangeRateService {
     private final ExchangeProperties properties;
     private final ExchangeJpaRepository exchangeJpaRepository;
     private final CoinLogJpaRepository coinLogJpaRepository;
+    private final ExchangeRateHistoryRepository exchangeRateHistoryRepository;
     private final MailClient mailClient;
 
     @Value("${spring.mail.username}")
@@ -72,6 +76,9 @@ public class ExchangeRateService {
                 .rate(result)
                 .ewma(newEwma)
                 .build());
+
+        // 9. DB 커밋 확정 후 Redis ZSET 업데이트
+        registerRedisSyncAfterCommit();
     }
 
     @Recover
@@ -89,6 +96,8 @@ public class ExchangeRateService {
                 .ewma(properties.getInitialEwma())
                 .build());
 
+        registerRedisSyncAfterCommit();
+
         mailClient.sendTemplateEmail(
                 adminEmail,
                 "[FitCoin] 환율 계산 실패 알림",
@@ -99,5 +108,14 @@ public class ExchangeRateService {
                         "errorMessage", e.getMessage()
                 )
         );
+    }
+
+    private void registerRedisSyncAfterCommit() {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                exchangeRateHistoryRepository.delete();
+            }
+        });
     }
 }

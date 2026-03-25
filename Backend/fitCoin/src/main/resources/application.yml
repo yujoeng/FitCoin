@@ -105,3 +105,7 @@ exchange:
   lower-pct: 0.2          # 하락 클램핑 (-20%)
   abs-floor: 10000        # 절대 하한 (10,000p)
   smooth-min: 10          # SMOOTH 최솟값
+
+# 환율 데이터 캐싱 시간
+exchange-cache:
+    expired-time: 300000

@@ -14,7 +14,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableConfigurationProperties({
         CorsConfigProperties.class, JwtProperties.class,
-        EmailProperties.class, CookieProperties.class, ExchangeProperties.class
+        EmailProperties.class, CookieProperties.class, ExchangeProperties.class,
+        ExchangeCacheProperties.class
 })
 public class FitCoinApplication {
     public static void main(String[] args) {
