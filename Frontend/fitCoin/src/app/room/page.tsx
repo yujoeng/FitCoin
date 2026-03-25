@@ -71,7 +71,7 @@ export default function RoomPage() {
           zIndex: 10,
         }}
       >
-        <PageHeader title="방 꾸미기" onBack={() => router.back()} />
+        <PageHeader title="방 꾸미기" onBack={() => router.push('/home')} />
         <button
           onClick={handleSave}
           disabled={isSaving}
