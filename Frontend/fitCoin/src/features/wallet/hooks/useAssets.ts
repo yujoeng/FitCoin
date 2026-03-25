@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Assets, ExchangeRate, ExchangeResult, ExchangeRateHistory, Gifticon, GifticonListResponse } from '../types/assets';
-import { assetsService } from '../services/assetsService';
+import { useState, useEffect } from "react";
+import {
+  Assets,
+  ExchangeRate,
+  ExchangeResult,
+  ExchangeRateHistory,
+  Gifticon,
+  GifticonListResponse,
+} from "../types/assets";
+import { assetsService } from "../services/assetsService";
 
 export const useAssets = () => {
   const [assets, setAssets] = useState<Assets | null>(null);
@@ -14,18 +21,21 @@ export const useAssets = () => {
     try {
       setIsLoading(true);
       setErrorMessage(null);
-      const [assetsData, rateData, historyData, gifticonData] = await Promise.all([
-        assetsService.getAssets(),
-        assetsService.getExchangeRate(),
-        assetsService.getExchangeRateHistory(),
-        assetsService.getGifticons()
-      ]);
+      const [assetsData, rateData, historyData, gifticonData] =
+        await Promise.all([
+          assetsService.getAssets(),
+          assetsService.getExchangeRate(),
+          assetsService.getExchangeRateHistory(),
+          assetsService.getGifticons(),
+        ]);
       setAssets(assetsData);
       setExchangeRate(rateData);
       setRateHistory(historyData.exchangeRates);
       setGifticons(gifticonData.gifticons);
     } catch (error: any) {
-      setErrorMessage(error.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+      setErrorMessage(
+        error.message || "데이터를 불러오는 중 오류가 발생했습니다.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -39,13 +49,17 @@ export const useAssets = () => {
     try {
       setIsLoading(true);
       setErrorMessage(null);
-      const result = await assetsService.exchange(point);
+      if (!exchangeRate) {
+        setErrorMessage("환율 정보를 불러오지 못했습니다.");
+        return null;
+      }
+      const result = await assetsService.exchange(point, exchangeRate.rate);
       // 환전 후 잔액 다시 조회
       const newAssets = await assetsService.getAssets();
       setAssets(newAssets);
       return result;
     } catch (error: any) {
-      setErrorMessage(error.message || '환전에 실패했습니다.');
+      setErrorMessage(error.message || "환전에 실패했습니다.");
       return null;
     } finally {
       setIsLoading(false);
@@ -60,6 +74,6 @@ export const useAssets = () => {
     isLoading,
     errorMessage,
     exchange,
-    setErrorMessage
+    setErrorMessage,
   };
 };

@@ -50,7 +50,7 @@ export const assetsService = {
     return { exchangeRates };
   },
 
-  async exchange(point: number): Promise<ExchangeResult> {
+  async exchange(point: number, rate: number): Promise<ExchangeResult> {
     if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
       return {
         usedPoint: point,
@@ -59,7 +59,10 @@ export const assetsService = {
       };
     }
     try {
-      const response = await apiClient.post("/assets/exchange", { point });
+      const response = await apiClient.post("/assets/exchange", {
+        point,
+        rate,
+      });
       // [확인 필요] ExchangeResult가 result 객체 내부에 있는지 단독 리턴인지 확인
       return response.data.result ?? response.data;
     } catch (error: any) {
