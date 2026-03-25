@@ -21,7 +21,7 @@ public class MissionController {
     private final MissionService missionService;
 
     @Operation(summary = "미션 시작",
-            description = "선택한 미션을 시작합니다. 응답으로 받은 missionToken을 미션 완료 API 요청 시 사용합니다.")
+            description = "선택한 ID의 미션을 시작합니다.")
     @PostMapping("/start")
     public ResponseEntity<ApiResponse<MissionStartResponse>> startMission(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -51,8 +51,8 @@ public class MissionController {
     }
 
     @Operation(summary = "미션 수행 가능 여부 조회",
-            description = "사용자의 오늘 미션 수행 가능 여부를 조회합니다. 하루 최대 3회 수행 가능하며 00시에 초기화됩니다.")
-    @PostMapping("/availability")
+            description = "사용자의 오늘 미션 수행 가능 여부를 조회합니다. 미션은 하루 최대 3회 수행 가능하며 00시에 초기화됩니다.")
+    @GetMapping("/availability")
     public ResponseEntity<ApiResponse<MissionAvailabilityResponse>> getMissionAvailability(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
