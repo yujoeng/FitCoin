@@ -147,7 +147,7 @@ export default function HomeView({
                                 style={{ color: 'var(--color-text-inverse)' }}
                                 className="font-semibold text-sm"
                             >
-                                방 꾸미기
+
                             </span>
                         </div>
                     </div>

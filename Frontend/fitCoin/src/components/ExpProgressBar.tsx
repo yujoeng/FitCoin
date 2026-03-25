@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trophy, Medal } from 'lucide-react';
 
 interface ExpProgressBarProps {
   exp: number;
@@ -55,19 +56,37 @@ export default function ExpProgressBar({ exp, maxExp, isGraduatable, onGraduate 
           }}
         >
           <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)' }}>
-            경험치
+
           </span>
-          {/* 하드코딩된 숫자 (0/10) 제거됨 */}
+          { }
         </div>
-        <div
-          style={{
-            height: '10px',
-            width: '100%',
-            borderRadius: 'var(--radius-full)',
-            background: 'var(--color-primary-light)',
-            overflow: 'hidden',
-          }}
-        >
+        {/* 메달 + 10조각 게이지 바 + 트로피 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+          {/* 메달 */}
+          <Medal size={18} color="var(--color-primary)" />
+
+          {/* 10조각 게이지 바 */}
+          <div style={{ flex: 1, display: 'flex', gap: '2px' }}>
+            {Array.from({ length: maxExp }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  flex: 1,
+                  height: '8px',
+                  borderRadius: '3px',
+                  background: i < exp
+                    ? 'linear-gradient(90deg, var(--color-primary), var(--color-primary-dark))'
+                    : 'var(--color-primary-light)',
+                  transition: 'background var(--transition-slow)',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* 트로피 */}
+          <Trophy
+            size={18}
+            color={exp >= maxExp ? 'var(--color-primary)' : 'var(--color-text-disabled)'} />
           <div
             style={{
               height: '100%',
