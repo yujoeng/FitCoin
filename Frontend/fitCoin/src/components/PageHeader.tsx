@@ -20,11 +20,9 @@ export default function PageHeader({ title, onBack }: PageHeaderProps) {
         <button
           onClick={() => {
             if (onBack) {
-              (window as any).__FC_ALLOW_BACK__ = true;
               onBack();
             }
-          }}
-          aria-label="뒤로가기"
+          }}          aria-label="뒤로가기"
           style={{
             background: 'none',
             border: 'none',

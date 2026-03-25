@@ -414,11 +414,7 @@ function PasswordResetContent() {
       {/* 뒤로가기 */}
       <button
         type="button"
-        onClick={() => {
-          (window as any).__FC_ALLOW_BACK__ = true;
-          router.back();
-        }}
-        style={{
+        onClick={() => router.push('/login')}        style={{
           position: "absolute",
           top: "16px",
           left: "24px",

@@ -20,23 +20,12 @@ export function usePreventBack() {
     }
 
     const handlePopState = (event: PopStateEvent) => {
-      // 인앱 버튼 등으로 허용된 경우
-      if ((window as any).__FC_ALLOW_BACK__) {
-        // 현재 상태가 가짜가 아니라면(뒤로가기 한 단계 옴), 한 번 더 뒤로 가서 진짜 이전 페이지로 이동
-        if (!window.history.state?.globalBlock) {
-          window.history.back();
-        } else {
-          (window as any).__FC_ALLOW_BACK__ = false;
-        }
-        return;
-      }
-
       // 브라우저 뒤로가기 시도 시: 
       // /path(가짜) -> /path(실제) 로 이동하게 됨.
       // URL이 같으므로 Next.js의 내비게이션이 트리거되지 않아 깜빡임이 없습니다.
-      // 우리는 조용히 다시 forward() 하여 다시 가짜 상태로 되돌립니다.
+      // 우리는 조용히 pushState를 호출하여 가짜 상태를 다시 복구합니다 (동기 호출로 반응 지연 제거).
       if (!window.history.state?.globalBlock) {
-        window.history.forward();
+        window.history.pushState({ globalBlock: true }, "", window.location.href);
       }
     };
 
