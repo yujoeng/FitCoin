@@ -12,8 +12,8 @@ export interface ExchangeRate {
 
 // 환율 히스토리 항목
 export interface ExchangeRateHistory {
-  date: string;
-  pointToCoinRate: number;
+  timestamp: string;
+  rate: number;
 }
 
 // 환전 결과

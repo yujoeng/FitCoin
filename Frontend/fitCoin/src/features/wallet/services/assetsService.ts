@@ -28,25 +28,26 @@ export const assetsService = {
   },
 
   async getExchangeRateHistory(): Promise<{
-    period: string;
     exchangeRates: ExchangeRateHistory[];
   }> {
+    // TODO: MOCK 데이터 제거 시 함께 제거
     if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
       return {
-        period: "ALL",
         exchangeRates: [
-          { date: "2025-12-01", pointToCoinRate: 10 },
-          { date: "2026-01-01", pointToCoinRate: 11 },
-          { date: "2026-02-01", pointToCoinRate: 12 },
-          { date: "2026-03-01", pointToCoinRate: 10 },
+          { timestamp: "1735686000", rate: 10000 },
+          { timestamp: "1738364400", rate: 11000 },
+          { timestamp: "1740783600", rate: 12000 },
+          { timestamp: "1743462000", rate: 10000 },
         ],
       };
     }
-    const response = await apiClient.get(
-      "/assets/exchange-rate/history?period=ALL",
-    );
-    // [확인 필요] 응답 객체 구조 확인 필요
-    return response.data.result ?? response.data;
+    const response = await apiClient.get("/assets/exchange-rate/history");
+    const result = response.data.result;
+    // 배열 직접 내려오는 구조 대응
+    const exchangeRates: ExchangeRateHistory[] = Array.isArray(result)
+      ? result
+      : (result?.exchangeRates ?? []);
+    return { exchangeRates };
   },
 
   async exchange(point: number): Promise<ExchangeResult> {
