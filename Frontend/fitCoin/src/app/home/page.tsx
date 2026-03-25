@@ -21,30 +21,14 @@ import {
   AdExitModal,
   AdRewardModal,
 } from "@/features/ads";
+import { getRecentStreak } from "@/features/streak/services/streakApi";
+import { mapToStreakDays } from "@/utils/streakMapper";
 
-const MAX_EXP = 10;
-
-// ─── 임시 스트릭 mock 데이터 생성 ───
-function createMockStreakDays(): StreakDay[] {
-  const labels = ["월", "화", "수", "목", "금", "토", "일"];
-  const statuses: StreakDay["status"][] = [
-    "done",
-    "done",
-    "done",
-    "done",
-    "today",
-    "future",
-    "future",
-  ];
-  return labels.map((label, i) => ({ label, status: statuses[i] }));
-}
-
-// ─── 초기 상태 mock ───
 const INITIAL_STATE: HomePageState = {
-  points: 3500,
-  coins: 2,
-  streakCount: 4,
-  streakDays: createMockStreakDays(),
+  points: 0,
+  coins: 0,
+  streakCount: 0,
+  streakDays: [],
   character: null,
   roomConfig: DEFAULT_ROOM_CONFIG,
 };
@@ -61,13 +45,13 @@ export default function HomePage() {
   // 1. 방/캐릭터 데이터 최신화 (visibilitychange 대응)
   useEffect(() => {
     const handleVisibility = async () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         try {
           const roomRes = await getRoomLayout();
           if (roomRes.isSuccess && roomRes.result) {
-            setHomeState(prev => ({
+            setHomeState((prev) => ({
               ...prev,
-              roomConfig: convertLayoutToRoomConfig(roomRes.result)
+              roomConfig: convertLayoutToRoomConfig(roomRes.result),
             }));
           }
         } catch (e) {
@@ -90,9 +74,21 @@ export default function HomePage() {
               isGraduatable: char.isGraduatable,
               imageSrc: char.imgUrl,
             }
+
           }));
         } catch (e) {
           console.error("캐릭터 정보 로드 실패:", e);
+        }
+
+        try {
+          const streakRes = await getRecentStreak();
+          setHomeState((prev) => ({
+            ...prev,
+            streakCount: streakRes.currentStreak,
+            streakDays: mapToStreakDays(streakRes.weeklyStreak),
+          }));
+        } catch (e) {
+          console.error("스트릭 정보 로드 실패:", e);
         }
       }
     };
@@ -100,8 +96,9 @@ export default function HomePage() {
     // 진입 시 초기 로드
     handleVisibility();
 
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
   // ── 마운트 여부 확인 ──

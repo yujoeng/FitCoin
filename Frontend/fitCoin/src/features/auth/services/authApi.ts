@@ -42,7 +42,7 @@ export interface SignupRequest {
   nickname: string;
   password: string;
   confirmPassword: string;
-  exercise_level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  exerciseLevel: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
   token: string;
 }
 
