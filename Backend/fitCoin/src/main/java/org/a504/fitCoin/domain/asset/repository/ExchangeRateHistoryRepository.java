@@ -1,6 +1,6 @@
 package org.a504.fitCoin.domain.asset.repository;
 
-import org.a504.fitCoin.domain.asset.dto.ExchangeRateHistoryResponse;
+import org.a504.fitCoin.domain.asset.dto.response.ExchangeRateHistoryResponse;
 
 import java.util.List;
 

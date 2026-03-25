@@ -1,7 +1,7 @@
 package org.a504.fitCoin.domain.asset.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.a504.fitCoin.domain.asset.dto.ExchangeRateHistoryResponse;
+import org.a504.fitCoin.domain.asset.dto.response.ExchangeRateHistoryResponse;
 import org.a504.fitCoin.global.config.property.ExchangeCacheProperties;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.SessionCallback;
@@ -23,7 +23,7 @@ public class ExchangeRateHistoryRepositoryRedis implements ExchangeRateHistoryRe
     private final StringRedisTemplate redisTemplate;
 
     public boolean exists() {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(KEY));
+        return redisTemplate.hasKey(KEY);
     }
 
     @SuppressWarnings("unchecked")
