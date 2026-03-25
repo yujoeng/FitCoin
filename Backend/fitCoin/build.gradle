@@ -72,6 +72,9 @@ dependencies {
     
     // ===== NanoId =====
     implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
+
+    // Spring Retry
+    implementation 'org.springframework.retry:spring-retry'
 }
 
 tasks.named('test') {

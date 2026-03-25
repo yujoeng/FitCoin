@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.a504.fitCoin.domain.user.value.ExerciseLevel;
 import org.a504.fitCoin.domain.user.value.UserErrorStatus;
+import org.a504.fitCoin.global.entity.BaseTimeEntity;
 import org.a504.fitCoin.global.exception.CustomException;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
