@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { AxiosError } from "axios";
 import HomeView from "@/views/HomeView";
 import { DEFAULT_ROOM_CONFIG } from "@/data/roomThemes";
-import type { HomePageState, StreakDay } from "@/types/home";
+import type { HomePageState } from "@/types/home";
 import { getRoomLayout } from "@/features/room/services/roomApi";
 import { getCharacterMe } from "@/features/user/services/userApi";
 import { convertLayoutToRoomConfig } from "@/features/room/hooks/useRoom";
@@ -41,7 +40,20 @@ export default function HomePage() {
   const [isGraduateModalOpen, setIsGraduateModalOpen] = useState(false);
   const [gifticonImageUrl, setGifticonImageUrl] = useState<string | null>(null);
 
-  // 1. 방/캐릭터 데이터 최신화 (visibilitychange 대응)
+  const refetchAssets = useCallback(async () => {
+    try {
+      const assetsData = await assetsService.getAssets();
+      setHomeState((prev) => ({
+        ...prev,
+        points: assetsData.point,
+        coins: assetsData.coin,
+      }));
+    } catch (e) {
+      console.error("자산 정보 로드 실패:", e);
+    }
+  }, []);
+
+  // 방/캐릭터/스트릭/자산 최신화 (visibilitychange 대응)
   useEffect(() => {
     const handleVisibility = async () => {
       if (document.visibilityState === "visible") {
@@ -89,28 +101,16 @@ export default function HomePage() {
           console.error("스트릭 정보 로드 실패:", e);
         }
 
-        try {
-          const assetsData = await assetsService.getAssets();
-          setHomeState((prev) => ({
-            ...prev,
-            points: assetsData.point,
-            coins: assetsData.coin,
-          }));
-        } catch (e) {
-          console.error("자산 정보 로드 실패:", e);
-        }
+        await refetchAssets();
       }
     };
 
-    // 진입 시 초기 로드
     handleVisibility();
-
     document.addEventListener("visibilitychange", handleVisibility);
     return () =>
       document.removeEventListener("visibilitychange", handleVisibility);
-  }, []);
+  }, [refetchAssets]);
 
-  // ── 마운트 여부 확인 ──
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -148,7 +148,7 @@ export default function HomePage() {
     router.push("/character");
   };
 
-  // ── 광고 기능 훅 연동 ──
+  // 광고 기능 훅 연동
   const {
     step,
     adUrl,
@@ -161,8 +161,14 @@ export default function HomePage() {
     handleExitConfirm,
     handleExitCancel,
     handleVideoEnded,
-    handleRewardClose,
+    handleRewardClose: originalHandleRewardClose,
   } = useAds();
+
+  // 광고 보상 모달 닫을 때 자산 refetch
+  const handleRewardClose = async () => {
+    originalHandleRewardClose();
+    await refetchAssets();
+  };
 
   if (!isMounted) {
     return (
