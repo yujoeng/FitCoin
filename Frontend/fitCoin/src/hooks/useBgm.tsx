@@ -102,6 +102,11 @@ export const BgmProvider = ({
     } else if (isEnabled) {
       // 그 외 페이지에서 설정이 ON이면 재생
       const playAudio = async () => {
+        // 브라우저 경고 로그를 막기 위해 사용자 상호작용이 전혀 없었다면 시도조차 하지 않음
+        if (typeof navigator !== "undefined" && navigator.userActivation && !navigator.userActivation.hasBeenActive) {
+          return;
+        }
+
         try {
           if (audioCtx?.state === "suspended") {
             await audioCtx.resume();
@@ -123,31 +128,33 @@ export const BgmProvider = ({
     }
   }, [isPublic, isEnabled, isAdPaused, isMounted]);
 
-  // 자동재생 차단 대응: 사용자가 페이지를 처음 클릭할 때 재생 시도
+  // 자동재생 차단 대응: 사용자가 페이지를 처음 클릭할 때 무조건 AudioContext를 열어둠
   useEffect(() => {
     if (!isMounted || !audio) return;
 
     const handleFirstInteraction = async () => {
-      // 광고 중이 아닐 때만 반응
+      // 퍼블릭/프라이빗 상관없이 최초 클릭 시 AudioContext를 Active 상태로 만듦
+      if (audioCtx?.state === "suspended") {
+        await audioCtx.resume();
+      }
+      
+      // 현재 BGM이 재생조건(프라이빗 + 켜져있음)에 맞으면 즉시 재생 시도
       if (isEnabled && audio && audio.paused && !isPublic && !isAdPaused) {
         try {
-          if (audioCtx?.state === "suspended") {
-            await audioCtx.resume();
-          }
           await audio.play();
-          // 성공하면 리스너 제거
-          document.removeEventListener("click", handleFirstInteraction);
-          document.removeEventListener("touchstart", handleFirstInteraction);
         } catch (err) {
-          // 여전히 차단되어 있으면 유지
+          // 일시적 에러 무시
         }
       }
+
+      // 이벤트 리스너는 1회 동작 후 바로 제거 (브라우저 정책 상 1회면 충분)
+      document.removeEventListener("click", handleFirstInteraction);
+      document.removeEventListener("touchstart", handleFirstInteraction);
     };
 
-    if (isEnabled && !isPublic && !isAdPaused) {
-      document.addEventListener("click", handleFirstInteraction);
-      document.addEventListener("touchstart", handleFirstInteraction);
-    }
+    // 항상 클릭 리스너를 달아둠 (로그인 페이지 등에서 최초 클릭 시 context가 열리게 됨)
+    document.addEventListener("click", handleFirstInteraction);
+    document.addEventListener("touchstart", handleFirstInteraction);
 
     return () => {
       document.removeEventListener("click", handleFirstInteraction);

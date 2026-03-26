@@ -40,8 +40,8 @@ export default function FitCoinExercisePage({
   }, []);
 
   return (
-    // fc-anim-fade: index.css에 있는 페이드인 애니메이션 클래스
-    <div className="fc-anim-fade" style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: 'var(--bg)' }}>
+    // AppShell의 paddingBottom과 맞물려 정확히 100%를 채우도록 height: 100% 지정
+    <div className="fc-anim-fade" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: 'var(--bg)' }}>
 
       {/* ── 상단 헤더 ── */}
       <div style={{
@@ -76,22 +76,12 @@ export default function FitCoinExercisePage({
           </span>
         </div>
 
-        {/* 오른쪽: 포인트 + 코인 표시 */}
-        {/* TODO: point, coin은 부모에서 실제 값으로 교체 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ fontSize: '1rem' }}>🐾</span>
-            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-2)' }}>{point}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ fontSize: '1rem' }}>💗</span>
-            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-2)' }}>{coin}</span>
-          </div>
-        </div>
+        {/* 오른쪽 포인트/코인은 요구사항에 따라 완전히 삭제됨 (여백용 빈 div) */}
+        <div style={{ width: 24 }} />
       </div>
 
       {/* ── 본문 영역 ── */}
-      <div style={{ flex: 1, padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ flex: 1, padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
 
         {/* 카메라 안내 배너 (와이어프레임의 보라색 박스) */}
         <div style={{
@@ -119,31 +109,47 @@ export default function FitCoinExercisePage({
           onCountChange={handleCountChange}
         />
 
-        {/* ── 큰 카운트 숫자 (와이어프레임 기준) ── */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'baseline',
-          gap: 4,
-          padding: '8px 0 4px',
-        }}>
-          {/* 큰 숫자 */}
-          <span style={{
-            fontSize: '3.5rem',
-            fontWeight: 900,
-            color: '#C17A4A',   // 와이어프레임의 갈색 계열
-            lineHeight: 1,
+        {/* ── 큰 카운트 숫자 + 프로그레스 에리어 ── */}
+        <div style={{ padding: '0 8px 16px 8px' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'baseline',
+            gap: 4,
           }}>
-            {count}
-          </span>
-          {/* / 목표 횟수 */}
-          <span style={{
-            fontSize: '1.3rem',
-            fontWeight: 700,
-            color: 'var(--text-3)',
+            <span style={{
+              fontSize: '3.5rem',
+              fontWeight: 900,
+              color: '#C17A4A',
+              lineHeight: 1,
+            }}>
+              {count}
+            </span>
+            <span style={{
+              fontSize: '1.3rem',
+              fontWeight: 700,
+              color: 'var(--text-3)',
+            }}>
+              / {mission.targetCount}
+            </span>
+          </div>
+          
+          {/* 하단 프로그레스 바 */}
+          <div style={{
+            width: '100%',
+            height: '8px',
+            borderRadius: 'var(--radius-full)',
+            backgroundColor: 'rgba(44,62,31,0.08)',
+            marginTop: '12px'
           }}>
-            / {mission.targetCount}
-          </span>
+            <div style={{
+              width: `${Math.min((count / mission.targetCount) * 100, 100)}%`,
+              height: '100%',
+              borderRadius: 'var(--radius-full)',
+              backgroundColor: 'var(--color-primary)',
+              transition: 'width var(--transition-normal)'
+            }} />
+          </div>
         </div>
 
       </div>
