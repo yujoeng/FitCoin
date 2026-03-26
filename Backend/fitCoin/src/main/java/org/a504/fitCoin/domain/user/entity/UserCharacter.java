@@ -81,4 +81,13 @@ public class UserCharacter {
         this.status = UserCharacterStatus.GRADUATED;
         this.graduationDate = LocalDateTime.now();
     }
+
+    // 리롤: 캐릭터 교체 및 상태 초기화
+    public void reroll(Characters newCharacter) {
+        this.characters = newCharacter;
+        this.exp = 0;
+        this.status = UserCharacterStatus.GROWING;
+        this.adoptionDate = LocalDateTime.now();
+        this.lastUpdatedDate = LocalDate.now();
+    }
 }

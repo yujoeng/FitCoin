@@ -1,9 +1,13 @@
 package org.a504.fitCoin.domain.character.service;
 
 import lombok.RequiredArgsConstructor;
+import org.a504.fitCoin.domain.asset.entity.CoinLog;
+import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
+import org.a504.fitCoin.domain.asset.value.TransactionType;
 import org.a504.fitCoin.domain.character.dto.response.AdoptCharacterResponse;
 import org.a504.fitCoin.domain.character.dto.response.CharacterDexResponse;
 import org.a504.fitCoin.domain.character.dto.response.CharacterResponse;
+import org.a504.fitCoin.domain.character.dto.response.RerollCharacterResponse;
 import org.a504.fitCoin.domain.character.entity.CharacterDetail;
 import org.a504.fitCoin.domain.character.entity.Characters;
 import org.a504.fitCoin.domain.character.exception.CharacterErrorStatus;
@@ -35,6 +39,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CharacterService {
 
+    private static final int REROLL_PRICE = 1;
+
     private final CharacterJpaRepository characterJpaRepository;
     private final CharacterDetailJpaRepository characterDetailJpaRepository;
     private final UserCharacterJpaRepository userCharacterJpaRepository;
@@ -42,6 +48,7 @@ public class CharacterService {
     private final GifticonJpaRepository gifticonJpaRepository;
     private final UserGifticonJpaRepository userGifticonJpaRepository;
     private final StreakJpaRepository streakJpaRepository;
+    private final CoinLogJpaRepository coinLogJpaRepository;
 
     @Transactional
     public void addExp(User user) {
@@ -177,6 +184,45 @@ public class CharacterService {
         // 부동소수점 오차 방어 → 마지막 캐릭터 반환
         // 부동소수점: 컴퓨터가 소수를 저장할 때 미세한 오차가 생길 수 있어요
         return characters.get(characters.size() - 1);
+    }
+
+    @Transactional
+    public RerollCharacterResponse rerollCharacter(Long userId) {
+        User user = userJpaRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        // 활성 캐릭터 존재 여부 확인
+        UserCharacter userCharacter = userCharacterJpaRepository
+                .findByUserIdAndStatusNot(userId, UserCharacterStatus.GRADUATED)
+                .orElseThrow(() -> new CustomException(CharacterErrorStatus.CHARACTER_NOT_ACTIVE));
+
+        // 코인 차감
+        user.deductCoin(REROLL_PRICE);
+        coinLogJpaRepository.save(CoinLog.of(user, REROLL_PRICE, TransactionType.USE));
+
+        // 새 캐릭터 뽑기
+        List<Characters> characters = characterJpaRepository.findAll();
+        Characters newCharacter = pickByProbability(characters);
+
+        // 캐릭터 교체 및 상태 초기화
+        userCharacter.reroll(newCharacter);
+
+        // DEFAULT 이미지 URL 조회
+        String imgUrl = characterDetailJpaRepository
+                .findByCharactersIdAndStatus(newCharacter.getId(), CharacterStatus.DEFAULT)
+                .map(CharacterDetail::getUrl)
+                .orElse(null);
+
+        return new RerollCharacterResponse(
+                REROLL_PRICE,
+                user.getCoin(),
+                new RerollCharacterResponse.CharacterInfo(
+                        newCharacter.getId(),
+                        newCharacter.getName(),
+                        newCharacter.getDescription(),
+                        imgUrl
+                )
+        );
     }
 
     @Transactional(readOnly = true)
