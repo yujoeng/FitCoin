@@ -6,14 +6,12 @@ import {
     gachaFurniturePoint,
     gachaFurnitureCoin,
     gachaGifticon,
+    rerollCharacter,
 } from '@/features/store/services/storeApi';
 import {
     GachaType,
-    FurnitureGachaResult,
-    GifticonGachaResult,
+    GachaResult,
 } from '@/features/store/types/types';
-
-type GachaResult = FurnitureGachaResult | GifticonGachaResult;
 
 const useGacha = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +30,8 @@ const useGacha = () => {
                 response = await gachaFurniturePoint();
             } else if (type === 'furniture-coin') {
                 response = await gachaFurnitureCoin();
+            } else if (type === 'CHARACTER_REROLL') {
+                response = await rerollCharacter();
             } else {
                 response = await gachaGifticon();
             }
