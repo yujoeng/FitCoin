@@ -87,7 +87,7 @@ export default function StoreView({ points, coins, character }: StoreViewProps) 
                     display: 'flex',
                     flexDirection: 'column',
                     background: 'var(--color-bg)',
-                    padding: '0 16px 0px 16px',
+                    padding: '16px 16px 16px 16px',
                     gap: '4px',
                     overflowY: 'auto',
                     flex: 1,
@@ -115,8 +115,9 @@ export default function StoreView({ points, coins, character }: StoreViewProps) 
                     style={{
                         background: 'var(--color-bg-card)',
                         borderRadius: '16px',
-                        padding: '8px',
+                        padding: '16px 8px 8px 8px',
                         boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                        flexShrink: 0,
                     }}
                 >
                     <StoreGachaSection

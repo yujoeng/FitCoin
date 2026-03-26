@@ -22,14 +22,14 @@ interface GachaButtonConfig {
 const GACHA_BUTTONS: GachaButtonConfig[] = [
   {
     type: 'furniture-point',
-    label: '포인트\n가구 뽑기권',
+    label: '포인트 가구\n 뽑기권',
     icon: <Sofa size={32} color="white" />,
     priceType: 'POINT',
     itemKeyword: 'point',
   },
   {
     type: 'furniture-coin',
-    label: '코인\n가구 뽑기권',
+    label: '코인 가구\n 뽑기권',
     icon: <Armchair size={32} color="white" />,
     priceType: 'COIN',
     itemKeyword: 'coin',
@@ -58,25 +58,29 @@ export default function StoreGachaSection({
   };
 
   return (
-    <section style={{ padding: '4px 0', display: 'flex', flexDirection: 'column', flex: 1 }}>
+    <section style={{ padding: '16px 8px 4px 8px', display: 'flex', flexDirection: 'column', flex: 1 }}>
       <h2
         style={{
           color: 'var(--color-text-primary)',
           fontWeight: 700,
           fontSize: '1.1rem',
-          marginBottom: '8px',
+          marginBottom: '20px',
           paddingLeft: '2px',
+          flexShrink: 0,
         }}
       >
         뽑기
       </h2>
 
       <div
+        className="fc-hide-scrollbar"
         style={{
           display: 'flex',
           gap: '12px',
           justifyContent: 'center',
-          flexWrap: 'wrap',
+          flexWrap: 'nowrap',
+          overflowX: 'auto',
+          paddingBottom: '4px',
         }}
       >
         {GACHA_BUTTONS.map((config) => {
@@ -90,9 +94,8 @@ export default function StoreGachaSection({
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '8px',
-                flex: '1 1 0',
-                minWidth: '90px',
-                maxWidth: '120px',
+                flexShrink: 0,
+                width: '100px',
               }}
             >
               {/* 원형 버튼 */}
@@ -100,8 +103,8 @@ export default function StoreGachaSection({
                 onClick={() => onGacha(config.type)}
                 disabled={isLoading}
                 style={{
-                  width: '90px',
-                  height: '90px',
+                  width: '80px',
+                  height: '80px',
                   borderRadius: '50%',
                   border: 'none',
                   backgroundColor: 'var(--color-primary)',
@@ -114,6 +117,7 @@ export default function StoreGachaSection({
                   justifyContent: 'center',
                   boxShadow: '0 4px 12px rgba(150, 185, 91, 0.4)',
                   transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                  flexShrink: 0,
                 }}
                 onMouseEnter={(e) => {
                   if (!isLoading) {
