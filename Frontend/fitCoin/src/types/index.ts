@@ -81,6 +81,7 @@ export interface MissionStartResult {
 
 // POST /missions/complete 요청 Body
 export interface MissionCompleteRequest {
+  missionId: number;
   missionCompletedAt: string; // "2026-03-07T16:02:10" 형태
 }
 
