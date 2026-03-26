@@ -12,7 +12,7 @@ export const FITCOIN_EXERCISE_CHEST_OPEN = {
 };
 
 const CHEST_OPEN_THRESHOLD = {
-  OPEN_RATIO: 1.3,
+  OPEN_RATIO: 1.2,
   CLOSED_RATIO: 1.05,
 };
 
@@ -22,18 +22,18 @@ const CHEST_OPEN_THRESHOLD = {
 // ratio가 크면 팔이 넓게 벌어짐 = 가슴 열림
 // 완화: 1.3 / 1.05
 export function detectChestOpen(landmarks, state, setCount, setState) {
-  if (!isVisible(landmarks[15]) || !isVisible(landmarks[16])) return 0;
-  if (!hasMovement(15, landmarks[15]) && !hasMovement(16, landmarks[16])) return 0;
+  if (!isVisible(landmarks[13]) || !isVisible(landmarks[14])) return 0;
+  if (!hasMovement(13, landmarks[13]) && !hasMovement(14, landmarks[14])) return 0;
 
-  const wristDist = getDistanceX(
-    smoothLandmark(15, landmarks[15]), // LEFT_WRIST
-    smoothLandmark(16, landmarks[16])  // RIGHT_WRIST
+  const elbowDist = getDistanceX(
+    smoothLandmark(13, landmarks[13]), // LEFT_ELBOW
+    smoothLandmark(14, landmarks[14])  // RIGHT_ELBOW
   );
   const shoulderDist = getDistanceX(
     smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
     smoothLandmark(12, landmarks[12])  // RIGHT_SHOULDER
   ) || 0.01;
-  const ratio = wristDist / shoulderDist;
+  const ratio = elbowDist / shoulderDist;
 
   if (isStateHeld('chestOpen_open', ratio > CHEST_OPEN_THRESHOLD.OPEN_RATIO, 4) && state === 'closed') setState('open');
   else if (isStateHeld('chestOpen_closed', ratio < CHEST_OPEN_THRESHOLD.CLOSED_RATIO, 4) && state === 'open') {

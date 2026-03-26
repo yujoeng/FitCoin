@@ -12,8 +12,8 @@ export const FITCOIN_EXERCISE_PLANK = {
 };
 
 const PLANK_THRESHOLD = {
-  UP_ANGLE: 155,
-  DOWN_ANGLE: 140,
+  UP_ANGLE: 165,
+  DOWN_ANGLE: 150,
   HOLD_TIME_MS: 2000,
 };
 

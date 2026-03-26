@@ -65,7 +65,7 @@ export const STATE_LABELS = {
  */
 export const SQUAT_FEEDBACK = {
   // down 상태 진입 임계값 (무릎 각도 < 이 값 → down)
-  KNEE_DOWN_THRESHOLD: 100,
+  KNEE_DOWN_THRESHOLD: 90,
   // 엉덩이하방오류: 무릎을 충분히 굽히지 않음 (정상 p25=110 vs 엉덩이오류 p25=149)
   KNEE_NOT_DEEP_ENOUGH: 145,
   // 고관절오류: down 상태에서 고관절이 너무 펴짐 (정상 p25=95 vs 고관절오류 p25=130)
