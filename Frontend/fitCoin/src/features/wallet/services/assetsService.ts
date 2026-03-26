@@ -20,7 +20,7 @@ export const assetsService = {
 
   async getExchangeRate(): Promise<ExchangeRate> {
     if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
-      return { date: "2026-03-17", pointToCoinRate: 10 };
+      return { date: "2026-03-17", rate: 10000 };
     }
     const response = await apiClient.get("/assets/exchange-rate");
     // [확인 필요] 단일 객체 리턴인지 result 분리 래핑 구조인지 명세 확인 필요
@@ -28,28 +28,29 @@ export const assetsService = {
   },
 
   async getExchangeRateHistory(): Promise<{
-    period: string;
     exchangeRates: ExchangeRateHistory[];
   }> {
+    // TODO: MOCK 데이터 제거 시 함께 제거
     if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
       return {
-        period: "ALL",
         exchangeRates: [
-          { date: "2025-12-01", pointToCoinRate: 10 },
-          { date: "2026-01-01", pointToCoinRate: 11 },
-          { date: "2026-02-01", pointToCoinRate: 12 },
-          { date: "2026-03-01", pointToCoinRate: 10 },
+          { timestamp: "1735686000", rate: 10000 },
+          { timestamp: "1738364400", rate: 11000 },
+          { timestamp: "1740783600", rate: 12000 },
+          { timestamp: "1743462000", rate: 10000 },
         ],
       };
     }
-    const response = await apiClient.get(
-      "/assets/exchange-rate/history?period=ALL",
-    );
-    // [확인 필요] 응답 객체 구조 확인 필요
-    return response.data.result ?? response.data;
+    const response = await apiClient.get("/assets/exchange-rate/history");
+    const result = response.data.result;
+    // 배열 직접 내려오는 구조 대응
+    const exchangeRates: ExchangeRateHistory[] = Array.isArray(result)
+      ? result
+      : (result?.exchangeRates ?? []);
+    return { exchangeRates };
   },
 
-  async exchange(point: number): Promise<ExchangeResult> {
+  async exchange(point: number, rate: number): Promise<ExchangeResult> {
     if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
       return {
         usedPoint: point,
@@ -58,7 +59,10 @@ export const assetsService = {
       };
     }
     try {
-      const response = await apiClient.post("/assets/exchange", { point });
+      const response = await apiClient.post("/assets/exchange", {
+        point,
+        rate,
+      });
       // [확인 필요] ExchangeResult가 result 객체 내부에 있는지 단독 리턴인지 확인
       return response.data.result ?? response.data;
     } catch (error: any) {

@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { AxiosError } from "axios";
 import HomeView from "@/views/HomeView";
 import { DEFAULT_ROOM_CONFIG } from "@/data/roomThemes";
-import type { HomePageState, StreakDay } from "@/types/home";
+import type { HomePageState } from "@/types/home";
 import { getRoomLayout } from "@/features/room/services/roomApi";
 import { getCharacterMe } from "@/features/user/services/userApi";
 import { convertLayoutToRoomConfig } from "@/features/room/hooks/useRoom";
 import CharacterGraduateModal from "@/features/character/components/CharacterGraduateModal";
 import { graduateCharacter } from "@/features/character/services/characterApi";
 import { getWallet } from "@/features/wallet/services/walletApi";
+import { assetsService } from "@/features/wallet/services/assetsService";
 
 import {
   useAds,
@@ -21,28 +21,14 @@ import {
   AdExitModal,
   AdRewardModal,
 } from "@/features/ads";
+import { getRecentStreak } from "@/features/streak/services/streakApi";
+import { mapToStreakDays } from "@/utils/streakMapper";
 
-// ─── 임시 스트릭 mock 데이터 생성 ───
-function createMockStreakDays(): StreakDay[] {
-  const labels = ["월", "화", "수", "목", "금", "토", "일"];
-  const statuses: StreakDay["status"][] = [
-    "done",
-    "done",
-    "done",
-    "done",
-    "today",
-    "future",
-    "future",
-  ];
-  return labels.map((label, i) => ({ label, status: statuses[i] }));
-}
-
-// ─── 초기 상태 mock ───
 const INITIAL_STATE: HomePageState = {
-  points: 3500,
-  coins: 2,
-  streakCount: 4,
-  streakDays: createMockStreakDays(),
+  points: 0,
+  coins: 0,
+  streakCount: 0,
+  streakDays: [],
   character: null,
   roomConfig: DEFAULT_ROOM_CONFIG,
 };
@@ -54,16 +40,29 @@ export default function HomePage() {
   const [isGraduateModalOpen, setIsGraduateModalOpen] = useState(false);
   const [gifticonImageUrl, setGifticonImageUrl] = useState<string | null>(null);
 
-  // 1. 방/캐릭터 데이터 최신화 (visibilitychange 대응)
+  const refetchAssets = useCallback(async () => {
+    try {
+      const assetsData = await assetsService.getAssets();
+      setHomeState((prev) => ({
+        ...prev,
+        points: assetsData.point,
+        coins: assetsData.coin,
+      }));
+    } catch (e) {
+      console.error("자산 정보 로드 실패:", e);
+    }
+  }, []);
+
+  // 방/캐릭터/스트릭/자산 최신화 (visibilitychange 대응)
   useEffect(() => {
     const handleVisibility = async () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         try {
           const roomRes = await getRoomLayout();
           if (roomRes.isSuccess && roomRes.result) {
-            setHomeState(prev => ({
+            setHomeState((prev) => ({
               ...prev,
-              roomConfig: convertLayoutToRoomConfig(roomRes.result)
+              roomConfig: convertLayoutToRoomConfig(roomRes.result),
             }));
           }
         } catch (e) {
@@ -73,35 +72,45 @@ export default function HomePage() {
         try {
           const char = await getCharacterMe();
           if (char === null) {
-            router.push('/character/adopt');
+            router.push("/character/adopt");
             return;
           }
-          setHomeState(prev => ({
+          setHomeState((prev) => ({
             ...prev,
             character: {
               id: char.characterId.toString(),
               characterTypeId: char.characterId.toString(),
               name: "내 캐릭터",
               exp: char.currentExp,
-              stage: 1,
               isGraduatable: char.isGraduatable,
               imageSrc: char.imgUrl,
-            }
+            },
           }));
         } catch (e) {
           console.error("캐릭터 정보 로드 실패:", e);
         }
+
+        try {
+          const streakRes = await getRecentStreak();
+          setHomeState((prev) => ({
+            ...prev,
+            streakCount: streakRes.currentStreak,
+            streakDays: mapToStreakDays(streakRes.weeklyStreak),
+          }));
+        } catch (e) {
+          console.error("스트릭 정보 로드 실패:", e);
+        }
+
+        await refetchAssets();
       }
     };
 
-    // 진입 시 초기 로드
     handleVisibility();
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
+  }, [refetchAssets]);
 
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, []);
-
-  // ── 마운트 여부 확인 ──
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -112,8 +121,9 @@ export default function HomePage() {
       try {
         const walletRes = await getWallet();
         if (walletRes.isSuccess && walletRes.result?.gifticons?.length > 0) {
-          const sorted = [...walletRes.result.gifticons].sort((a, b) => 
-            new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime()
+          const sorted = [...walletRes.result.gifticons].sort(
+            (a, b) =>
+              new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime(),
           );
           setGifticonImageUrl(sorted[0].imageUrl);
         } else {
@@ -135,10 +145,10 @@ export default function HomePage() {
 
   const handleGraduateConfirm = () => {
     setIsGraduateModalOpen(false);
-    router.push('/character');
+    router.push("/character");
   };
 
-  // ── 광고 기능 훅 연동 ──
+  // 광고 기능 훅 연동
   const {
     step,
     adUrl,
@@ -151,8 +161,14 @@ export default function HomePage() {
     handleExitConfirm,
     handleExitCancel,
     handleVideoEnded,
-    handleRewardClose,
+    handleRewardClose: originalHandleRewardClose,
   } = useAds();
+
+  // 광고 보상 모달 닫을 때 자산 refetch
+  const handleRewardClose = async () => {
+    originalHandleRewardClose();
+    await refetchAssets();
+  };
 
   if (!isMounted) {
     return (

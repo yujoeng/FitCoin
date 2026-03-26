@@ -27,19 +27,7 @@ export const useAds = () => {
   const handleAdButtonClick = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-
-    // 1. 테스트용 로컬 상태 확인 (클라이언트 사이드에서만 안전)
-    if (typeof window !== 'undefined') {
-      const isWatchedToday = localStorage.getItem(WATCHED_KEY) === 'true';
-      if (isWatchedToday) {
-        setStep('already-watched');
-        setIsLoading(false);
-        return;
-      }
-    }
-
     try {
-      // 2. API 호출
       const { adWatchAvailable } = await getAdAvailability();
       if (adWatchAvailable) {
         setStep('confirm');

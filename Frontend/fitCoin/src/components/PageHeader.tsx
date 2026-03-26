@@ -18,8 +18,11 @@ export default function PageHeader({ title, onBack }: PageHeaderProps) {
     >
       {onBack && (
         <button
-          onClick={onBack}
-          aria-label="뒤로가기"
+          onClick={() => {
+            if (onBack) {
+              onBack();
+            }
+          }}          aria-label="뒤로가기"
           style={{
             background: 'none',
             border: 'none',

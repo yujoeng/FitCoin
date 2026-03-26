@@ -30,50 +30,29 @@ function SlotImage({
     slotKey: FurnitureSlot | 'character';
     objectFit?: 'contain' | 'cover';
 }) {
-    if (src) {
-        return (
-            <AppImage
-                src={src}
-                alt={alt}
-                className="fc-no-drag"
-                style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    objectFit: objectFit,
-                }}
-            />
-        );
-    }
-
-    if (slotKey === 'character' && !src) {
+    if (!src) {
         return null;
     }
 
     return (
-        <div
+        <AppImage
+            src={src}
+            alt={alt}
+            className="fc-no-drag"
             style={{
                 position: 'absolute',
                 width: '100%',
                 height: '100%',
-                background: PLACEHOLDER_COLORS[slotKey],
-                display: 'flex',
-                alignItems: slotKey === 'wallpaper' ? 'flex-end' : 'center',
-                justifyContent: slotKey === 'wallpaper' ? 'flex-end' : 'center',
-                padding: slotKey === 'wallpaper' ? '0 16px 48px 0' : '0',
-                fontSize: 'var(--text-xs)',
-                color: 'var(--color-text-secondary)',
-                opacity: 0.6,
-                borderRadius: 'var(--radius-sm)',
+                objectFit: objectFit,
             }}
-        >
-            {alt}
-        </div>
+        />
     );
 }
 
 export default function RoomView({ roomConfig, character, onEditRoom, hideEditButton = false }: RoomViewProps) {
+
     const { wallpaper, floor, window: windowItem, left, right, hidden } = roomConfig;
+    const isEmpty = !wallpaper?.imageUrl && !floor?.imageUrl && !windowItem?.imageUrl && !left?.imageUrl && !right?.imageUrl && !hidden?.imageUrl;
 
     return (
         <div
@@ -94,34 +73,21 @@ export default function RoomView({ roomConfig, character, onEditRoom, hideEditBu
             </div>
 
             {/* 레이어 2: 바닥 */}
-            <div style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 'var(--room-floor-height)',
-                zIndex: 1,
-                backgroundColor: PLACEHOLDER_COLORS.floor,
-                backgroundImage: floor?.imageUrl ? `url('${floor.imageUrl}')` : 'none',
-                backgroundRepeat: 'repeat-x',
-                backgroundPosition: 'bottom left',
-                backgroundSize: 'auto 100%',
-            }}>
-                {!floor?.imageUrl && (
-                    <div style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 'var(--text-xs)',
-                        color: 'var(--color-text-secondary)',
-                        opacity: 0.6,
-                    }}>
-                        바닥
-                    </div>
-                )}
-            </div>
+            {floor?.imageUrl && (
+                <div 
+                    style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 'var(--room-floor-height)',
+                    zIndex: 1,
+                    backgroundImage: `url('${floor.imageUrl}')`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    backgroundSize: '100% 100%',
+                }} />
+            )}
 
             {/* 레이어 2.5: 창문 */}
             <div style={{

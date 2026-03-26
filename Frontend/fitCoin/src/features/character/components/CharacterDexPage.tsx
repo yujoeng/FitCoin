@@ -2,8 +2,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { getCharacterDex, CharacterDexApiItem } from '../services/characterApi';
 import AppImage from '@/shared/components/AppImage';
+import PageHeader from '@/components/PageHeader';
 
 const TOTAL_CHARACTER_COUNT = 17;
 
@@ -15,9 +17,12 @@ function getImageSrc(item: CharacterDexApiItem, idx: ImageIndex): string {
 }
 
 export default function CharacterDexPage() {
+  const router = useRouter();
   const [dexData, setDexData] = useState<CharacterDexApiItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState<CharacterDexApiItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<CharacterDexApiItem | null>(
+    null,
+  );
   const [imageIdx, setImageIdx] = useState<ImageIndex>(0);
 
   useEffect(() => {
@@ -45,11 +50,11 @@ export default function CharacterDexPage() {
   }
 
   function prevImage() {
-    setImageIdx((prev) => (Math.max(0, prev - 1) as ImageIndex));
+    setImageIdx((prev) => Math.max(0, prev - 1) as ImageIndex);
   }
 
   function nextImage() {
-    setImageIdx((prev) => (Math.min(2, prev + 1) as ImageIndex));
+    setImageIdx((prev) => Math.min(2, prev + 1) as ImageIndex);
   }
 
   return (
@@ -70,26 +75,17 @@ export default function CharacterDexPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: 'var(--space-4, 16px) var(--space-4, 16px) var(--space-2, 8px)',
+          padding: 'var(--space-4) var(--space-4) var(--space-2)',
         }}
       >
-        <h1
-          style={{
-            fontSize: 'var(--text-xl, 20px)',
-            fontWeight: 700,
-            color: 'var(--color-text-primary, #1a1a1a)',
-            margin: 0,
-          }}
-        >
-          캐릭터 도감
-        </h1>
+        <PageHeader title='캐릭터 도감' onBack={() => router.push('/home')} />
         <span
           style={{
-            fontSize: 'var(--text-sm, 14px)',
+            fontSize: 'var(--text-sm)',
             fontWeight: 600,
-            color: 'var(--color-primary, #96B95B)',
-            background: 'var(--color-primary-light, #EDF4DB)',
-            borderRadius: 'var(--radius-full, 9999px)',
+            color: 'var(--color-primary)',
+            background: 'var(--color-primary-light)',
+            borderRadius: 'var(--radius-full)',
             padding: '4px 12px',
           }}
         >
@@ -107,93 +103,113 @@ export default function CharacterDexPage() {
         }}
       >
         {isLoading ? (
-          <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '40px 0', color: '#888' }}>
+          <div
+            style={{
+              textAlign: 'center',
+              gridColumn: '1 / -1',
+              padding: '40px 0',
+              color: '#888',
+            }}
+          >
             불러오는 중...
           </div>
         ) : (
-          Array.from({ length: TOTAL_CHARACTER_COUNT }, (_, i) => i + 1).map((id) => {
-            const item = dexData.find((d) => d.characterId === id);
-            const isCollected = !!item;
+          Array.from({ length: TOTAL_CHARACTER_COUNT }, (_, i) => i + 1).map(
+            (id) => {
+              const item = dexData.find((d) => d.characterId === id);
+              const isCollected = !!item;
 
-            return (
-              <div
-                key={id}
-                onClick={() => isCollected && item && openModal(item)}
-                style={{
-                  borderRadius: 'var(--radius-xl, 16px)',
-                  background: isCollected ? 'var(--color-bg-card, #FFFFFF)' : '#E8E8E8',
-                  border: isCollected
-                    ? '1.5px solid var(--color-border, #e0e0e0)'
-                    : '1.5px solid #D0D0D0',
-                  overflow: 'hidden',
-                  cursor: isCollected ? 'pointer' : 'default',
-                  boxShadow: isCollected ? 'var(--shadow-sm, 0 1px 4px rgba(0,0,0,0.08))' : 'none',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  padding: '12px 8px 8px',
-                  gap: '6px',
-                  transition: 'transform 0.12s ease',
-                }}
-                onMouseEnter={(e) => {
-                  if (isCollected) (e.currentTarget as HTMLDivElement).style.transform = 'scale(1.03)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.transform = 'scale(1)';
-                }}
-              >
-                {/* 이미지 영역 */}
+              return (
                 <div
+                  key={id}
+                  onClick={() => isCollected && item && openModal(item)}
                   style={{
-                    width: '72px',
-                    height: '72px',
-                    position: 'relative',
+                    borderRadius: 'var(--radius-xl, 16px)',
+                    background: isCollected
+                      ? 'var(--color-bg-card, #FFFFFF)'
+                      : '#E8E8E8',
+                    border: isCollected
+                      ? '1.5px solid var(--color-border, #e0e0e0)'
+                      : '1.5px solid #D0D0D0',
+                    overflow: 'hidden',
+                    cursor: isCollected ? 'pointer' : 'default',
+                    boxShadow: isCollected
+                      ? 'var(--shadow-sm, 0 1px 4px rgba(0,0,0,0.08))'
+                      : 'none',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    padding: '12px 8px 8px',
+                    gap: '6px',
+                    transition: 'transform 0.12s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (isCollected)
+                      (e.currentTarget as HTMLDivElement).style.transform =
+                        'scale(1.03)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.transform =
+                      'scale(1)';
                   }}
                 >
-                  {isCollected && item ? (
-                    <AppImage
-                      src={item.imgs[0]}
-                      alt={item.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        filter: 'grayscale(100%)',
-                        fontSize: '32px',
-                        color: '#AAAAAA',
-                        fontWeight: 700,
-                      }}
-                    >
-                      ?
-                    </div>
-                  )}
-                </div>
+                  {/* 이미지 영역 */}
+                  <div
+                    style={{
+                      width: '72px',
+                      height: '72px',
+                      position: 'relative',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {isCollected && item ? (
+                      <AppImage
+                        src={item.imgs[0]}
+                        alt={item.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'contain',
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          filter: 'grayscale(100%)',
+                          fontSize: '32px',
+                          color: '#AAAAAA',
+                          fontWeight: 700,
+                        }}
+                      >
+                        ?
+                      </div>
+                    )}
+                  </div>
 
-                {/* 이름 */}
-                <span
-                  style={{
-                    fontSize: 'var(--text-xs, 12px)',
-                    fontWeight: 600,
-                    color: isCollected
-                      ? 'var(--color-text-primary, #1a1a1a)'
-                      : '#AAAAAA',
-                    textAlign: 'center',
-                  }}
-                >
-                  {isCollected && item ? item.name : '???'}
-                </span>
-              </div>
-            );
-          })
+                  {/* 이름 */}
+                  <span
+                    style={{
+                      fontSize: 'var(--text-xs, 12px)',
+                      fontWeight: 600,
+                      color: isCollected
+                        ? 'var(--color-text-primary, #1a1a1a)'
+                        : '#AAAAAA',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {isCollected && item ? item.name : '???'}
+                  </span>
+                </div>
+              );
+            },
+          )
         )}
       </div>
 
@@ -268,7 +284,7 @@ export default function CharacterDexPage() {
                   lineHeight: 1,
                   padding: '4px',
                 }}
-                aria-label="닫기"
+                aria-label='닫기'
               >
                 ✕
               </button>
@@ -289,7 +305,10 @@ export default function CharacterDexPage() {
                 onClick={prevImage}
                 disabled={imageIdx === 0}
                 style={{
-                  background: imageIdx === 0 ? '#E8E8E8' : 'var(--color-primary-light, #EDF4DB)',
+                  background:
+                    imageIdx === 0
+                      ? '#E8E8E8'
+                      : 'var(--color-primary-light, #EDF4DB)',
                   border: '1px solid var(--color-border, #e0e0e0)',
                   borderRadius: '50%',
                   width: '36px',
@@ -301,7 +320,7 @@ export default function CharacterDexPage() {
                   fontSize: '16px',
                   flexShrink: 0,
                 }}
-                aria-label="이전 이미지"
+                aria-label='이전 이미지'
               >
                 ‹
               </button>
@@ -359,7 +378,10 @@ export default function CharacterDexPage() {
                 onClick={nextImage}
                 disabled={imageIdx === 2}
                 style={{
-                  background: imageIdx === 2 ? '#E8E8E8' : 'var(--color-primary-light, #EDF4DB)',
+                  background:
+                    imageIdx === 2
+                      ? '#E8E8E8'
+                      : 'var(--color-primary-light, #EDF4DB)',
                   border: '1px solid var(--color-border, #e0e0e0)',
                   borderRadius: '50%',
                   width: '36px',
@@ -371,7 +393,7 @@ export default function CharacterDexPage() {
                   fontSize: '16px',
                   flexShrink: 0,
                 }}
-                aria-label="다음 이미지"
+                aria-label='다음 이미지'
               >
                 ›
               </button>

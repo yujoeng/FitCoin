@@ -29,7 +29,6 @@ public record RegisterRequest(
         String confirmPassword,
 
         @NotNull
-        @JsonProperty("exercise_level")
         ExerciseLevel exerciseLevel,
 
         @NotBlank

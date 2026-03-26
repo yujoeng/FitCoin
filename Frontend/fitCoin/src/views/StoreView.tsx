@@ -68,7 +68,7 @@ export default function StoreView({ points, coins, character }: StoreViewProps) 
                 }}
             >
                 {/* 좌측: 페이지 타이틀 + 뒤로가기 */}
-                <PageHeader title="상점" onBack={() => router.back()} />
+                <PageHeader title="상점" onBack={() => router.push('/home')} />
 
                 {/* 우측: 포인트 / 코인 박스 */}
                 <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>

@@ -177,7 +177,7 @@ export default function SignupForm() {
         nickname,
         password,
         confirmPassword: passwordConfirm,
-        exercise_level: exerciseLevel,
+        exerciseLevel: exerciseLevel,
         token: verifyToken,
       });
 
