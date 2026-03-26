@@ -1,13 +1,13 @@
 // 뽑기 결과(가구 또는 기프티콘)와 에러 메시지를 모달로 표시하는 컴포넌트
 
 import { Sparkles, AlertCircle } from 'lucide-react';
-import { FurnitureGachaResult, GifticonGachaResult } from '@/features/store/types/types';
+import { FurnitureGachaResult, GifticonGachaResult, CharacterRerollResult, GachaResult } from '@/features/store/types/types';
 import Image from 'next/image';
 import BaseModal from '@/components/common/BaseModal';
 
 interface GachaResultModalProps {
   isOpen: boolean;
-  result: FurnitureGachaResult | GifticonGachaResult | null;
+  result: GachaResult | null;
   error: string | null;
   onClose: () => void;
 }
@@ -21,13 +21,20 @@ export default function GachaResultModal({
   if (!isOpen) return null;
 
   const isFurniture = result !== null && 'acquiredFurniture' in result;
+  const isCharacter = result !== null && 'character' in result;
+  
   const itemName = isFurniture
     ? (result as FurnitureGachaResult).acquiredFurniture.furnitureName
+    : isCharacter
+    ? (result as CharacterRerollResult).character.characterName
     : result !== null
     ? (result as GifticonGachaResult).gifticon.gifticonName
     : null;
+    
   const imageUrl = isFurniture
     ? (result as FurnitureGachaResult).acquiredFurniture.imageUrl
+    : isCharacter
+    ? (result as CharacterRerollResult).character.imageUrl
     : result !== null
     ? (result as GifticonGachaResult).gifticon.imageUrl
     : null;

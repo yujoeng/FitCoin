@@ -1,7 +1,7 @@
 // 상점의 세 가지 뽑기 버튼(포인트 가구 / 코인 가구 / 기프티콘)을 가로로 배치하는 컴포넌트
 
 import React from 'react';
-import { Sofa, Armchair, Gift } from 'lucide-react';
+import { Sofa, Armchair, Gift, Shuffle } from 'lucide-react';
 import { GachaType, StoreItem } from '@/features/store/types/types';
 import { formatPoint, formatCoin } from '@/utils/formatNumber';
 
@@ -40,6 +40,13 @@ const GACHA_BUTTONS: GachaButtonConfig[] = [
     icon: <Gift size={32} color="white" />,
     priceType: 'COIN',
     itemKeyword: 'gifticon',
+  },
+  {
+    type: 'CHARACTER_REROLL',
+    label: '캐릭터\n리롤권',
+    icon: <Shuffle size={32} color="white" />,
+    priceType: 'COIN',
+    itemKeyword: '캐릭터',
   },
 ];
 
