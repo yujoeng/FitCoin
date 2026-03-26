@@ -33,6 +33,8 @@ export default function FurniturePanel({
     return inventory.filter((item) => item.furnitureType === selectedSlot);
   }, [inventory, selectedSlot]);
 
+  console.log(inventory);
+
   return (
     <div
       style={{
@@ -49,7 +51,7 @@ export default function FurniturePanel({
     >
       {/* ── 카테고리 탭 ── */}
       <div
-        className="fc-hide-scrollbar"
+        className='fc-hide-scrollbar'
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -67,7 +69,10 @@ export default function FurniturePanel({
               padding: '16px 12px',
               fontSize: 'var(--text-sm)',
               fontWeight: selectedSlot === tab.value ? 800 : 500,
-              color: selectedSlot === tab.value ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+              color:
+                selectedSlot === tab.value
+                  ? 'var(--color-primary)'
+                  : 'var(--color-text-secondary)',
               position: 'relative',
               whiteSpace: 'nowrap',
               transition: 'color 0.2s',
@@ -94,7 +99,7 @@ export default function FurniturePanel({
 
       {/* ── 가구 목록 그리드 ── */}
       <div
-        className="fc-hide-scrollbar"
+        className='fc-hide-scrollbar'
         style={{
           flex: 1,
           overflowY: 'auto',
@@ -111,7 +116,10 @@ export default function FurniturePanel({
               padding: '12px',
               borderRadius: 'var(--radius-lg)',
               background: 'var(--color-bg)',
-              color: currentFurnitureId === null ? 'var(--color-text-disabled)' : 'var(--color-text-primary)',
+              color:
+                currentFurnitureId === null
+                  ? 'var(--color-text-disabled)'
+                  : 'var(--color-text-primary)',
               fontSize: 'var(--text-sm)',
               fontWeight: 700,
               border: '2px dashed var(--color-border-strong)',
@@ -121,7 +129,7 @@ export default function FurniturePanel({
           >
             {currentFurnitureId === null ? '현재 비어 있음' : '현재 슬롯 해제'}
           </button>
-          
+
           <button
             onClick={onClearAll}
             style={{
@@ -162,9 +170,11 @@ export default function FurniturePanel({
                   aspectRatio: '1 / 1',
                   borderRadius: 'var(--radius-xl)',
                   background: isOwned ? 'var(--color-bg-card)' : '#E8E8E8',
-                  border: isSelected 
-                    ? '2px solid var(--color-primary)' 
-                    : isOwned ? '1.5px solid var(--color-border)' : '1.5px solid #D0D0D0',
+                  border: isSelected
+                    ? '2px solid var(--color-primary)'
+                    : isOwned
+                      ? '1.5px solid var(--color-border)'
+                      : '1.5px solid #D0D0D0',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -176,9 +186,15 @@ export default function FurniturePanel({
                   boxShadow: isOwned ? 'var(--shadow-sm)' : 'none',
                   transition: 'transform 0.1s ease',
                 }}
-                onMouseDown={(e) => isOwned && (e.currentTarget.style.transform = 'scale(0.96)')}
-                onMouseUp={(e) => isOwned && (e.currentTarget.style.transform = 'scale(1)')}
-                onMouseLeave={(e) => isOwned && (e.currentTarget.style.transform = 'scale(1)')}
+                onMouseDown={(e) =>
+                  isOwned && (e.currentTarget.style.transform = 'scale(0.96)')
+                }
+                onMouseUp={(e) =>
+                  isOwned && (e.currentTarget.style.transform = 'scale(1)')
+                }
+                onMouseLeave={(e) =>
+                  isOwned && (e.currentTarget.style.transform = 'scale(1)')
+                }
               >
                 {/* 획득처 뱃지 */}
                 <div
@@ -190,8 +206,10 @@ export default function FurniturePanel({
                     fontWeight: 800,
                     padding: '2px 5px',
                     borderRadius: '4px',
-                    background: item.acquireType === 'HIDDEN' ? '#E9D5FF' : '#DBEAFE',
-                    color: item.acquireType === 'HIDDEN' ? '#7E22CE' : '#1D4ED8',
+                    background:
+                      item.acquireType === 'HIDDEN' ? '#E9D5FF' : '#DBEAFE',
+                    color:
+                      item.acquireType === 'HIDDEN' ? '#7E22CE' : '#1D4ED8',
                     zIndex: 2,
                   }}
                 >
@@ -209,19 +227,16 @@ export default function FurniturePanel({
                     padding: '4px',
                   }}
                 >
-                  {isOwned ? (
-                    <AppImage
-                      src={item.imageUrl}
-                      alt={item.furnitureName}
-                      style={{
-                        maxWidth: "100%",
-                        maxHeight: "100%",
-                        objectFit: "contain",
-                      }}
-                    />
-                  ) : (
-                    <div style={{ fontSize: '24px', color: '#AAAAAA', fontWeight: 800 }}>?</div>
-                  )}
+                  <AppImage
+                    src={item.imageUrl}
+                    alt={item.furnitureName}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      objectFit: 'contain',
+                      filter: isOwned ? 'none' : 'brightness(0) opacity(0.2)',
+                    }}
+                  />
                 </div>
 
                 {/* 가구 이름 */}
@@ -242,19 +257,21 @@ export default function FurniturePanel({
 
                 {/* 미보유 시 오버레이 SVG 아이콘 (옵션) */}
                 {!isOwned && (
-                   <div style={{ 
-                     position: 'absolute', 
-                     inset: 0, 
-                     display: 'flex', 
-                     alignItems: 'center', 
-                     justifyContent: 'center',
-                     background: 'rgba(0,0,0,0.03)',
-                     borderRadius: 'var(--radius-xl)'
-                   }}>
-                     <svg width="24" height="24" viewBox="0 0 24 24" fill="#AAA">
-                       <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                     </svg>
-                   </div>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'rgba(0,0,0,0.03)',
+                      borderRadius: 'var(--radius-xl)',
+                    }}
+                  >
+                    <svg width='24' height='24' viewBox='0 0 24 24' fill='#AAA'>
+                      <path d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z' />
+                    </svg>
+                  </div>
                 )}
               </div>
             );

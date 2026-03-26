@@ -2,20 +2,22 @@ import { useState, useCallback, useMemo } from 'react';
 import {
   getRoomLayout,
   getRoomInventory,
-  updateRoomLayout
+  updateRoomLayout,
 } from '../services/roomApi';
 import {
   RoomLayoutResponse,
   RoomLayoutRequest,
   FurnitureItem as APIFurnitureItem,
-  FurnitureType
+  FurnitureType,
 } from '../types/room';
 import { RoomConfig, FurnitureItem as HomeFurnitureItem } from '@/types/home';
 
 /**
  * RoomLayoutResponse를 RoomConfig 타입으로 변환 (RoomView 렌더링용)
  */
-export function convertLayoutToRoomConfig(layout: RoomLayoutResponse | null | undefined): RoomConfig {
+export function convertLayoutToRoomConfig(
+  layout: RoomLayoutResponse | null | undefined,
+): RoomConfig {
   if (!layout) {
     return {
       wallpaper: null,
@@ -28,7 +30,10 @@ export function convertLayoutToRoomConfig(layout: RoomLayoutResponse | null | un
   }
 
   // 가구 1개를 HomeFurnitureItem 형식으로 변환하는 내부 헬퍼
-  const toHomeItem = (item: { furnitureId: number; imageUrl: string } | null, slot: any): HomeFurnitureItem | null => {
+  const toHomeItem = (
+    item: { furnitureId: number; imageUrl: string } | null,
+    slot: any,
+  ): HomeFurnitureItem | null => {
     if (!item) return null;
     return {
       id: item.furnitureId,
@@ -68,7 +73,9 @@ const useRoom = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [currentLayout, setCurrentLayout] = useState<RoomLayoutResponse | null>(null);
+  const [currentLayout, setCurrentLayout] = useState<RoomLayoutResponse | null>(
+    null,
+  );
   const [editingLayout, setEditingLayout] = useState<RoomLayoutRequest>({
     wallpaperId: null,
     floorId: null,
@@ -86,7 +93,9 @@ const useRoom = () => {
     const findFurniture = (id: number | null) => {
       if (id === null) return null;
       const item = inventory.find((f) => f.furnitureId === id);
-      return item ? { furnitureId: item.furnitureId, imageUrl: item.imageUrl } : null;
+      return item
+        ? { furnitureId: item.furnitureId, imageUrl: item.imageUrl }
+        : null;
     };
 
     return {
@@ -124,7 +133,7 @@ const useRoom = () => {
       }
 
       if (inventoryRes.isSuccess && inventoryRes.result) {
-        setInventory(inventoryRes.result.furnitures.map(f => ({ ...f, owned: true })));
+        setInventory(inventoryRes.result.furnitures);
       } else {
         setError(inventoryRes.message || '가구 목록을 불러오지 못했어요.');
       }
@@ -139,13 +148,16 @@ const useRoom = () => {
   /**
    * 가구 선택 (미리보기용)
    */
-  const selectFurniture = useCallback((type: FurnitureType, furnitureId: number | null) => {
-    const key = toRequestKey(type);
-    setEditingLayout((prev) => ({
-      ...prev,
-      [key]: furnitureId,
-    }));
-  }, []);
+  const selectFurniture = useCallback(
+    (type: FurnitureType, furnitureId: number | null) => {
+      const key = toRequestKey(type);
+      setEditingLayout((prev) => ({
+        ...prev,
+        [key]: furnitureId,
+      }));
+    },
+    [],
+  );
 
   /**
    * 레이아웃 저장
