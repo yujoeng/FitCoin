@@ -7,13 +7,13 @@ export interface Assets {
 // 현재 환율
 export interface ExchangeRate {
   date: string;
-  pointToCoinRate: number;
+  rate: number;
 }
 
 // 환율 히스토리 항목
 export interface ExchangeRateHistory {
-  date: string;
-  pointToCoinRate: number;
+  timestamp: string;
+  rate: number;
 }
 
 // 환전 결과
