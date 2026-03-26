@@ -40,6 +40,17 @@ export interface GifticonGachaResult {
     gifticon: GifticonItem;
 }
 
+export interface CharacterRerollResult {
+    spentCoin: number;
+    character: {
+        characterId: number;
+        characterName: string;
+        description: string;
+        imageUrl: string;
+    };
+}
+
 // ── 뽑기 종류 ──
 
-export type GachaType = 'furniture-point' | 'furniture-coin' | 'gifticon';
+export type GachaType = 'furniture-point' | 'furniture-coin' | 'gifticon' | 'CHARACTER_REROLL';
+export type GachaResult = FurnitureGachaResult | GifticonGachaResult | CharacterRerollResult;
