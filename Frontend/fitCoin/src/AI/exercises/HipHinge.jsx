@@ -24,14 +24,14 @@ export function detectHipHinge(landmarks, state, setCount, setState) {
   if (!hasMovement(11, landmarks[11]) && !hasMovement(12, landmarks[12])) return 0;
 
   const leftAngle = getAngle(
-    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
-    smoothLandmark(23, landmarks[23]), // LEFT_HIP
-    smoothLandmark(25, landmarks[25])  // LEFT_KNEE
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(24, landmarks[24]), // LEFT_HIP
+    smoothLandmark(26, landmarks[26])  // LEFT_KNEE
   );
   const rightAngle = getAngle(
-    smoothLandmark(12, landmarks[12]), // RIGHT_SHOULDER
-    smoothLandmark(24, landmarks[24]), // RIGHT_HIP
-    smoothLandmark(26, landmarks[26])  // RIGHT_KNEE
+    smoothLandmark(11, landmarks[11]), // RIGHT_SHOULDER
+    smoothLandmark(23, landmarks[23]), // RIGHT_HIP
+    smoothLandmark(25, landmarks[25])  // RIGHT_KNEE
   );
   const angle = (leftAngle + rightAngle) / 2;
 

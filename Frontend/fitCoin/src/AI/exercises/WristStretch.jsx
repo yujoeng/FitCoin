@@ -22,11 +22,11 @@ const WRIST_STRETCH_THRESHOLD = {
 export function detectWristStretch(landmarks, state, setCount, setState) {
   if (!isVisible(landmarks[15]) && !isVisible(landmarks[16])) return 0;
 
-  const moveIdx = isVisible(landmarks[15]) ? 15 : 16;
+  const moveIdx = isVisible(landmarks[16]) ? 16 : 15;
   if (!hasMovement(moveIdx, landmarks[moveIdx])) return 0;
 
   const wristY = smoothLandmark(moveIdx, landmarks[moveIdx]).y;
-  const fingerIdx = moveIdx === 15 ? 19 : 20;
+  const fingerIdx = moveIdx === 16 ? 20 : 19;
   const fingerY = smoothLandmark(fingerIdx, landmarks[fingerIdx]).y;
 
   if (isStateHeld('wristStretch_bent', fingerY < wristY - WRIST_STRETCH_THRESHOLD.UP_DIFF, 4) && state === 'center') setState('bent');

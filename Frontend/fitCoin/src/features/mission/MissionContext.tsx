@@ -25,9 +25,9 @@ const MOCK_AVAILABILITY = {
 };
 
 const MOCK_CANDIDATES = [
-  { id: 1, name: '스쿼트', description: '발을 어깨너비로 벌리고 무릎을 90°까지 굽혔다 일어나세요', count: [5, 10, 20] },
-  { id: 2, name: '아령 컬', description: '팔꿈치를 몸에 붙이고 아령을 들어올렸다 내리세요', count: [8, 12, 20] },
-  { id: 3, name: '플랭크', description: '팔을 뻗어 몸을 일직선으로 유지하세요', count: [3, 5, 10] },
+  { id: 22, name: '스쿼트', description: '발을 어깨너비로 벌리고 무릎을 90°까지 굽혔다 일어나세요', count: [10, 20, 40] },
+  { id: 19, name: '아령 컬', description: '팔꿈치를 몸에 붙이고 아령을 들어올렸다 내리세요', count: [10, 20, 40] },
+  { id: 32, name: '숄더레이즈', description: '팔을 옆으로 어깨 높이까지 들어올렸다 내리세요', count: [10, 20, 40] },
 ];
 
 
@@ -63,12 +63,13 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
   const [availability, setAvailability] = useState<MissionAvailability | null>(null);
   const [candidates, setCandidates] = useState<MissionCandidate[]>([]);
   const [currentMissionId, setCurrentMissionId] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingCount, setLoadingCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const isLoading = loadingCount > 0;
 
   // ── 1. 미션 가용성 조회 ──
   const fetchAvailability = useCallback(async () => {
-    setIsLoading(true);
+    setLoadingCount((prev) => prev + 1);
     setError(null);
     try {
       if (USE_MOCK) {
@@ -80,13 +81,13 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       setError(e instanceof Error ? e.message : '미션 가용성 조회 중 오류가 발생했습니다.');
     } finally {
-      setIsLoading(false);
+      setLoadingCount((prev) => Math.max(0, prev - 1));
     }
   }, []);
 
   // ── 2. 미션 후보 조회 ──
   const fetchCandidates = useCallback(async () => {
-    setIsLoading(true);
+    setLoadingCount((prev) => prev + 1);
     setError(null);
     try {
       // TODO: AI 모듈 매핑은 FitCoinMissionPage에서 처리
@@ -99,13 +100,13 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       setError(e instanceof Error ? e.message : '미션 후보 조회 중 오류가 발생했습니다.');
     } finally {
-      setIsLoading(false);
+      setLoadingCount((prev) => Math.max(0, prev - 1));
     }
   }, []);
 
   // ── 3. 미션 시작 ──
   const startMission = useCallback(async (missionId: number) => {
-    setIsLoading(true);
+    setLoadingCount((prev) => prev + 1);
     setError(null);
     try {
       if (USE_MOCK) {
@@ -122,7 +123,7 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       setError(e instanceof Error ? e.message : '미션 시작 중 오류가 발생했습니다.');
     } finally {
-      setIsLoading(false);
+      setLoadingCount((prev) => Math.max(0, prev - 1));
     }
   }, []);
 
@@ -130,7 +131,7 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
   const completeMission = useCallback(async (): Promise<MissionCompleteResult> => {
     if (!currentMissionId) throw new Error('missionId가 없습니다. 미션을 먼저 시작해주세요.');
 
-    setIsLoading(true);
+    setLoadingCount((prev) => prev + 1);
     setError(null);
     try {
       if (USE_MOCK) {
@@ -148,7 +149,7 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
       setError(e instanceof Error ? e.message : '미션 완료 처리 중 오류가 발생했습니다.');
       throw e;
     } finally {
-      setIsLoading(false);
+      setLoadingCount((prev) => Math.max(0, prev - 1));
     }
   }, [currentMissionId]);
 

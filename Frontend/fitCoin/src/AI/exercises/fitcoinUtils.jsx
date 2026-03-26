@@ -171,7 +171,7 @@ export function resetStateHold() {
 // [고도화] 랜드마크 visibility 체크
 // ─────────────────────────────────────────
 
-const VISIBILITY_THRESHOLD = 0.5;
+const VISIBILITY_THRESHOLD = 0.3;
 
 export function isVisible(...landmarks) {
   return landmarks.every(
@@ -185,7 +185,7 @@ export function isVisible(...landmarks) {
 // hasMovement 전용 이전 좌표 저장소 (smoothLandmark 버퍼와 별도)
 const _prevLandmark = {};
 
-export function hasMovement(index, current, threshold = 0.01) {
+export function hasMovement(index, current, threshold = 0.005) {
   const prev = _prevLandmark[index];
   _prevLandmark[index] = { x: current.x, y: current.y };
 

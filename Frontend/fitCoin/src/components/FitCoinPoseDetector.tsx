@@ -226,7 +226,6 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
       </div>
 
       {/* Form Feedback: 피드백이 존재하는 운동(예: 스쿼트)에만 표시 */}
-      {(exercise as unknown as Record<string, boolean>).hasFeedback && <FormFeedback feedbackKey={feedbackKey} />}
 
       {/* Stat pills */}
       <div className="fc-stat-row">

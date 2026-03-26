@@ -25,8 +25,8 @@ export function detectNeckSideStretch(landmarks, state, setCount, setState) {
 
   const nose = smoothLandmark(0, landmarks[0]); // NOSE
   const shoulderCenterX = getCenterPoint(
-    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
-    smoothLandmark(12, landmarks[12])  // RIGHT_SHOULDER
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(11, landmarks[11])  // RIGHT_SHOULDER
   ).x;
   const diff = Math.abs(nose.x - shoulderCenterX);
 

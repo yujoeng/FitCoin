@@ -26,12 +26,12 @@ export function detectChestOpen(landmarks, state, setCount, setState) {
   if (!hasMovement(13, landmarks[13]) && !hasMovement(14, landmarks[14])) return 0;
 
   const elbowDist = getDistanceX(
-    smoothLandmark(13, landmarks[13]), // LEFT_ELBOW
-    smoothLandmark(14, landmarks[14])  // RIGHT_ELBOW
+    smoothLandmark(14, landmarks[14]), // LEFT_ELBOW
+    smoothLandmark(13, landmarks[13])  // RIGHT_ELBOW
   );
   const shoulderDist = getDistanceX(
-    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
-    smoothLandmark(12, landmarks[12])  // RIGHT_SHOULDER
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(11, landmarks[11])  // RIGHT_SHOULDER
   ) || 0.01;
   const ratio = elbowDist / shoulderDist;
 

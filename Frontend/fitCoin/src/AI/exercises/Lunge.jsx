@@ -22,18 +22,18 @@ const LUNGE_THRESHOLD = {
 export function detectLunge(landmarks, state, setCount, setState) {
   if (!isVisible(landmarks[25]) && !isVisible(landmarks[26])) return 0;
 
-  const moveIdx = isVisible(landmarks[25]) ? 25 : 26;
+  const moveIdx = isVisible(landmarks[26]) ? 26 : 25;
   if (!hasMovement(moveIdx, landmarks[moveIdx])) return 0;
 
   const leftAngle = getAngle(
-    smoothLandmark(23, landmarks[23]), // LEFT_HIP
-    smoothLandmark(25, landmarks[25]), // LEFT_KNEE
-    smoothLandmark(27, landmarks[27])  // LEFT_ANKLE
+    smoothLandmark(24, landmarks[24]), // LEFT_HIP
+    smoothLandmark(26, landmarks[26]), // LEFT_KNEE
+    smoothLandmark(28, landmarks[28])  // LEFT_ANKLE
   );
   const rightAngle = getAngle(
-    smoothLandmark(24, landmarks[24]), // RIGHT_HIP
-    smoothLandmark(26, landmarks[26]), // RIGHT_KNEE
-    smoothLandmark(28, landmarks[28])  // RIGHT_ANKLE
+    smoothLandmark(23, landmarks[23]), // RIGHT_HIP
+    smoothLandmark(25, landmarks[25]), // RIGHT_KNEE
+    smoothLandmark(27, landmarks[27])  // RIGHT_ANKLE
   );
   const angle = Math.min(leftAngle, rightAngle); // 굽힌 쪽 기준
 

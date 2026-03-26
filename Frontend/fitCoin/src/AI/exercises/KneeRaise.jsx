@@ -22,13 +22,13 @@ const KNEE_RAISE_THRESHOLD = {
 export function detectKneeRaise(landmarks, state, setCount, setState) {
   if (!isVisible(landmarks[25]) && !isVisible(landmarks[26])) return 0;
 
-  const moveIdx = isVisible(landmarks[25]) ? 25 : 26;
+  const moveIdx = isVisible(landmarks[26]) ? 26 : 25;
   if (!hasMovement(moveIdx, landmarks[moveIdx])) return 0;
 
-  const leftKnee = smoothLandmark(25, landmarks[25]);
-  const rightKnee = smoothLandmark(26, landmarks[26]);
-  const leftHip = smoothLandmark(23, landmarks[23]);
-  const rightHip = smoothLandmark(24, landmarks[24]);
+  const leftKnee = smoothLandmark(26, landmarks[26]);
+  const rightKnee = smoothLandmark(25, landmarks[25]);
+  const leftHip = smoothLandmark(24, landmarks[24]);
+  const rightHip = smoothLandmark(23, landmarks[23]);
 
   const minKneeY = Math.min(leftKnee.y, rightKnee.y);
   const minHipY = Math.min(leftHip.y, rightHip.y);

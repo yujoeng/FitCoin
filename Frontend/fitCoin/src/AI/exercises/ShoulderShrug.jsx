@@ -24,12 +24,12 @@ export function detectShoulderShrug(landmarks, state, setCount, setState) {
   if (!hasMovement(11, landmarks[11]) && !hasMovement(12, landmarks[12])) return 0;
 
   const leftDist = getDistanceY(
-    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
-    smoothLandmark(7, landmarks[7])    // LEFT_EAR
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(8, landmarks[8])    // LEFT_EAR
   );
   const rightDist = getDistanceY(
-    smoothLandmark(12, landmarks[12]), // RIGHT_SHOULDER
-    smoothLandmark(8, landmarks[8])    // RIGHT_EAR
+    smoothLandmark(11, landmarks[11]), // RIGHT_SHOULDER
+    smoothLandmark(7, landmarks[7])    // RIGHT_EAR
   );
   const dist = (leftDist + rightDist) / 2;
 

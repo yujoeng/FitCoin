@@ -24,8 +24,8 @@ export function detectSideStretch(landmarks, state, setCount, setState) {
   if (!hasMovement(11, landmarks[11]) && !hasMovement(12, landmarks[12])) return 0;
 
   const diff = getDistanceY(
-    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
-    smoothLandmark(12, landmarks[12])  // RIGHT_SHOULDER
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(11, landmarks[11])  // RIGHT_SHOULDER
   );
 
   if (isStateHeld('sideStretch_tilted', diff > SIDE_STRETCH_THRESHOLD.TILTED_DIFF, 4) && state === 'center') setState('tilted');

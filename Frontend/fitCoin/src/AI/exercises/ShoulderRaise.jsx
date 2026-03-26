@@ -12,8 +12,8 @@ export const FITCOIN_EXERCISE_SHOULDER_RAISE = {
 };
 
 const SHOULDER_RAISE_THRESHOLD = {
-  UP_ANGLE: 70,
-  DOWN_ANGLE: 35,
+  UP_ANGLE: 60,
+  DOWN_ANGLE: 40,
 };
 
 // 엉덩이(23), 어깨(11), 팔꿈치(13) 각도
@@ -24,14 +24,14 @@ export function detectShoulderRaise(landmarks, state, setCount, setState) {
   if (!hasMovement(11, landmarks[11]) && !hasMovement(12, landmarks[12])) return 0;
 
   const leftAngle = getAngle(
-    smoothLandmark(23, landmarks[23]), // LEFT_HIP
-    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
-    smoothLandmark(13, landmarks[13])  // LEFT_ELBOW
+    smoothLandmark(24, landmarks[24]), // LEFT_HIP
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(14, landmarks[14])  // LEFT_ELBOW
   );
   const rightAngle = getAngle(
-    smoothLandmark(24, landmarks[24]), // RIGHT_HIP
-    smoothLandmark(12, landmarks[12]), // RIGHT_SHOULDER
-    smoothLandmark(14, landmarks[14])  // RIGHT_ELBOW
+    smoothLandmark(23, landmarks[23]), // RIGHT_HIP
+    smoothLandmark(11, landmarks[11]), // RIGHT_SHOULDER
+    smoothLandmark(13, landmarks[13])  // RIGHT_ELBOW
   );
   const angle = Math.max(leftAngle, rightAngle); // 더 많이 올린 팔 기준
 

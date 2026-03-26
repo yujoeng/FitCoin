@@ -22,10 +22,10 @@ export function detectOverheadPress(landmarks, state, setCount, setState) {
   if (!isVisible(landmarks[15]) || !isVisible(landmarks[16])) return 0;
   if (!hasMovement(15, landmarks[15]) && !hasMovement(16, landmarks[16])) return 0;
 
-  const leftWrist = smoothLandmark(15, landmarks[15]); // LEFT_WRIST
-  const rightWrist = smoothLandmark(16, landmarks[16]); // RIGHT_WRIST
-  const leftShoulder = smoothLandmark(11, landmarks[11]); // LEFT_SHOULDER
-  const rightShoulder = smoothLandmark(12, landmarks[12]); // RIGHT_SHOULDER
+  const leftWrist = smoothLandmark(16, landmarks[16]); // LEFT_WRIST
+  const rightWrist = smoothLandmark(15, landmarks[15]); // RIGHT_WRIST
+  const leftShoulder = smoothLandmark(12, landmarks[12]); // LEFT_SHOULDER
+  const rightShoulder = smoothLandmark(11, landmarks[11]); // RIGHT_SHOULDER
 
   // 손목 y좌표가 작을수록 위 (MediaPipe: y=0이 화면 위)
   const leftUp = leftWrist.y < leftShoulder.y - OVERHEAD_PRESS_THRESHOLD.UP_OFFSET;

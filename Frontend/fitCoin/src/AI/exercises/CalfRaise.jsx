@@ -24,12 +24,12 @@ export function detectCalfRaise(landmarks, state, setCount, setState) {
   if (!hasMovement(27, landmarks[27]) && !hasMovement(28, landmarks[28])) return 0;
 
   const leftDiff = getDistanceY(
-    smoothLandmark(27, landmarks[27]), // LEFT_ANKLE
-    smoothLandmark(29, landmarks[29])  // LEFT_HEEL
+    smoothLandmark(28, landmarks[28]), // LEFT_ANKLE
+    smoothLandmark(30, landmarks[30])  // LEFT_HEEL
   );
   const rightDiff = getDistanceY(
-    smoothLandmark(28, landmarks[28]), // RIGHT_ANKLE
-    smoothLandmark(30, landmarks[30])  // RIGHT_HEEL
+    smoothLandmark(27, landmarks[27]), // RIGHT_ANKLE
+    smoothLandmark(29, landmarks[29])  // RIGHT_HEEL
   );
   const diff = (leftDiff + rightDiff) / 2;
 

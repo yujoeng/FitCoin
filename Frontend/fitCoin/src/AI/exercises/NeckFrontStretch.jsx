@@ -26,8 +26,8 @@ export function detectNeckFrontStretch(landmarks, state, setCount, setState) {
 
   const nose = smoothLandmark(0, landmarks[0]); // NOSE
   const shoulderY = getCenterPoint(
-    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
-    smoothLandmark(12, landmarks[12])  // RIGHT_SHOULDER
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(11, landmarks[11])  // RIGHT_SHOULDER
   ).y;
   const diff = nose.y - shoulderY; // 양수: 코가 어깨보다 아래(드문 케이스), 음수: 위
 
