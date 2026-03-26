@@ -13,7 +13,7 @@ export const FITCOIN_EXERCISE_NECK_SIDE_STRETCH = {
 
 const NECK_SIDE_STRETCH_THRESHOLD = {
   TILTED_DIFF: 0.06,
-  CENTER_DIFF: 0.018,
+  CENTER_DIFF: 0.03,
 };
 
 // 코(0)와 어깨 중심 X 좌표 차이로 고개 기울기 감지

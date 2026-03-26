@@ -12,8 +12,8 @@ export const FITCOIN_EXERCISE_NECK_FRONT_STRETCH = {
 };
 
 const NECK_FRONT_STRETCH_THRESHOLD = {
-  FORWARD_DIFF: -0.15,
-  CENTER_DIFF: -0.30,
+  FORWARD_DIFF: 0.1,
+  CENTER_DIFF: 0.05,
 };
 
 // 코(0)와 어깨 Y 좌표 차이

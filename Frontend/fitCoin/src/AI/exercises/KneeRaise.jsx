@@ -1,4 +1,4 @@
-import { getAngle, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
+import { smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_KNEE_RAISE = {
   id: 'kneeRaise',
@@ -12,35 +12,31 @@ export const FITCOIN_EXERCISE_KNEE_RAISE = {
 };
 
 const KNEE_RAISE_THRESHOLD = {
-  UP_ANGLE: 90,
-  DOWN_ANGLE: 150,
+  UP_DIFF: 0.05,
+  DOWN_DIFF: 0.01,
 };
 
-// 엉덩이(23/24), 무릎(25/26), 발목(27/28) — 어느 쪽이든 무릎이 굽히면 감지
-// 올릴 때: 어느 한 쪽 각도 < 90° → 'up'
-// 내릴 때: 양쪽 모두 > 150° → 카운트
+// 엉덩이(23,24), 무릎(25,26) — 무릎과 엉덩이의 Y축 차이로 감지
+// 올릴 때: min(무릎y) < min(엉덩이y) - 0.05 → 'up'
+// 내릴 때: min(무릎y) > min(엉덩이y) - 0.01 → 카운트
 export function detectKneeRaise(landmarks, state, setCount, setState) {
   if (!isVisible(landmarks[25]) && !isVisible(landmarks[26])) return 0;
 
   const moveIdx = isVisible(landmarks[25]) ? 25 : 26;
   if (!hasMovement(moveIdx, landmarks[moveIdx])) return 0;
 
-  const leftAngle = getAngle(
-    smoothLandmark(23, landmarks[23]), // LEFT_HIP
-    smoothLandmark(25, landmarks[25]), // LEFT_KNEE
-    smoothLandmark(27, landmarks[27])  // LEFT_ANKLE
-  );
-  const rightAngle = getAngle(
-    smoothLandmark(24, landmarks[24]), // RIGHT_HIP
-    smoothLandmark(26, landmarks[26]), // RIGHT_KNEE
-    smoothLandmark(28, landmarks[28])  // RIGHT_ANKLE
-  );
-  const minAngle = Math.min(leftAngle, rightAngle);
+  const leftKnee = smoothLandmark(25, landmarks[25]);
+  const rightKnee = smoothLandmark(26, landmarks[26]);
+  const leftHip = smoothLandmark(23, landmarks[23]);
+  const rightHip = smoothLandmark(24, landmarks[24]);
 
-  if (isStateHeld('kneeRaise_up', minAngle < KNEE_RAISE_THRESHOLD.UP_ANGLE, 4) && state === 'down') setState('up');
-  else if (isStateHeld('kneeRaise_down', minAngle > KNEE_RAISE_THRESHOLD.DOWN_ANGLE, 4) && state === 'up') {
+  const minKneeY = Math.min(leftKnee.y, rightKnee.y);
+  const minHipY = Math.min(leftHip.y, rightHip.y);
+
+  if (isStateHeld('kneeRaise_up', minKneeY < minHipY - KNEE_RAISE_THRESHOLD.UP_DIFF, 4) && state === 'down') setState('up');
+  else if (isStateHeld('kneeRaise_down', minKneeY > minHipY - KNEE_RAISE_THRESHOLD.DOWN_DIFF, 4) && state === 'up') {
     setState('down');
     tryIncreaseCount(setCount);
   }
-  return Math.round(minAngle);
+  return Math.round((minHipY - minKneeY) * 100);
 }
