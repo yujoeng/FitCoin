@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.character.dto.response.AdoptCharacterResponse;
 import org.a504.fitCoin.domain.character.dto.response.CharacterDexResponse;
 import org.a504.fitCoin.domain.character.dto.response.CharacterResponse;
+import org.a504.fitCoin.domain.character.dto.response.RerollCharacterResponse;
 import org.a504.fitCoin.domain.character.service.CharacterService;
 import org.a504.fitCoin.domain.auth.security.CustomUserDetails;
 import org.a504.fitCoin.global.response.ApiResponse;
@@ -61,6 +62,16 @@ public class CharacterController {
     ) {
         Long userId = userDetails.getUserId();
         List<CharacterDexResponse> response = characterService.getCharacterDex(userId);
+        return ApiResponse.onSuccess(SuccessStatus.OK, response);
+    }
+
+    @Operation(summary = "캐릭터 리롤", description = "코인을 소비하여 현재 캐릭터를 다른 캐릭터로 교체합니다.")
+    @PostMapping("/reroll")
+    public ResponseEntity<ApiResponse<RerollCharacterResponse>> rerollCharacter(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUserId();
+        RerollCharacterResponse response = characterService.rerollCharacter(userId);
         return ApiResponse.onSuccess(SuccessStatus.OK, response);
     }
 
