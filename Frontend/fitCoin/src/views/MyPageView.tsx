@@ -1,15 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Image from "next/image";
-import { Settings } from "lucide-react";
-import SettingModal from "@/components/SettingModal";
-import { useMyPage } from "@/features/user/hooks/useMyPage";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { Settings } from 'lucide-react';
+import SettingModal from '@/components/SettingModal';
+import { useMyPage } from '@/features/user/hooks/useMyPage';
 import {
   EXERCISE_LEVEL_LABELS,
   type ExerciseLevel,
-} from "@/features/user/services/userApi";
-import type { StreakItem } from "@/features/streak/services/streakApi";
+} from '@/features/user/services/userApi';
+import type { StreakItem } from '@/features/streak/services/streakApi';
+import PageHeader from '@/components/PageHeader';
 
 // ─────────────────────────────────────────────
 // 유틸리티
@@ -21,7 +23,7 @@ function buildCalendarDays(year: number, month: number) {
 }
 
 function extractDay(dateStr: string): number {
-  return parseInt(dateStr.split("-")[2], 10);
+  return parseInt(dateStr.split('-')[2], 10);
 }
 
 // ─────────────────────────────────────────────
@@ -37,23 +39,23 @@ function Modal({ onClose, children }: ModalProps) {
     <div
       onClick={onClose}
       style={{
-        position: "fixed",
+        position: 'fixed',
         inset: 0,
         zIndex: 50,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0,0,0,0.45)",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(0,0,0,0.45)',
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "320px",
-          borderRadius: "var(--radius-xl)",
-          padding: "var(--space-5)",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
-          background: "var(--color-bg-card)",
+          width: '320px',
+          borderRadius: 'var(--radius-xl)',
+          padding: 'var(--space-5)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+          background: 'var(--color-bg-card)',
         }}
       >
         {children}
@@ -77,7 +79,7 @@ interface InputFieldProps {
 
 function InputField({
   label,
-  type = "text",
+  type = 'text',
   value,
   onChange,
   onEnter,
@@ -85,7 +87,7 @@ function InputField({
   errorMessage,
 }: InputFieldProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.nativeEvent.isComposing && onEnter) {
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing && onEnter) {
       e.preventDefault();
       onEnter();
     }
@@ -93,18 +95,18 @@ function InputField({
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "var(--space-1)",
-        marginBottom: "var(--space-3)",
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-1)',
+        marginBottom: 'var(--space-3)',
       }}
     >
       <label
         style={{
-          fontSize: "var(--text-sm)",
+          fontSize: 'var(--text-sm)',
           fontWeight: 500,
-          color: "var(--color-text-secondary)",
-          fontFamily: "var(--font-body)",
+          color: 'var(--color-text-secondary)',
+          fontFamily: 'var(--font-body)',
         }}
       >
         {label}
@@ -116,24 +118,24 @@ function InputField({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         style={{
-          width: "100%",
-          borderRadius: "var(--radius-lg)",
-          padding: "var(--space-3) var(--space-4)",
-          fontSize: "var(--text-sm)",
-          outline: "none",
-          border: `1px solid ${errorMessage ? "#e05252" : "transparent"}`,
-          background: "var(--color-primary-light)",
-          color: "var(--color-text-primary)",
-          fontFamily: "var(--font-body)",
-          boxSizing: "border-box",
+          width: '100%',
+          borderRadius: 'var(--radius-lg)',
+          padding: 'var(--space-3) var(--space-4)',
+          fontSize: 'var(--text-sm)',
+          outline: 'none',
+          border: `1px solid ${errorMessage ? '#e05252' : 'transparent'}`,
+          background: 'var(--color-primary-light)',
+          color: 'var(--color-text-primary)',
+          fontFamily: 'var(--font-body)',
+          boxSizing: 'border-box',
         }}
       />
       {errorMessage && (
         <span
           style={{
-            fontSize: "var(--text-xs)",
-            color: "#e05252",
-            fontFamily: "var(--font-body)",
+            fontSize: 'var(--text-xs)',
+            color: '#e05252',
+            fontFamily: 'var(--font-body)',
           }}
         >
           {errorMessage}
@@ -149,7 +151,7 @@ function InputField({
 interface ButtonProps {
   label: string;
   onClick: () => void;
-  variant?: "primary" | "ghost" | "danger";
+  variant?: 'primary' | 'ghost' | 'danger';
   disabled?: boolean;
   fullWidth?: boolean;
 }
@@ -157,37 +159,37 @@ interface ButtonProps {
 function Button({
   label,
   onClick,
-  variant = "primary",
+  variant = 'primary',
   disabled = false,
   fullWidth = false,
 }: ButtonProps) {
   const bgMap = {
-    primary: "var(--color-primary)",
-    ghost: "var(--color-primary-light)",
-    danger: "#e05252",
+    primary: 'var(--color-primary)',
+    ghost: 'var(--color-primary-light)',
+    danger: '#e05252',
   };
   const colorMap = {
-    primary: "var(--color-text-inverse)",
-    ghost: "var(--color-text-primary)",
-    danger: "#ffffff",
+    primary: 'var(--color-text-inverse)',
+    ghost: 'var(--color-text-primary)',
+    danger: '#ffffff',
   };
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className="fc-pressable"
+      className='fc-pressable'
       style={{
-        width: fullWidth ? "100%" : "auto",
-        borderRadius: "var(--radius-lg)",
-        padding: "var(--space-3) var(--space-4)",
-        fontSize: "var(--text-sm)",
+        width: fullWidth ? '100%' : 'auto',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-3) var(--space-4)',
+        fontSize: 'var(--text-sm)',
         fontWeight: 600,
-        border: "none",
-        cursor: disabled ? "not-allowed" : "pointer",
+        border: 'none',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.5 : 1,
         background: bgMap[variant],
         color: colorMap[variant],
-        fontFamily: "var(--font-body)",
+        fontFamily: 'var(--font-body)',
       }}
     >
       {label}
@@ -210,26 +212,26 @@ function NicknameModal({
   onSubmit,
 }: NicknameModalProps) {
   const [nickname, setNickname] = useState(currentNickname);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     const trimmed = nickname.trim();
     if (!trimmed) {
-      setError("닉네임을 입력해주세요.");
+      setError('닉네임을 입력해주세요.');
       return;
     }
     if (trimmed.length < 2 || trimmed.length > 10) {
-      setError("닉네임은 2~10자로 입력해주세요.");
+      setError('닉네임은 2~10자로 입력해주세요.');
       return;
     }
     try {
       setLoading(true);
-      setError("");
+      setError('');
       await onSubmit(trimmed);
       onClose();
     } catch {
-      setError("닉네임 변경에 실패했어요. 다시 시도해주세요.");
+      setError('닉네임 변경에 실패했어요. 다시 시도해주세요.');
     } finally {
       setLoading(false);
     }
@@ -239,33 +241,33 @@ function NicknameModal({
     <Modal onClose={onClose}>
       <h3
         style={{
-          fontSize: "var(--text-base)",
+          fontSize: 'var(--text-base)',
           fontWeight: 700,
-          marginBottom: "var(--space-4)",
-          color: "var(--color-text-primary)",
-          fontFamily: "var(--font-body)",
+          marginBottom: 'var(--space-4)',
+          color: 'var(--color-text-primary)',
+          fontFamily: 'var(--font-body)',
         }}
       >
         닉네임 변경
       </h3>
       <InputField
-        label="새 닉네임"
+        label='새 닉네임'
         value={nickname}
         onChange={setNickname}
         onEnter={handleSubmit}
-        placeholder="2~10자로 입력해주세요"
+        placeholder='2~10자로 입력해주세요'
         errorMessage={error}
       />
       <div
         style={{
-          display: "flex",
-          gap: "var(--space-2)",
-          marginTop: "var(--space-2)",
+          display: 'flex',
+          gap: 'var(--space-2)',
+          marginTop: 'var(--space-2)',
         }}
       >
-        <Button label="취소" onClick={onClose} variant="ghost" fullWidth />
+        <Button label='취소' onClick={onClose} variant='ghost' fullWidth />
         <Button
-          label={loading ? "변경 중..." : "변경"}
+          label={loading ? '변경 중...' : '변경'}
           onClick={handleSubmit}
           disabled={loading}
           fullWidth
@@ -288,32 +290,32 @@ interface PasswordModalProps {
 }
 
 function PasswordModal({ onClose, onSubmit }: PasswordModalProps) {
-  const [password, setPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!password || !newPassword || !confirmPassword) {
-      setError("모든 항목을 입력해주세요.");
+      setError('모든 항목을 입력해주세요.');
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("새 비밀번호가 일치하지 않아요.");
+      setError('새 비밀번호가 일치하지 않아요.');
       return;
     }
     if (newPassword.length < 8) {
-      setError("새 비밀번호는 8자 이상이어야 해요.");
+      setError('새 비밀번호는 8자 이상이어야 해요.');
       return;
     }
     try {
       setLoading(true);
-      setError("");
+      setError('');
       await onSubmit(password, newPassword, confirmPassword);
       onClose();
     } catch {
-      setError("비밀번호 변경에 실패했어요. 현재 비밀번호를 확인해주세요.");
+      setError('비밀번호 변경에 실패했어요. 현재 비밀번호를 확인해주세요.');
     } finally {
       setLoading(false);
     }
@@ -323,32 +325,32 @@ function PasswordModal({ onClose, onSubmit }: PasswordModalProps) {
     <Modal onClose={onClose}>
       <h3
         style={{
-          fontSize: "var(--text-base)",
+          fontSize: 'var(--text-base)',
           fontWeight: 700,
-          marginBottom: "var(--space-4)",
-          color: "var(--color-text-primary)",
-          fontFamily: "var(--font-body)",
+          marginBottom: 'var(--space-4)',
+          color: 'var(--color-text-primary)',
+          fontFamily: 'var(--font-body)',
         }}
       >
         비밀번호 변경
       </h3>
       <InputField
-        label="현재 비밀번호"
-        type="password"
+        label='현재 비밀번호'
+        type='password'
         value={password}
         onChange={setPassword}
         onEnter={handleSubmit}
       />
       <InputField
-        label="새 비밀번호"
-        type="password"
+        label='새 비밀번호'
+        type='password'
         value={newPassword}
         onChange={setNewPassword}
         onEnter={handleSubmit}
       />
       <InputField
-        label="새 비밀번호 확인"
-        type="password"
+        label='새 비밀번호 확인'
+        type='password'
         value={confirmPassword}
         onChange={setConfirmPassword}
         onEnter={handleSubmit}
@@ -356,14 +358,14 @@ function PasswordModal({ onClose, onSubmit }: PasswordModalProps) {
       />
       <div
         style={{
-          display: "flex",
-          gap: "var(--space-2)",
-          marginTop: "var(--space-2)",
+          display: 'flex',
+          gap: 'var(--space-2)',
+          marginTop: 'var(--space-2)',
         }}
       >
-        <Button label="취소" onClick={onClose} variant="ghost" fullWidth />
+        <Button label='취소' onClick={onClose} variant='ghost' fullWidth />
         <Button
-          label={loading ? "변경 중..." : "변경"}
+          label={loading ? '변경 중...' : '변경'}
           onClick={handleSubmit}
           disabled={loading}
           fullWidth
@@ -382,21 +384,21 @@ interface DeleteModalProps {
 }
 
 function DeleteModal({ onClose, onSubmit }: DeleteModalProps) {
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!password) {
-      setError("비밀번호를 입력해주세요.");
+      setError('비밀번호를 입력해주세요.');
       return;
     }
     try {
       setLoading(true);
-      setError("");
+      setError('');
       await onSubmit(password);
     } catch (err: any) {
-      setError(err.message || "탈퇴 처리 중 오류가 발생했어요.");
+      setError(err.message || '탈퇴 처리 중 오류가 발생했어요.');
     } finally {
       setLoading(false);
     }
@@ -406,46 +408,46 @@ function DeleteModal({ onClose, onSubmit }: DeleteModalProps) {
     <Modal onClose={onClose}>
       <h3
         style={{
-          fontSize: "var(--text-base)",
+          fontSize: 'var(--text-base)',
           fontWeight: 700,
-          marginBottom: "var(--space-2)",
-          color: "#e05252",
-          fontFamily: "var(--font-body)",
+          marginBottom: 'var(--space-2)',
+          color: '#e05252',
+          fontFamily: 'var(--font-body)',
         }}
       >
         회원탈퇴
       </h3>
       <p
         style={{
-          fontSize: "var(--text-sm)",
-          marginBottom: "var(--space-4)",
-          color: "var(--color-text-secondary)",
-          fontFamily: "var(--font-body)",
+          fontSize: 'var(--text-sm)',
+          marginBottom: 'var(--space-4)',
+          color: 'var(--color-text-secondary)',
+          fontFamily: 'var(--font-body)',
         }}
       >
         탈퇴하면 모든 데이터가 삭제돼요. 정말 탈퇴하시겠어요?
       </p>
       <InputField
-        label="비밀번호 확인"
-        type="password"
+        label='비밀번호 확인'
+        type='password'
         value={password}
         onChange={setPassword}
         onEnter={handleSubmit}
-        placeholder="현재 비밀번호를 입력해주세요"
+        placeholder='현재 비밀번호를 입력해주세요'
         errorMessage={error}
       />
       <div
         style={{
-          display: "flex",
-          gap: "var(--space-2)",
-          marginTop: "var(--space-2)",
+          display: 'flex',
+          gap: 'var(--space-2)',
+          marginTop: 'var(--space-2)',
         }}
       >
-        <Button label="취소" onClick={onClose} variant="ghost" fullWidth />
+        <Button label='취소' onClick={onClose} variant='ghost' fullWidth />
         <Button
-          label={loading ? "처리 중..." : "탈퇴하기"}
+          label={loading ? '처리 중...' : '탈퇴하기'}
           onClick={handleSubmit}
-          variant="danger"
+          variant='danger'
           disabled={loading}
           fullWidth
         />
@@ -468,7 +470,7 @@ interface StreakCalendarProps {
   onNext: () => void;
 }
 
-const MONTH_DAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
+const MONTH_DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
 function StreakCalendar({
   year,
@@ -499,60 +501,60 @@ function StreakCalendar({
   return (
     <div
       style={{
-        borderRadius: "var(--radius-xl)",
-        padding: "var(--space-4)",
-        background: "var(--color-primary-light)",
+        borderRadius: 'var(--radius-xl)',
+        padding: 'var(--space-4)',
+        background: 'var(--color-primary-light)',
         flexShrink: 0,
-        display: "flex",
-        flexDirection: "column",
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       {/* 헤더: 이전 버튼 / 년+월 / 다음 버튼 */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "var(--space-3)",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--space-3)',
         }}
       >
         <button
           onClick={onPrev}
-          className="fc-pressable"
+          className='fc-pressable'
           style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            border: "none",
-            cursor: "pointer",
-            background: "rgba(44, 62, 31, 0.1)",
-            color: "var(--color-text-primary)",
-            fontSize: "18px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            border: 'none',
+            cursor: 'pointer',
+            background: 'rgba(44, 62, 31, 0.1)',
+            color: 'var(--color-text-primary)',
+            fontSize: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           ‹
         </button>
-        <div style={{ textAlign: "center" }}>
+        <div style={{ textAlign: 'center' }}>
           <p
             style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--color-text-secondary)",
+              fontSize: 'var(--text-xs)',
+              color: 'var(--color-text-secondary)',
               margin: 0,
-              fontFamily: "var(--font-body)",
+              fontFamily: 'var(--font-body)',
             }}
           >
             {year}
           </p>
           {/* fc-font-point: HomeView의 포인트/코인 숫자와 동일한 폰트 */}
           <p
-            className="fc-font-point"
+            className='fc-font-point'
             style={{
-              fontSize: "var(--text-2xl)",
+              fontSize: 'var(--text-2xl)',
               fontWeight: 700,
-              color: "var(--color-text-primary)",
+              color: 'var(--color-text-primary)',
               margin: 0,
               lineHeight: 1.1,
             }}
@@ -562,19 +564,19 @@ function StreakCalendar({
         </div>
         <button
           onClick={onNext}
-          className="fc-pressable"
+          className='fc-pressable'
           style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            border: "none",
-            cursor: "pointer",
-            background: "rgba(44, 62, 31, 0.1)",
-            color: "var(--color-text-primary)",
-            fontSize: "18px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            border: 'none',
+            cursor: 'pointer',
+            background: 'rgba(44, 62, 31, 0.1)',
+            color: 'var(--color-text-primary)',
+            fontSize: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           ›
@@ -584,36 +586,36 @@ function StreakCalendar({
       {/* 연속 학습일 — StreakBar 제거 후 달력 내부로 이동 */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-2)",
-          marginBottom: "var(--space-3)",
-          padding: "var(--space-2) var(--space-3)",
-          borderRadius: "var(--radius-lg)",
-          background: "rgba(44, 62, 31, 0.08)",
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-2)',
+          marginBottom: 'var(--space-3)',
+          padding: 'var(--space-2) var(--space-3)',
+          borderRadius: 'var(--radius-lg)',
+          background: 'rgba(44, 62, 31, 0.08)',
         }}
       >
         <Image
-          src="/icons/streak.png"
-          alt="학습"
+          src='/icons/streak.png'
+          alt='학습'
           width={18}
           height={18}
-          style={{ objectFit: "contain" }}
+          style={{ objectFit: 'contain' }}
           priority
           onError={(e) => {
-            e.currentTarget.src = "/icons/favicon.png";
+            e.currentTarget.src = '/icons/favicon.png';
           }}
         />
         <span
           style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "var(--text-sm)",
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-sm)',
             fontWeight: 600,
-            color: "var(--color-text-secondary)",
+            color: 'var(--color-text-secondary)',
           }}
         >
-          연속 학습{" "}
-          <span style={{ color: "var(--color-bg-dark)" }}>
+          연속 학습{' '}
+          <span style={{ color: 'var(--color-bg-dark)' }}>
             {currentStreak}일
           </span>
         </span>
@@ -622,20 +624,20 @@ function StreakCalendar({
       {/* 요일 헤더 */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          marginBottom: "var(--space-1)",
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          marginBottom: 'var(--space-1)',
         }}
       >
         {MONTH_DAY_LABELS.map((d) => (
           <div
             key={d}
             style={{
-              textAlign: "center",
-              fontSize: "var(--text-xs)",
-              padding: "var(--space-1) 0",
-              color: "var(--color-text-secondary)",
-              fontFamily: "var(--font-body)",
+              textAlign: 'center',
+              fontSize: 'var(--text-xs)',
+              padding: 'var(--space-1) 0',
+              color: 'var(--color-text-secondary)',
+              fontFamily: 'var(--font-body)',
             }}
           >
             {d}
@@ -646,9 +648,9 @@ function StreakCalendar({
       {/* 날짜 격자 */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          gap: "2px 0",
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          gap: '2px 0',
         }}
       >
         {cells.map((day, idx) => {
@@ -658,41 +660,41 @@ function StreakCalendar({
             <div
               key={day}
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "var(--space-1) 0",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 'var(--space-1) 0',
               }}
             >
               <div
                 style={{
-                  width: "30px",
-                  height: "30px",
-                  borderRadius: "var(--radius-full)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: done ? "16px" : "var(--text-xs)",
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: 'var(--radius-full)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: done ? '16px' : 'var(--text-xs)',
                   fontWeight: 500,
-                  background: done ? "var(--color-primary)" : "transparent",
-                  border: done ? "2px solid var(--color-bg-dark)" : "none",
+                  background: done ? 'var(--color-primary)' : 'transparent',
+                  border: done ? '2px solid var(--color-bg-dark)' : 'none',
                   color: done
-                    ? "var(--color-text-inverse)"
-                    : "var(--color-text-primary)",
-                  fontFamily: done ? undefined : "var(--font-body)",
-                  transition: "var(--transition-fast)",
+                    ? 'var(--color-text-inverse)'
+                    : 'var(--color-text-primary)',
+                  fontFamily: done ? undefined : 'var(--font-body)',
+                  transition: 'var(--transition-fast)',
                 }}
               >
                 {done ? (
                   <Image
-                    src="/icons/streak.png"
-                    alt="완료"
+                    src='/icons/streak.png'
+                    alt='완료'
                     width={20}
                     height={20}
-                    style={{ objectFit: "contain" }}
+                    style={{ objectFit: 'contain' }}
                     priority
                     onError={(e) => {
-                      e.currentTarget.src = "/icons/error.png";
+                      e.currentTarget.src = '/icons/error.png';
                     }}
                   />
                 ) : (
@@ -711,6 +713,7 @@ function StreakCalendar({
 // 메인 컴포넌트: MyPageView
 // ─────────────────────────────────────────────
 export default function MyPageView() {
+  const router = useRouter();
   const [settingModalOpen, setSettingModalOpen] = useState(false);
 
   const {
@@ -743,14 +746,14 @@ export default function MyPageView() {
     return (
       <div
         style={{
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "var(--color-bg)",
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--color-bg)',
         }}
       >
-        <div style={{ fontSize: "40px" }}>🐾</div>
+        <div style={{ fontSize: '40px' }}>🐾</div>
       </div>
     );
   }
@@ -760,38 +763,38 @@ export default function MyPageView() {
     return (
       <div
         style={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "var(--space-3)",
-          padding: "var(--space-5)",
-          background: "var(--color-bg)",
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 'var(--space-3)',
+          padding: 'var(--space-5)',
+          background: 'var(--color-bg)',
         }}
       >
         <p
           style={{
-            fontSize: "var(--text-sm)",
-            textAlign: "center",
-            color: "var(--color-text-secondary)",
-            fontFamily: "var(--font-body)",
+            fontSize: 'var(--text-sm)',
+            textAlign: 'center',
+            color: 'var(--color-text-secondary)',
+            fontFamily: 'var(--font-body)',
           }}
         >
           {error}
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="fc-pressable"
+          className='fc-pressable'
           style={{
-            fontSize: "var(--text-sm)",
+            fontSize: 'var(--text-sm)',
             fontWeight: 600,
-            textDecoration: "underline",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: "var(--color-primary)",
-            fontFamily: "var(--font-body)",
+            textDecoration: 'underline',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--color-primary)',
+            fontFamily: 'var(--font-body)',
           }}
         >
           다시 시도
@@ -801,9 +804,9 @@ export default function MyPageView() {
   }
 
   const levelOptions: ExerciseLevel[] = [
-    "BEGINNER",
-    "INTERMEDIATE",
-    "ADVANCED",
+    'BEGINNER',
+    'INTERMEDIATE',
+    'ADVANCED',
   ];
 
   return (
@@ -812,70 +815,77 @@ export default function MyPageView() {
       {/* paddingBottom은 AppShellProvider의 <main paddingBottom="80px">에서 이미 처리됨 — 여기서 중복 선언 금지 */}
       <div
         style={{
-          background: "var(--color-bg)",
-          maxWidth: "430px",
-          margin: "0 auto",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          overflow: "hidden",
+          background: 'var(--color-bg)',
+          maxWidth: '430px',
+          margin: '0 auto',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          overflow: 'hidden',
+          padding: 'var(--space-4)',
         }}
       >
+        <PageHeader title='마이페이지' onBack={() => router.push('/home')} />
         {/* 상단 로고 — public/logo.png */}
         <div
-          style={{ padding: "var(--space-3) var(--space-4) var(--space-2)" }}
+          style={{
+            padding: 'var(--space-3) var(--space-4) var(--space-2)',
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: 'var(--space-3)',
+          }}
         >
           <Image
-            src="/logo.png"
-            alt="FITCOIN 로고"
+            src='/logo.png'
+            alt='FITCOIN 로고'
             width={120}
             height={42}
             priority
-            className="fc-logo"
-            style={{ objectFit: "contain" }}
+            className='fc-logo'
+            style={{ objectFit: 'contain' }}
           />
         </div>
 
         <div
-          className="fc-hide-scrollbar"
+          className='fc-hide-scrollbar'
           style={{
-            padding: "0 var(--space-4)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "var(--space-4)",
+            // padding: '0 var(--space-4)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-6)',
             flex: 1,
-            overflowY: "auto",
+            overflowY: 'auto',
             minHeight: 0,
           }}
         >
           {/* ── 프로필 카드 ── */}
           <div
             style={{
-              borderRadius: "var(--radius-xl)",
-              padding: "var(--space-5)",
-              boxShadow: "var(--shadow-sm)",
-              background: "var(--color-bg-card)",
-              position: "relative",
+              borderRadius: 'var(--radius-xl)',
+              padding: 'var(--space-5)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--color-bg-card)',
+              position: 'relative',
             }}
           >
             {/* 설정 버튼 */}
             <button
               onClick={() => setSettingModalOpen(true)}
-              className="fc-pressable"
+              className='fc-pressable'
               style={{
-                position: "absolute",
-                top: "var(--space-5)",
-                right: "var(--space-5)",
+                position: 'absolute',
+                top: 'var(--space-5)',
+                right: 'var(--space-5)',
                 zIndex: 10,
-                color: "var(--color-text-secondary)",
-                padding: "var(--space-1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
+                color: 'var(--color-text-secondary)',
+                padding: 'var(--space-1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
               }}
             >
               <Settings size={22} />
@@ -883,37 +893,37 @@ export default function MyPageView() {
             {/* 캐릭터 이미지 + 정보 */}
             <div
               style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "var(--space-4)",
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 'var(--space-4)',
               }}
             >
               {/* 캐릭터 프로필 이미지 */}
               <div
                 style={{
-                  width: "72px",
-                  height: "72px",
-                  borderRadius: "50%",
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '50%',
                   flexShrink: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                  background: "var(--color-primary-light)",
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  background: 'var(--color-primary-light)',
                 }}
               >
                 {/* GET /characters/me 연동 완료 */}
                 {characterInfo?.imgUrl ? (
                   <Image
                     src={characterInfo.imgUrl}
-                    alt="내 캐릭터"
+                    alt='내 캐릭터'
                     width={72}
                     height={72}
-                    style={{ objectFit: "cover" }}
+                    style={{ objectFit: 'cover' }}
                     priority
                   />
                 ) : (
-                  <span style={{ fontSize: "36px" }}>🐾</span>
+                  <span style={{ fontSize: '36px' }}>🐾</span>
                 )}
               </div>
 
@@ -922,13 +932,13 @@ export default function MyPageView() {
                 {/* 이메일 */}
                 <p
                   style={{
-                    fontSize: "var(--text-xs)",
-                    margin: "0 0 var(--space-1)",
-                    color: "var(--color-text-disabled)",
-                    fontFamily: "var(--font-body)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
+                    fontSize: 'var(--text-xs)',
+                    margin: '0 0 var(--space-1)',
+                    color: 'var(--color-text-disabled)',
+                    fontFamily: 'var(--font-body)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {userInfo?.email}
@@ -937,39 +947,39 @@ export default function MyPageView() {
                 {/* 닉네임 + 수정 버튼 */}
                 <div
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "var(--space-2)",
-                    marginBottom: "var(--space-3)",
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                    marginBottom: 'var(--space-3)',
                   }}
                 >
                   <p
                     style={{
-                      fontSize: "var(--text-base)",
+                      fontSize: 'var(--text-base)',
                       fontWeight: 700,
                       margin: 0,
-                      color: "var(--color-text-primary)",
-                      fontFamily: "var(--font-body)",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
+                      color: 'var(--color-text-primary)',
+                      fontFamily: 'var(--font-body)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {userInfo?.nickname}
                   </p>
                   <button
                     onClick={() => setNicknameModalOpen(true)}
-                    className="fc-pressable"
+                    className='fc-pressable'
                     style={{
                       flexShrink: 0,
-                      fontSize: "var(--text-xs)",
-                      padding: "var(--space-1) var(--space-2)",
-                      borderRadius: "var(--radius-full)",
-                      border: "none",
-                      cursor: "pointer",
-                      background: "var(--color-primary-light)",
-                      color: "var(--color-primary)",
-                      fontFamily: "var(--font-body)",
+                      fontSize: 'var(--text-xs)',
+                      padding: 'var(--space-1) var(--space-2)',
+                      borderRadius: 'var(--radius-full)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: 'var(--color-primary-light)',
+                      color: 'var(--color-primary)',
+                      fontFamily: 'var(--font-body)',
                     }}
                   >
                     수정
@@ -979,44 +989,44 @@ export default function MyPageView() {
                 {/* 로그아웃 / 비밀번호 변경 / 회원탈퇴 */}
                 <div
                   style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "var(--space-2)",
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 'var(--space-2)',
                   }}
                 >
                   {[
                     {
-                      label: "로그아웃",
+                      label: '로그아웃',
                       onClick: handleLogout,
-                      bg: "var(--color-primary-light)",
-                      color: "var(--color-text-secondary)",
+                      bg: 'var(--color-primary-light)',
+                      color: 'var(--color-text-secondary)',
                     },
                     {
-                      label: "비밀번호 변경",
+                      label: '비밀번호 변경',
                       onClick: () => setPasswordModalOpen(true),
-                      bg: "var(--color-primary-light)",
-                      color: "var(--color-text-secondary)",
+                      bg: 'var(--color-primary-light)',
+                      color: 'var(--color-text-secondary)',
                     },
                     {
-                      label: "회원탈퇴",
+                      label: '회원탈퇴',
                       onClick: () => setDeleteModalOpen(true),
-                      bg: "#fde8e8",
-                      color: "#e05252",
+                      bg: '#fde8e8',
+                      color: '#e05252',
                     },
                   ].map(({ label, onClick, bg, color }) => (
                     <button
                       key={label}
                       onClick={onClick}
-                      className="fc-pressable"
+                      className='fc-pressable'
                       style={{
-                        fontSize: "var(--text-xs)",
-                        padding: "var(--space-1) var(--space-3)",
-                        borderRadius: "var(--radius-lg)",
-                        border: "none",
-                        cursor: "pointer",
+                        fontSize: 'var(--text-xs)',
+                        padding: 'var(--space-1) var(--space-3)',
+                        borderRadius: 'var(--radius-lg)',
+                        border: 'none',
+                        cursor: 'pointer',
                         background: bg,
                         color,
-                        fontFamily: "var(--font-body)",
+                        fontFamily: 'var(--font-body)',
                         fontWeight: 500,
                       }}
                     >
@@ -1030,75 +1040,75 @@ export default function MyPageView() {
             {/* ── 운동 레벨 드롭다운 ── */}
             <div
               style={{
-                marginTop: "var(--space-4)",
-                paddingTop: "var(--space-4)",
-                borderTop: "1px solid var(--color-primary-light)",
-                position: "relative",
+                marginTop: 'var(--space-4)',
+                paddingTop: 'var(--space-4)',
+                borderTop: '1px solid var(--color-primary-light)',
+                position: 'relative',
               }}
             >
               <button
                 onClick={() => setLevelDropdownOpen(!levelDropdownOpen)}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.opacity = "0.7";
+                  (e.currentTarget as HTMLButtonElement).style.opacity = '0.7';
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.opacity = "1";
+                  (e.currentTarget as HTMLButtonElement).style.opacity = '1';
                 }}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--space-2)",
-                  fontSize: "var(--text-sm)",
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                  fontSize: 'var(--text-sm)',
                   fontWeight: 500,
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: "var(--space-2) var(--space-1)",
-                  borderRadius: "var(--radius-md)",
-                  color: "var(--color-text-primary)",
-                  fontFamily: "var(--font-body)",
-                  transition: "opacity 0.1s ease",
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 'var(--space-2) var(--space-1)',
+                  borderRadius: 'var(--radius-md)',
+                  color: 'var(--color-text-primary)',
+                  fontFamily: 'var(--font-body)',
+                  transition: 'opacity 0.1s ease',
                 }}
               >
                 <span>레벨재설정</span>
                 {/* 현재 레벨 뱃지 — HomeView의 포인트/코인 뱃지 스타일 참고 */}
                 <span
                   style={{
-                    fontSize: "var(--text-xs)",
-                    padding: "var(--space-1) var(--space-2)",
-                    borderRadius: "var(--radius-full)",
-                    background: "var(--color-primary)",
-                    color: "var(--color-text-inverse)",
-                    fontFamily: "var(--font-body)",
+                    fontSize: 'var(--text-xs)',
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: 'var(--radius-full)',
+                    background: 'var(--color-primary)',
+                    color: 'var(--color-text-inverse)',
+                    fontFamily: 'var(--font-body)',
                     fontWeight: 600,
                   }}
                 >
                   {userInfo
                     ? EXERCISE_LEVEL_LABELS[userInfo.exerciseLevel]
-                    : ""}
+                    : ''}
                 </span>
                 {/* SVG 쉐브론 아이콘 — 열림/닫힘에 따라 180도 회전 */}
                 <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+                  width='16'
+                  height='16'
+                  viewBox='0 0 16 16'
+                  fill='none'
+                  xmlns='http://www.w3.org/2000/svg'
                   style={{
                     flexShrink: 0,
                     transform: levelDropdownOpen
-                      ? "rotate(180deg)"
-                      : "rotate(0deg)",
-                    transition: "transform 0.2s ease",
-                    color: "var(--color-text-secondary)",
+                      ? 'rotate(180deg)'
+                      : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease',
+                    color: 'var(--color-text-secondary)',
                   }}
                 >
                   <path
-                    d="M4 6L8 10L12 6"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    d='M4 6L8 10L12 6'
+                    stroke='currentColor'
+                    strokeWidth='1.8'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
                   />
                 </svg>
               </button>
@@ -1106,16 +1116,16 @@ export default function MyPageView() {
               {levelDropdownOpen && (
                 <div
                   style={{
-                    position: "absolute",
+                    position: 'absolute',
                     left: 0,
-                    top: "40px",
-                    borderRadius: "var(--radius-lg)",
-                    boxShadow: "var(--shadow-sm)",
+                    top: '40px',
+                    borderRadius: 'var(--radius-lg)',
+                    boxShadow: 'var(--shadow-sm)',
                     zIndex: 10,
-                    overflow: "hidden",
-                    minWidth: "120px",
-                    background: "var(--color-bg-card)",
-                    border: "1px solid var(--color-primary-light)",
+                    overflow: 'hidden',
+                    minWidth: '120px',
+                    background: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-primary-light)',
                   }}
                 >
                   {levelOptions.map((level) => (
@@ -1130,32 +1140,32 @@ export default function MyPageView() {
                           await handleLevelUpdate(level);
                         } catch (e) {
                           // 에러 발생 시 처리 (필요 시)
-                          console.error("레벨 변경 실패", e);
+                          console.error('레벨 변경 실패', e);
                         }
                       }}
-                      className="fc-pressable"
+                      className='fc-pressable'
                       style={{
-                        width: "100%",
-                        textAlign: "left",
-                        padding: "var(--space-3) var(--space-4)",
-                        fontSize: "var(--text-sm)",
-                        border: "none",
-                        cursor: "pointer",
-                        fontFamily: "var(--font-body)",
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: 'var(--space-3) var(--space-4)',
+                        fontSize: 'var(--text-sm)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontFamily: 'var(--font-body)',
                         color:
                           userInfo?.exerciseLevel === level
-                            ? "var(--color-primary)"
-                            : "var(--color-text-primary)",
+                            ? 'var(--color-primary)'
+                            : 'var(--color-text-primary)',
                         fontWeight:
                           userInfo?.exerciseLevel === level ? 700 : 400,
                         background:
                           userInfo?.exerciseLevel === level
-                            ? "var(--color-primary-light)"
-                            : "transparent",
+                            ? 'var(--color-primary-light)'
+                            : 'transparent',
                       }}
                     >
                       {EXERCISE_LEVEL_LABELS[level]}
-                      {userInfo?.exerciseLevel === level && " ✓"}
+                      {userInfo?.exerciseLevel === level && ' ✓'}
                     </button>
                   ))}
                 </div>
