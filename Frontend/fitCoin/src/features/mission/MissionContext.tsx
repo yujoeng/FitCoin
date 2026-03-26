@@ -62,6 +62,7 @@ const MissionContext = createContext<MissionContextValue | null>(null);
 export function MissionProvider({ children }: { children: React.ReactNode }) {
   const [availability, setAvailability] = useState<MissionAvailability | null>(null);
   const [candidates, setCandidates] = useState<MissionCandidate[]>([]);
+  const [currentMissionId, setCurrentMissionId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -109,12 +110,15 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
     try {
       if (USE_MOCK) {
         // mock branch
+        setCurrentMissionId(missionId);
       } else {
+        console.log("startMission 호출됨, missionId:", missionId);
         const body: MissionStartRequest = {
           missionId,
-          missionStartedAt: new Date().toISOString().slice(0, 19), // "2026-03-12T22:00:00"
+          missionStartedAt: new Date().toISOString(), // "2026-03-12T22:00:00"
         };
         await apiStartMission(body);
+        setCurrentMissionId(missionId);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : '미션 시작 중 오류가 발생했습니다.');
@@ -125,16 +129,21 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
 
   // ── 4. 미션 완료 ──
   const completeMission = useCallback(async (): Promise<MissionCompleteResult> => {
+    if (!currentMissionId) throw new Error('missionId가 없습니다. 미션을 먼저 시작해주세요.');
+
     setIsLoading(true);
     setError(null);
     try {
       if (USE_MOCK) {
+        setCurrentMissionId(null);
         return MOCK_COMPLETE_RESULT;
       }
       const body: MissionCompleteRequest = {
-        missionCompletedAt: new Date().toISOString().slice(0, 19),
+        missionId: currentMissionId,
+        missionCompletedAt: new Date().toISOString(),
       };
       const result = await apiCompleteMission(body);
+      setCurrentMissionId(null);
       return result;
     } catch (e) {
       setError(e instanceof Error ? e.message : '미션 완료 처리 중 오류가 발생했습니다.');
@@ -142,7 +151,7 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentMissionId]);
 
   return (
     <MissionContext.Provider
