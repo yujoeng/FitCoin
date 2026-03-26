@@ -1,4 +1,4 @@
-import { getAngle } from './fitcoinUtils';
+import { getAngle, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_BICEP_CURL = {
   id: 'bicepCurl',
@@ -20,22 +20,27 @@ const BICEP_CURL_THRESHOLD = {
 // 올릴 때: 팔꿈치 각도 < 60° → 'up'
 // 내릴 때: 팔꿈치 각도 > 145° → 카운트
 export function detectBicepCurl(landmarks, state, setCount, setState) {
+  if (!isVisible(landmarks[15]) && !isVisible(landmarks[16])) return 0;
+
+  const moveIdx = isVisible(landmarks[15]) ? 15 : 16;
+  if (!hasMovement(moveIdx, landmarks[moveIdx])) return 0;
+
   const leftAngle = getAngle(
-    landmarks[11], // LEFT_SHOULDER
-    landmarks[13], // LEFT_ELBOW
-    landmarks[15]  // LEFT_WRIST
+    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
+    smoothLandmark(13, landmarks[13]), // LEFT_ELBOW
+    smoothLandmark(15, landmarks[15])  // LEFT_WRIST
   );
   const rightAngle = getAngle(
-    landmarks[12], // RIGHT_SHOULDER
-    landmarks[14], // RIGHT_ELBOW
-    landmarks[16]  // RIGHT_WRIST
+    smoothLandmark(12, landmarks[12]), // RIGHT_SHOULDER
+    smoothLandmark(14, landmarks[14]), // RIGHT_ELBOW
+    smoothLandmark(16, landmarks[16])  // RIGHT_WRIST
   );
   const angle = Math.min(leftAngle, rightAngle); // 어느 팔이든 먼저 닿으면
 
-  if (angle < BICEP_CURL_THRESHOLD.UP_ANGLE && state === 'down') setState('up');
-  else if (angle > BICEP_CURL_THRESHOLD.DOWN_ANGLE && state === 'up') {
+  if (isStateHeld('bicepCurl_up', angle < BICEP_CURL_THRESHOLD.UP_ANGLE, 4) && state === 'down') setState('up');
+  else if (isStateHeld('bicepCurl_down', angle > BICEP_CURL_THRESHOLD.DOWN_ANGLE, 4) && state === 'up') {
     setState('down');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
   return Math.round(angle);
 }

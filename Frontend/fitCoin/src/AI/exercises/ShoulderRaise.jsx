@@ -1,4 +1,4 @@
-import { getAngle } from './fitcoinUtils';
+import { getAngle, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_SHOULDER_RAISE = {
   id: 'shoulderRaise',
@@ -20,22 +20,25 @@ const SHOULDER_RAISE_THRESHOLD = {
 // 올릴 때: 각도 > 70° → 'up'
 // 내릴 때: 각도 < 30° → 카운트 (너무 작은 30→완화)
 export function detectShoulderRaise(landmarks, state, setCount, setState) {
+  if (!isVisible(landmarks[11]) && !isVisible(landmarks[12])) return 0;
+  if (!hasMovement(11, landmarks[11]) && !hasMovement(12, landmarks[12])) return 0;
+
   const leftAngle = getAngle(
-    landmarks[23], // LEFT_HIP
-    landmarks[11], // LEFT_SHOULDER
-    landmarks[13]  // LEFT_ELBOW
+    smoothLandmark(23, landmarks[23]), // LEFT_HIP
+    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
+    smoothLandmark(13, landmarks[13])  // LEFT_ELBOW
   );
   const rightAngle = getAngle(
-    landmarks[24], // RIGHT_HIP
-    landmarks[12], // RIGHT_SHOULDER
-    landmarks[14]  // RIGHT_ELBOW
+    smoothLandmark(24, landmarks[24]), // RIGHT_HIP
+    smoothLandmark(12, landmarks[12]), // RIGHT_SHOULDER
+    smoothLandmark(14, landmarks[14])  // RIGHT_ELBOW
   );
   const angle = Math.max(leftAngle, rightAngle); // 더 많이 올린 팔 기준
 
-  if (angle > SHOULDER_RAISE_THRESHOLD.UP_ANGLE && state === 'down') setState('up');
-  else if (angle < SHOULDER_RAISE_THRESHOLD.DOWN_ANGLE && state === 'up') {
+  if (isStateHeld('shoulderRaise_up', angle > SHOULDER_RAISE_THRESHOLD.UP_ANGLE, 4) && state === 'down') setState('up');
+  else if (isStateHeld('shoulderRaise_down', angle < SHOULDER_RAISE_THRESHOLD.DOWN_ANGLE, 4) && state === 'up') {
     setState('down');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
   return Math.round(angle);
 }

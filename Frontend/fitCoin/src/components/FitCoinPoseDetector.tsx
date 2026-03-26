@@ -153,12 +153,43 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
       <Webcam ref={webcamRef} style={{ display: 'none' }} />
 
       {/* Canvas */}
-      <div className="fc-canvas-wrap" style={{ marginBottom: 10 }}>
-        <canvas ref={canvasRef} width={640} height={480} />
+      <div className="fc-canvas-wrap" style={{ 
+        marginBottom: 10,
+        width: '100%',
+        aspectRatio: '4/3',
+        overflow: 'hidden',
+        borderRadius: 12,
+        backgroundColor: '#000',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative'
+      }}>
+        <canvas 
+          ref={canvasRef} 
+          width={640} 
+          height={480} 
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            transform: 'scaleX(-1)' // 거울 화면 효과 반영
+          }} 
+        />
         {loading && (
-          <div className="fc-canvas-overlay">
-            <Activity size={28} color="var(--primary)" className="fc-pulse" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-3)' }}>
+          <div className="fc-canvas-overlay" style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            gap: 8,
+            color: '#fff'
+          }}>
+            <Activity size={28} color="var(--color-primary)" className="fc-pulse" />
+            <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
               모델 로딩 중...
             </span>
           </div>

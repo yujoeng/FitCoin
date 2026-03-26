@@ -1,4 +1,4 @@
-import { getAngle } from './fitcoinUtils';
+import { getAngle, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_CALF_RAISE = {
   id: 'calfRaise',
@@ -20,22 +20,25 @@ const CALF_RAISE_THRESHOLD = {
 // 올라갈 때: 발목 각도 < 75° → 'up'
 // 내려올 때: 발목 각도 > 95° → 카운트
 export function detectCalfRaise(landmarks, state, setCount, setState) {
+  if (!isVisible(landmarks[27]) || !isVisible(landmarks[28])) return 0;
+  if (!hasMovement(27, landmarks[27]) && !hasMovement(28, landmarks[28])) return 0;
+
   const leftAngle = getAngle(
-    landmarks[25], // LEFT_KNEE
-    landmarks[27], // LEFT_ANKLE
-    landmarks[31]  // LEFT_FOOT_INDEX
+    smoothLandmark(25, landmarks[25]), // LEFT_KNEE
+    smoothLandmark(27, landmarks[27]), // LEFT_ANKLE
+    smoothLandmark(31, landmarks[31])  // LEFT_FOOT_INDEX
   );
   const rightAngle = getAngle(
-    landmarks[26], // RIGHT_KNEE
-    landmarks[28], // RIGHT_ANKLE
-    landmarks[32]  // RIGHT_FOOT_INDEX
+    smoothLandmark(26, landmarks[26]), // RIGHT_KNEE
+    smoothLandmark(28, landmarks[28]), // RIGHT_ANKLE
+    smoothLandmark(32, landmarks[32])  // RIGHT_FOOT_INDEX
   );
   const angle = (leftAngle + rightAngle) / 2;
 
-  if (angle < CALF_RAISE_THRESHOLD.UP_ANGLE && state === 'down') setState('up');
-  else if (angle > CALF_RAISE_THRESHOLD.DOWN_ANGLE && state === 'up') {
+  if (isStateHeld('calfRaise_up', angle < CALF_RAISE_THRESHOLD.UP_ANGLE, 4) && state === 'down') setState('up');
+  else if (isStateHeld('calfRaise_down', angle > CALF_RAISE_THRESHOLD.DOWN_ANGLE, 4) && state === 'up') {
     setState('down');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
   return Math.round(angle);
 }

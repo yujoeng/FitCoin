@@ -1,4 +1,4 @@
-import { getCenterPoint, getDistanceY } from './fitcoinUtils';
+import { getCenterPoint, getDistanceY, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_OVERHEAD_PRESS = {
   id: 'overheadPress',
@@ -19,10 +19,13 @@ const OVERHEAD_PRESS_THRESHOLD = {
 // 손목(15/16)이 어깨(11/12)보다 위에 있으면 'up'
 // 손목이 어깨보다 아래로 내려오면 카운트
 export function detectOverheadPress(landmarks, state, setCount, setState) {
-  const leftWrist = landmarks[15]; // LEFT_WRIST
-  const rightWrist = landmarks[16]; // RIGHT_WRIST
-  const leftShoulder = landmarks[11]; // LEFT_SHOULDER
-  const rightShoulder = landmarks[12]; // RIGHT_SHOULDER
+  if (!isVisible(landmarks[15]) || !isVisible(landmarks[16])) return 0;
+  if (!hasMovement(15, landmarks[15]) && !hasMovement(16, landmarks[16])) return 0;
+
+  const leftWrist = smoothLandmark(15, landmarks[15]); // LEFT_WRIST
+  const rightWrist = smoothLandmark(16, landmarks[16]); // RIGHT_WRIST
+  const leftShoulder = smoothLandmark(11, landmarks[11]); // LEFT_SHOULDER
+  const rightShoulder = smoothLandmark(12, landmarks[12]); // RIGHT_SHOULDER
 
   // 손목 y좌표가 작을수록 위 (MediaPipe: y=0이 화면 위)
   const leftUp = leftWrist.y < leftShoulder.y - OVERHEAD_PRESS_THRESHOLD.UP_OFFSET;
@@ -37,10 +40,10 @@ export function detectOverheadPress(landmarks, state, setCount, setState) {
   const shoulderCenter = getCenterPoint(leftShoulder, rightShoulder);
   const dispY = Math.round(getDistanceY(wristCenter, shoulderCenter) * 100);
 
-  if (bothUp && state === 'down') setState('up');
-  else if (bothDown && state === 'up') {
+  if (isStateHeld('overheadPress_up', bothUp, 4) && state === 'down') setState('up');
+  else if (isStateHeld('overheadPress_down', bothDown, 4) && state === 'up') {
     setState('down');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
   return dispY;
 }

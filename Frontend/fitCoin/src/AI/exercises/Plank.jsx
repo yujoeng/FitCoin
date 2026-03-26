@@ -1,4 +1,4 @@
-import { getAngle } from './fitcoinUtils';
+import { getAngle, smoothLandmark, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_PLANK = {
   id: 'plank',
@@ -23,13 +23,16 @@ let plankTimer = null;
 let plankHolding = false;
 
 export function detectPlank(landmarks, state, setCount, setState) {
+  if (!isVisible(landmarks[11]) || !isVisible(landmarks[23]) || !isVisible(landmarks[27])) return 0;
+  if (!hasMovement(23, landmarks[23])) return 0;
+
   const angle = getAngle(
-    landmarks[11], // LEFT_SHOULDER
-    landmarks[23], // LEFT_HIP
-    landmarks[27]  // LEFT_ANKLE
+    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
+    smoothLandmark(23, landmarks[23]), // LEFT_HIP
+    smoothLandmark(27, landmarks[27])  // LEFT_ANKLE
   );
 
-  if (angle > PLANK_THRESHOLD.UP_ANGLE && state === 'down') {
+  if (isStateHeld('plank_up', angle > PLANK_THRESHOLD.UP_ANGLE, 4) && state === 'down') {
     setState('up');
     plankHolding = true;
     if (!plankTimer) {
@@ -42,7 +45,7 @@ export function detectPlank(landmarks, state, setCount, setState) {
         setState('down');
       }, PLANK_THRESHOLD.HOLD_TIME_MS); // 2초 유지해야 1카운트
     }
-  } else if (angle < PLANK_THRESHOLD.DOWN_ANGLE && state === 'up') {
+  } else if (isStateHeld('plank_down', angle < PLANK_THRESHOLD.DOWN_ANGLE, 4) && state === 'up') {
     setState('down');
     plankHolding = false;
     if (plankTimer) { clearTimeout(plankTimer); plankTimer = null; }

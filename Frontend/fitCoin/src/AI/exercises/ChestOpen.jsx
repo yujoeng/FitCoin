@@ -1,4 +1,4 @@
-import { getDistanceX } from './fitcoinUtils';
+import { getDistanceX, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_CHEST_OPEN = {
   id: 'chestOpen',
@@ -22,20 +22,23 @@ const CHEST_OPEN_THRESHOLD = {
 // ratio가 크면 팔이 넓게 벌어짐 = 가슴 열림
 // 완화: 1.3 / 1.05
 export function detectChestOpen(landmarks, state, setCount, setState) {
+  if (!isVisible(landmarks[15]) || !isVisible(landmarks[16])) return 0;
+  if (!hasMovement(15, landmarks[15]) && !hasMovement(16, landmarks[16])) return 0;
+
   const wristDist = getDistanceX(
-    landmarks[15], // LEFT_WRIST
-    landmarks[16]  // RIGHT_WRIST
+    smoothLandmark(15, landmarks[15]), // LEFT_WRIST
+    smoothLandmark(16, landmarks[16])  // RIGHT_WRIST
   );
   const shoulderDist = getDistanceX(
-    landmarks[11], // LEFT_SHOULDER
-    landmarks[12]  // RIGHT_SHOULDER
+    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
+    smoothLandmark(12, landmarks[12])  // RIGHT_SHOULDER
   ) || 0.01;
   const ratio = wristDist / shoulderDist;
 
-  if (ratio > CHEST_OPEN_THRESHOLD.OPEN_RATIO && state === 'closed') setState('open');
-  else if (ratio < CHEST_OPEN_THRESHOLD.CLOSED_RATIO && state === 'open') {
+  if (isStateHeld('chestOpen_open', ratio > CHEST_OPEN_THRESHOLD.OPEN_RATIO, 4) && state === 'closed') setState('open');
+  else if (isStateHeld('chestOpen_closed', ratio < CHEST_OPEN_THRESHOLD.CLOSED_RATIO, 4) && state === 'open') {
     setState('closed');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
   return Math.round(ratio * 100);
 }

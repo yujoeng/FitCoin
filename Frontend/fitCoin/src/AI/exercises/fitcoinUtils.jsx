@@ -128,6 +128,43 @@ export function resetCooldown() {
 export function resetDetectionState() {
   resetSmoothingBuffer();
   resetCooldown();
+  resetStateHold();
+}
+
+// ─────────────────────────────────────────
+// [고도화] 상태 유지 확인 (순간 인식 방지)
+// ─────────────────────────────────────────
+
+// 각 운동별로 현재 상태가 몇 프레임 동안 유지됐는지 저장
+const _stateHoldCount = {};
+
+/**
+ * 특정 조건이 연속으로 REQUIRED_FRAMES 이상 만족될 때만 true를 반환한다.
+ * 조건이 끊기면 카운터를 초기화한다.
+ *
+ * 사용 예시:
+ *   if (isStateHeld('squat_down', angle < 90, 5)) setState('down');
+ *
+ * @param {string} key - 운동별 고유 키 (예: 'squat_down', 'shoulderRaise_up')
+ * @param {boolean} condition - 매 프레임 평가할 조건
+ * @param {number} requiredFrames - 몇 프레임 연속으로 조건을 만족해야 하는지 (기본값 4)
+ * @returns {boolean} - requiredFrames 이상 연속 만족 시 true
+ */
+export function isStateHeld(key, condition, requiredFrames = 4) {
+  if (!condition) {
+    _stateHoldCount[key] = 0;
+    return false;
+  }
+  _stateHoldCount[key] = (_stateHoldCount[key] ?? 0) + 1;
+  return _stateHoldCount[key] >= requiredFrames;
+}
+
+/**
+ * 운동 전환 시 상태 유지 카운터도 초기화
+ * resetDetectionState() 내부에서 호출하도록 추가
+ */
+export function resetStateHold() {
+  Object.keys(_stateHoldCount).forEach((k) => delete _stateHoldCount[k]);
 }
 
 // ─────────────────────────────────────────

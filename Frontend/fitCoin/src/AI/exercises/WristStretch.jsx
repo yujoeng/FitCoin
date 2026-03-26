@@ -1,4 +1,4 @@
-import { getAngle } from './fitcoinUtils';
+import { getAngle, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_WRIST_STRETCH = {
   id: 'wristStretch',
@@ -20,22 +20,27 @@ const WRIST_STRETCH_THRESHOLD = {
 // 꺾임: 각도 < 150° → 'bent'
 // 펴짐: 각도 > 170° → 카운트
 export function detectWristStretch(landmarks, state, setCount, setState) {
+  if (!isVisible(landmarks[15]) && !isVisible(landmarks[16])) return 0;
+
+  const moveIdx = isVisible(landmarks[15]) ? 15 : 16;
+  if (!hasMovement(moveIdx, landmarks[moveIdx])) return 0;
+
   const leftAngle = getAngle(
-    landmarks[13], // LEFT_ELBOW
-    landmarks[15], // LEFT_WRIST
-    landmarks[19]  // LEFT_INDEX
+    smoothLandmark(13, landmarks[13]), // LEFT_ELBOW
+    smoothLandmark(15, landmarks[15]), // LEFT_WRIST
+    smoothLandmark(19, landmarks[19])  // LEFT_INDEX
   );
   const rightAngle = getAngle(
-    landmarks[14], // RIGHT_ELBOW
-    landmarks[16], // RIGHT_WRIST
-    landmarks[20]  // RIGHT_INDEX
+    smoothLandmark(14, landmarks[14]), // RIGHT_ELBOW
+    smoothLandmark(16, landmarks[16]), // RIGHT_WRIST
+    smoothLandmark(20, landmarks[20])  // RIGHT_INDEX
   );
   const angle = Math.min(leftAngle, rightAngle);
 
-  if (angle < WRIST_STRETCH_THRESHOLD.BENT_ANGLE && state === 'center') setState('bent');
-  else if (angle > WRIST_STRETCH_THRESHOLD.CENTER_ANGLE && state === 'bent') {
+  if (isStateHeld('wristStretch_bent', angle < WRIST_STRETCH_THRESHOLD.BENT_ANGLE, 4) && state === 'center') setState('bent');
+  else if (isStateHeld('wristStretch_center', angle > WRIST_STRETCH_THRESHOLD.CENTER_ANGLE, 4) && state === 'bent') {
     setState('center');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
   return Math.round(angle);
 }
