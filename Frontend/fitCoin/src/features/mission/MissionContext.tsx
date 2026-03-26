@@ -112,7 +112,6 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
         // mock branch
         setCurrentMissionId(missionId);
       } else {
-        console.log("startMission 호출됨, missionId:", missionId);
         const body: MissionStartRequest = {
           missionId,
           missionStartedAt: new Date().toISOString(), // "2026-03-12T22:00:00"
