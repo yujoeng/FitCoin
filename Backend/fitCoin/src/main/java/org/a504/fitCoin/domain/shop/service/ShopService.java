@@ -5,7 +5,8 @@ import org.a504.fitCoin.domain.asset.entity.CoinLog;
 import org.a504.fitCoin.domain.asset.entity.PointLog;
 import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.PointLogJpaRepository;
-import org.a504.fitCoin.domain.asset.value.TransactionType;
+import org.a504.fitCoin.domain.asset.value.CoinReason;
+import org.a504.fitCoin.domain.asset.value.PointReason;
 import org.a504.fitCoin.domain.room.entity.Furniture;
 import org.a504.fitCoin.domain.room.repository.FurnitureJpaRepository;
 import org.a504.fitCoin.domain.room.value.FurniturePosition;
@@ -65,7 +66,7 @@ public class ShopService {
 
         int price = ShopItem.POINT_FURNITURE_DRAW.getPrice();
         user.deductPoint(price);
-        pointLogJpaRepository.save(PointLog.of(user, price, TransactionType.USE));
+        pointLogJpaRepository.save(PointLog.of(user, price, PointReason.FURNITURE_GACHA));
 
         // 포인트 가구 중 랜덤 선택
         List<Furniture> candidates = furnitureJpaRepository.findAllByType(PurchaseType.POINT);
@@ -98,7 +99,7 @@ public class ShopService {
 
         int price = ShopItem.COIN_FURNITURE_DRAW.getPrice();
         user.deductCoin(price);
-        coinLogJpaRepository.save(CoinLog.of(user, price, TransactionType.USE));
+        coinLogJpaRepository.save(CoinLog.of(user, price, CoinReason.FURNITURE_GACHA));
 
         // 코인 가구 중 랜덤 선택
         List<Furniture> candidates = furnitureJpaRepository.findAllByType(PurchaseType.COIN);
@@ -137,7 +138,7 @@ public class ShopService {
 
         int price = ShopItem.COIN_GIFTICON_DRAW.getPrice();
         user.deductCoin(price);
-        coinLogJpaRepository.save(CoinLog.of(user, price, TransactionType.USE));
+        coinLogJpaRepository.save(CoinLog.of(user, price, CoinReason.GIFTICON_GACHA));
 
         // 10% 확률 당첨 체크
         boolean isWin = ThreadLocalRandom.current().nextInt(100) < GIFTICON_WIN_PROBABILITY;

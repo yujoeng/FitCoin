@@ -10,7 +10,7 @@ import org.a504.fitCoin.domain.advertisement.repository.AdvertisementJpaReposito
 import org.a504.fitCoin.domain.advertisement.value.AdErrorStatus;
 import org.a504.fitCoin.domain.asset.entity.PointLog;
 import org.a504.fitCoin.domain.asset.repository.PointLogJpaRepository;
-import org.a504.fitCoin.domain.asset.value.TransactionType;
+import org.a504.fitCoin.domain.asset.value.PointReason;
 import org.a504.fitCoin.domain.user.entity.User;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
 import org.a504.fitCoin.domain.user.value.UserErrorStatus;
@@ -73,7 +73,7 @@ public class AdvertisementService {
         User user = userJpaRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorStatus.USER_NOT_FOUND));
         user.addPoint(AD_REWARD_POINTS);
-        pointLogJpaRepository.save(PointLog.of(user, AD_REWARD_POINTS, TransactionType.EARN));
+        pointLogJpaRepository.save(PointLog.of(user, AD_REWARD_POINTS, PointReason.AD_REWARD));
 
         adWatchedRepository.save(userId);
     }
