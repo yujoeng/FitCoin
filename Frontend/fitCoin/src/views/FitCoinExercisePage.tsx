@@ -7,7 +7,7 @@ import type { Exercise } from '@/types';
 
 interface FitCoinExercisePageProps {
   mission: Exercise;
-  onComplete: (feedbacks: string[]) => void;
+  onComplete: (feedbacks: string[]) => void | Promise<void>;
   onBack: () => void;
   // TODO: 포인트/코인 실제 값은 부모(FitCoinApp.tsx or page.tsx)에서 props로 받아야 함
   point?: number;
