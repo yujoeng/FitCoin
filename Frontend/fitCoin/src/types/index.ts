@@ -77,12 +77,11 @@ export interface MissionStartRequest {
 // POST /missions/start 응답 result
 export interface MissionStartResult {
   missionId: number;
-  missionToken: string; // 미션 완료 시 사용할 JWT
 }
 
 // POST /missions/complete 요청 Body
 export interface MissionCompleteRequest {
-  missionToken: string;
+  missionId: number;
   missionCompletedAt: string; // "2026-03-07T16:02:10" 형태
 }
 

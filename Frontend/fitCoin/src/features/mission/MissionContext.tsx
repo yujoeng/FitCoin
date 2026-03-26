@@ -14,7 +14,6 @@ import type {
   MissionCompleteRequest,
   MissionCompleteResult,
 } from '@/types';
-import { FITCOIN_EXERCISES } from '@/data/exercises';
 
 // ── Mock 데이터 (NEXT_PUBLIC_USE_MOCK=true 일 때 사용) ──
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true';
@@ -25,10 +24,15 @@ const MOCK_AVAILABILITY = {
   todayCompletedMissionCount: 0,
 };
 
+const MOCK_CANDIDATES = [
+  { id: 4, name: '스쿼트', description: '다리를 어깨너비로 벌리고 앉았다 일어납니다.', count: [15, 30, 50] },
+  { id: 11, name: '플랭크', description: '팔꿈치와 발끝으로 몸을 지탱하며 버팁니다.', count: [30, 60, 120] },
+  { id: 9, name: '손목 스트레칭', description: '팔을 앞으로 뻗고 손목을 위아래로 꺾어보세요.', count: [5, 10, 20] },
+];
+
 
 const MOCK_START_RESULT = {
   missionId: 0, // startMission 호출 시 실제 missionId로 덮어씀
-  missionToken: 'mock-token-1234',
 };
 
 const MOCK_COMPLETE_RESULT = {
@@ -42,7 +46,6 @@ const MOCK_COMPLETE_RESULT = {
 interface MissionContextValue {
   availability: MissionAvailability | null;
   candidates: MissionCandidate[];
-  missionToken: string | null;
   isLoading: boolean;
   error: string | null;
 
@@ -59,7 +62,7 @@ const MissionContext = createContext<MissionContextValue | null>(null);
 export function MissionProvider({ children }: { children: React.ReactNode }) {
   const [availability, setAvailability] = useState<MissionAvailability | null>(null);
   const [candidates, setCandidates] = useState<MissionCandidate[]>([]);
-  const [missionToken, setMissionToken] = useState<string | null>(null);
+  const [currentMissionId, setCurrentMissionId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,18 +89,13 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      // 백엔드 API 연동 코드는 유지하되(건드리지 않음), 결과와 상관없이 프론트에서는 항상 15개 전체 풀 사용
-      if (!USE_MOCK) {
-        await getMissionCandidates();
+      // TODO: AI 모듈 매핑은 FitCoinMissionPage에서 처리
+      if (USE_MOCK) {
+        setCandidates(MOCK_CANDIDATES);
+      } else {
+        const result = await getMissionCandidates();
+        setCandidates(result);
       }
-      
-      const allCandidates = FITCOIN_EXERCISES.map((ex, idx) => ({
-        id: idx + 1,
-        name: ex.name,
-        description: ex.description || '안내에 따라 동작하세요',
-        count: [5, 10, 20],
-      }));
-      setCandidates(allCandidates);
     } catch (e) {
       setError(e instanceof Error ? e.message : '미션 후보 조회 중 오류가 발생했습니다.');
     } finally {
@@ -111,14 +109,15 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     try {
       if (USE_MOCK) {
-        setMissionToken(MOCK_START_RESULT.missionToken);
+        // mock branch
+        setCurrentMissionId(missionId);
       } else {
         const body: MissionStartRequest = {
           missionId,
-          missionStartedAt: new Date().toISOString().slice(0, 19), // "2026-03-12T22:00:00"
+          missionStartedAt: new Date().toISOString(), // "2026-03-12T22:00:00"
         };
-        const result = await apiStartMission(body);
-        setMissionToken(result.missionToken);
+        await apiStartMission(body);
+        setCurrentMissionId(missionId);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : '미션 시작 중 오류가 발생했습니다.');
@@ -129,22 +128,21 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
 
   // ── 4. 미션 완료 ──
   const completeMission = useCallback(async (): Promise<MissionCompleteResult> => {
-    if (!missionToken) {
-      throw new Error('missionToken이 없습니다. 미션을 먼저 시작해주세요.');
-    }
+    if (!currentMissionId) throw new Error('missionId가 없습니다. 미션을 먼저 시작해주세요.');
+
     setIsLoading(true);
     setError(null);
     try {
       if (USE_MOCK) {
-        setMissionToken(null); // 완료 후 토큰 초기화
+        setCurrentMissionId(null);
         return MOCK_COMPLETE_RESULT;
       }
       const body: MissionCompleteRequest = {
-        missionToken,
-        missionCompletedAt: new Date().toISOString().slice(0, 19),
+        missionId: currentMissionId,
+        missionCompletedAt: new Date().toISOString(),
       };
       const result = await apiCompleteMission(body);
-      setMissionToken(null); // 완료 후 토큰 초기화
+      setCurrentMissionId(null);
       return result;
     } catch (e) {
       setError(e instanceof Error ? e.message : '미션 완료 처리 중 오류가 발생했습니다.');
@@ -152,14 +150,13 @@ export function MissionProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [missionToken]);
+  }, [currentMissionId]);
 
   return (
     <MissionContext.Provider
       value={{
         availability,
         candidates,
-        missionToken,
         isLoading,
         error,
         fetchAvailability,

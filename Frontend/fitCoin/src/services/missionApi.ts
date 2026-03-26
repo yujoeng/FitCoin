@@ -10,7 +10,7 @@ import type {
 } from '@/types';
 
 // ── 1. 미션 가용성 조회 ──
-// GET /missions/availability
+// POST /missions/availability
 export async function getMissionAvailability(): Promise<MissionAvailability> {
   const res = await apiClient.get<ApiResponse<MissionAvailability>>('/missions/availability');
   const data = res.data;

@@ -6,7 +6,8 @@ import FitCoinMissionPage from '@/views/FitCoinMissionPage';
 import FitCoinExercisePage from '@/views/FitCoinExercisePage';
 import ExerciseDemoModal from '@/components/ExerciseDemoModal';
 import { mergeWithExercise } from '@/features/mission/missionUtils';
-import { FITCOIN_EXERCISES, FITCOIN_POINT_POLICY } from '@/data/exercises';
+import { FITCOIN_EXERCISES } from '@/data/exercises';
+import { useMyPage } from '@/features/user/hooks/useMyPage';
 import {
   loadDailyState, saveDailyState,
   loadStreak, updateStreak,
@@ -24,6 +25,7 @@ function MissionPageContent() {
     fetchAvailability,
     fetchCandidates,
     startMission,
+    completeMission,
     isLoading,
     error,
   } = useMission();
@@ -38,6 +40,12 @@ function MissionPageContent() {
   const [earnedPoint, setEarnedPoint] = useState<number>(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  const { userInfo } = useMyPage();
+  const exerciseLevelIndex =
+    userInfo?.exerciseLevel === 'INTERMEDIATE' ? 1
+      : userInfo?.exerciseLevel === 'ADVANCED' ? 2
+        : 0;
 
   useEffect(() => {
     fetchAvailability();
@@ -55,7 +63,7 @@ function MissionPageContent() {
 
   const handleStart = async (mission: MissionCandidate) => {
     await startMission(mission.id);
-    const exercise = mergeWithExercise(mission, FITCOIN_EXERCISES, 0);
+    const exercise = mergeWithExercise(mission, FITCOIN_EXERCISES, exerciseLevelIndex);
     if (!exercise) {
       alert('해당 운동을 찾을 수 없습니다');
       return;
@@ -64,35 +72,56 @@ function MissionPageContent() {
     setShowDemo(true);
   };
 
-  const handleMissionComplete = (feedbacks: string[]) => {
-    const prev = dailyState.missionCount;
-    const newCount = prev + 1;
-    const newDaily: DailyState = { missionCount: newCount };
-    saveDailyState(newDaily);
-    setDailyState(newDaily);
+  const handleMissionComplete = async (feedbacks: string[]) => {
+    try {
+      // 1. 서버 미션 완료 API 호출
+      const result = await completeMission();
 
-    const earned = prev === 0 ? FITCOIN_POINT_POLICY.first : FITCOIN_POINT_POLICY.bonus;
-    const newTotal = addPoints(earned);
-    setEarnedPoint(earned);
-    setTotalPoints(newTotal);
+      // 2. 로컬 dailyState 업데이트
+      const newCount = dailyState.missionCount + 1;
+      const newDaily: DailyState = { missionCount: newCount };
+      saveDailyState(newDaily);
+      setDailyState(newDaily);
 
-    if (prev === 0) setStreak(updateStreak());
+      // 3. 서버 응답 포인트 사용
+      const earned = result.rewardPoint;
+      const newTotal = addPoints(earned);
+      setEarnedPoint(earned);
+      setTotalPoints(newTotal);
 
-    if (currentMission) {
-      addHistoryEntry({
-        exerciseId: currentMission.id,
-        exerciseName: currentMission.name,
-        count: currentMission.targetCount,
-        category: currentMission.category,
-        feedbackKeys: feedbacks,
-      });
+      // 4. 첫 번째 미션이면 스트릭 업데이트
+      if (result.streakIncreased) setStreak(updateStreak());
+
+      // 5. 운동 기록 저장
+      if (currentMission) {
+        addHistoryEntry({
+          exerciseId: currentMission.id,
+          exerciseName: currentMission.name,
+          count: currentMission.targetCount,
+          category: currentMission.category,
+          feedbackKeys: feedbacks,
+        });
+      }
+
+      setCurrentPage('mission');
+      setModalVisible(true);
+    } catch (e) {
+      console.error('미션 완료 처리 실패:', e);
+      alert('미션 완료 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
-
-    setCurrentPage('mission');
-    setModalVisible(true);
   };
 
   if (!isMounted) return null;
+
+  if (availability && !availability.missionAvailable) {
+    return (
+      <FitCoinMissionPage
+        candidates={candidates}
+        dailyMissionCount={3}
+        onStart={handleStart}
+      />
+    );
+  }
 
   if (isLoading) {
     return <div style={{ padding: 24, textAlign: 'center' }}>로딩 중...</div>;
@@ -119,11 +148,15 @@ function MissionPageContent() {
     );
   }
 
+  const effectiveMissionCount = availability
+    ? availability.todayCompletedMissionCount
+    : dailyState.missionCount;
+
   return (
     <>
       <FitCoinMissionPage
         candidates={candidates}
-        dailyMissionCount={dailyState.missionCount}
+        dailyMissionCount={effectiveMissionCount}
         onStart={handleStart}
       />
       {showDemo && currentMission && (
