@@ -12,8 +12,8 @@ export const FITCOIN_EXERCISE_PLANK = {
 };
 
 const PLANK_THRESHOLD = {
-  UP_ANGLE: 165,
-  DOWN_ANGLE: 150,
+  UP_ANGLE: 175,
+  DOWN_ANGLE: 160,
   HOLD_TIME_MS: 2000,
 };
 
@@ -23,13 +23,13 @@ let plankTimer = null;
 let plankHolding = false;
 
 export function detectPlank(landmarks, state, setCount, setState) {
-  if (!isVisible(landmarks[11]) || !isVisible(landmarks[23]) || !isVisible(landmarks[27])) return 0;
-  if (!hasMovement(23, landmarks[23])) return 0;
+  if (!isVisible(landmarks[12]) || !isVisible(landmarks[24]) || !isVisible(landmarks[28])) return 0;
+  if (!hasMovement(24, landmarks[24])) return 0;
 
   const angle = getAngle(
-    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
-    smoothLandmark(23, landmarks[23]), // LEFT_HIP
-    smoothLandmark(27, landmarks[27])  // LEFT_ANKLE
+    smoothLandmark(12, landmarks[12]), // 화면상 왼쪽 (실제 오른쪽 어깨)
+    smoothLandmark(24, landmarks[24]), // 화면상 왼쪽 (실제 오른쪽 골반)
+    smoothLandmark(28, landmarks[28])  // 화면상 왼쪽 (실제 오른쪽 발목)
   );
 
   if (isStateHeld('plank_up', angle > PLANK_THRESHOLD.UP_ANGLE, 4) && state === 'down') {

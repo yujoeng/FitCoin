@@ -25,9 +25,9 @@ const MOCK_AVAILABILITY = {
 };
 
 const MOCK_CANDIDATES = [
-  { id: 4, name: '스쿼트', description: '다리를 어깨너비로 벌리고 앉았다 일어납니다.', count: [15, 30, 50] },
-  { id: 11, name: '플랭크', description: '팔꿈치와 발끝으로 몸을 지탱하며 버팁니다.', count: [30, 60, 120] },
-  { id: 9, name: '손목 스트레칭', description: '팔을 앞으로 뻗고 손목을 위아래로 꺾어보세요.', count: [5, 10, 20] },
+  { id: 1, name: '스쿼트', description: '발을 어깨너비로 벌리고 무릎을 90°까지 굽혔다 일어나세요', count: [5, 10, 20] },
+  { id: 2, name: '아령 컬', description: '팔꿈치를 몸에 붙이고 아령을 들어올렸다 내리세요', count: [8, 12, 20] },
+  { id: 3, name: '플랭크', description: '팔을 뻗어 몸을 일직선으로 유지하세요', count: [3, 5, 10] },
 ];
 
 

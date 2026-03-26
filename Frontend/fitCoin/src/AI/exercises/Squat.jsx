@@ -20,48 +20,48 @@ const SQUAT_THRESHOLD = {
 // 내려갈 때: 무릎 각도 < 100° → 'down'
 // 올라올 때: 무릎 각도 > 160° → 카운트
 export function detectSquat(landmarks, state, setCount, setState) {
-  if (!isVisible(landmarks[25]) && !isVisible(landmarks[26])) return { angle: 0, feedback: 'no_pose' };
+  if (!isVisible(landmarks[26]) && !isVisible(landmarks[25])) return { angle: 0, feedback: 'no_pose' };
 
-  const moveIdx = isVisible(landmarks[23]) ? 23 : 24; // Hip is highly moving
+  const moveIdx = isVisible(landmarks[24]) ? 24 : 23; // Hip is highly moving
   if (!hasMovement(moveIdx, landmarks[moveIdx])) return { angle: 0, feedback: 'no_pose' };
 
   const T = SQUAT_FEEDBACK;
 
   const leftAngle = getAngle(
-    smoothLandmark(23, landmarks[23]), // LEFT_HIP
-    smoothLandmark(25, landmarks[25]), // LEFT_KNEE
-    smoothLandmark(27, landmarks[27])  // LEFT_ANKLE
-  );
-  const rightAngle = getAngle(
-    smoothLandmark(24, landmarks[24]), // RIGHT_HIP
+    smoothLandmark(24, landmarks[24]), // 화면상 왼쪽 (실제 RIGHT_HIP)
     smoothLandmark(26, landmarks[26]), // RIGHT_KNEE
     smoothLandmark(28, landmarks[28])  // RIGHT_ANKLE
+  );
+  const rightAngle = getAngle(
+    smoothLandmark(23, landmarks[23]), // 화면상 오른쪽 (실제 LEFT_HIP)
+    smoothLandmark(25, landmarks[25]), // LEFT_KNEE
+    smoothLandmark(27, landmarks[27])  // LEFT_ANKLE
   );
   const angle = (leftAngle + rightAngle) / 2; // 양발 평균으로 안정성↑
 
   // 고관절 각도: 어깨(11)-엉덩이(23)-무릎(25)
   const leftHipAngle = getAngle(
-    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
-    smoothLandmark(23, landmarks[23]), // LEFT_HIP
-    smoothLandmark(25, landmarks[25])  // LEFT_KNEE
-  );
-  const rightHipAngle = getAngle(
     smoothLandmark(12, landmarks[12]), // RIGHT_SHOULDER
     smoothLandmark(24, landmarks[24]), // RIGHT_HIP
     smoothLandmark(26, landmarks[26])  // RIGHT_KNEE
+  );
+  const rightHipAngle = getAngle(
+    smoothLandmark(11, landmarks[11]), // LEFT_SHOULDER
+    smoothLandmark(23, landmarks[23]), // LEFT_HIP
+    smoothLandmark(25, landmarks[25])  // LEFT_KNEE
   );
   const hipAngle = (leftHipAngle + rightHipAngle) / 2;
 
   // 발목 각도: 무릎(25)-발목(27)-발뒤꿈치(29)
   const leftAnkleAngle = getAngle(
-    smoothLandmark(25, landmarks[25]), // LEFT_KNEE
-    smoothLandmark(27, landmarks[27]), // LEFT_ANKLE
-    smoothLandmark(29, landmarks[29])  // LEFT_HEEL
-  );
-  const rightAnkleAngle = getAngle(
     smoothLandmark(26, landmarks[26]), // RIGHT_KNEE
     smoothLandmark(28, landmarks[28]), // RIGHT_ANKLE
     smoothLandmark(30, landmarks[30])  // RIGHT_HEEL
+  );
+  const rightAnkleAngle = getAngle(
+    smoothLandmark(25, landmarks[25]), // LEFT_KNEE
+    smoothLandmark(27, landmarks[27]), // LEFT_ANKLE
+    smoothLandmark(29, landmarks[29])  // LEFT_HEEL
   );
   const ankleAngle = (leftAnkleAngle + rightAnkleAngle) / 2;
 
