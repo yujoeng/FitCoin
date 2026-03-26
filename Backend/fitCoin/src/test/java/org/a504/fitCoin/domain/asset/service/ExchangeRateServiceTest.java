@@ -7,6 +7,7 @@ import org.a504.fitCoin.domain.asset.repository.ExchangeRateHistoryRepository;
 import org.a504.fitCoin.domain.asset.value.TransactionType;
 import org.a504.fitCoin.global.config.property.ExchangeProperties;
 import org.a504.fitCoin.global.util.MailClient;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,35 +16,38 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.argThat;
 
 @ExtendWith(MockitoExtension.class)
 class ExchangeRateServiceTest {
 
-    @Mock private ExchangeProperties properties;
-    @Mock private ExchangeJpaRepository exchangeJpaRepository;
-    @Mock private CoinLogJpaRepository coinLogJpaRepository;
-    @Mock private ExchangeRateHistoryRepository exchangeRateHistoryRepository;
-    @Mock private MailClient mailClient;
-
+    private static final String ADMIN_EMAIL = "admin@fitcoin.test";
+    @Mock
+    private ExchangeProperties properties;
+    @Mock
+    private ExchangeJpaRepository exchangeJpaRepository;
+    @Mock
+    private CoinLogJpaRepository coinLogJpaRepository;
+    @Mock
+    private ExchangeRateHistoryRepository exchangeRateHistoryRepository;
+    @Mock
+    private MailClient mailClient;
     @InjectMocks
     private ExchangeRateService exchangeRateService;
-
-    private static final String ADMIN_EMAIL = "admin@fitcoin.test";
 
     // 기본 프로퍼티 세팅 (테스트 단위로 override 가능)
     @BeforeEach
     void setUp() {
+        TransactionSynchronizationManager.initSynchronization();
         ReflectionTestUtils.setField(exchangeRateService, "adminEmail", ADMIN_EMAIL);
 
         lenient().when(properties.getInitialEwma()).thenReturn(100.0);
@@ -53,6 +57,11 @@ class ExchangeRateServiceTest {
         lenient().when(properties.getLowerPct()).thenReturn(0.05);
         lenient().when(properties.getAbsFloor()).thenReturn(100);
         lenient().when(properties.getSmoothMin()).thenReturn(1);
+    }
+
+    @AfterEach
+    void tearDown() {
+        TransactionSynchronizationManager.clearSynchronization();
     }
 
     // ===== calculate =====
@@ -311,9 +320,9 @@ class ExchangeRateServiceTest {
                 anyString(),
                 argThat(map ->
                         map.containsKey("date") &&
-                        map.containsKey("fallbackRate") &&
-                        map.containsKey("errorMessage") &&
-                        "DB 연결 실패".equals(map.get("errorMessage"))
+                                map.containsKey("fallbackRate") &&
+                                map.containsKey("errorMessage") &&
+                                "DB 연결 실패".equals(map.get("errorMessage"))
                 )
         );
     }
