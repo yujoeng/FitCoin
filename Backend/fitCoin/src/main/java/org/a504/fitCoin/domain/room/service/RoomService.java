@@ -35,8 +35,9 @@ public class RoomService {
 
     @Transactional(readOnly = true)
     public UserFurnitureResponse getInventory(Long userId) {
+        List<Furniture> allFurnitures = furnitureJpaRepository.findAll();
         List<UserFurniture> inventories = userFurnitureJpaRepository.findAllByUserIdWithFurniture(userId);
-        return UserFurnitureResponse.from(inventories);
+        return UserFurnitureResponse.from(allFurnitures, inventories);
     }
 
     @Transactional
