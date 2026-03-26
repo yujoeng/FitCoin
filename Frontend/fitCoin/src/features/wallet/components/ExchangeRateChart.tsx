@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 import {
   createChart,
   IChartApi,
   ISeriesApi,
   LineSeries,
-} from "lightweight-charts";
+} from 'lightweight-charts';
 
 interface RateHistory {
   timestamp: string;
@@ -18,18 +18,18 @@ interface ExchangeRateChartProps {
 }
 
 const PERIODS = [
-  { label: "전체", days: null },
-  { label: "1년", days: 365 },
-  { label: "3개월", days: 90 },
-  { label: "1개월", days: 30 },
-  { label: "1주", days: 7 },
+  { label: '전체', days: null },
+  { label: '1년', days: 365 },
+  { label: '3개월', days: 90 },
+  { label: '1개월', days: 30 },
+  { label: '1주', days: 7 },
 ] as const;
 
 export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<ISeriesApi<"Line"> | null>(null);
-  const [activePeriod, setActivePeriod] = useState<string>("전체");
+  const seriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const [activePeriod, setActivePeriod] = useState<string>('전체');
 
   const allLineData = data
     .map((item) => ({
@@ -51,15 +51,15 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
 
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: 240,
+      height: chartContainerRef.current.clientHeight,
       layout: {
-        background: { color: "#ffffff" },
-        textColor: "#888",
+        background: { color: '#ffffff' },
+        textColor: '#888',
         fontSize: 11,
       },
       grid: {
-        vertLines: { color: "#e5e7eb", style: 1 },
-        horzLines: { color: "#e5e7eb", style: 1 },
+        vertLines: { color: '#e5e7eb', style: 1 },
+        horzLines: { color: '#e5e7eb', style: 1 },
       },
       leftPriceScale: {
         visible: true,
@@ -69,8 +69,8 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
       rightPriceScale: { visible: false },
       localization: {
         priceFormatter: (price: number) =>
-          Math.floor(price).toLocaleString("ko-KR"),
-        dateFormat: "yyyy-MM-dd",
+          Math.floor(price).toLocaleString('ko-KR'),
+        dateFormat: 'yyyy-MM-dd',
       },
       timeScale: {
         borderVisible: false,
@@ -78,7 +78,7 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
         rightOffset: 5,
         tickMarkFormatter: (time: number) => {
           const d = new Date((time + 32400) * 1000);
-          return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
+          return `${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`;
         },
       },
       handleScroll: true,
@@ -86,14 +86,14 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
     });
 
     const series = chart.addSeries(LineSeries, {
-      color: "#f59e0b",
+      color: '#f59e0b',
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
       crosshairMarkerVisible: true,
-      priceScaleId: "left",
+      priceScaleId: 'left',
       priceFormat: {
-        type: "price",
+        type: 'price',
         precision: 0,
         minMove: 1,
       },
@@ -110,7 +110,7 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
       const el = chartContainerRef.current?.querySelector(
         'a[href*="tradingview"]',
       );
-      if (el) (el as HTMLElement).style.display = "none";
+      if (el) (el as HTMLElement).style.display = 'none';
     };
     hideWatermark();
     const mutationObserver = new MutationObserver(hideWatermark);
@@ -121,7 +121,10 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
 
     const resizeObserver = new ResizeObserver(() => {
       if (chartContainerRef.current) {
-        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+        chart.applyOptions({
+          width: chartContainerRef.current.clientWidth,
+          height: chartContainerRef.current.clientHeight, // 추가
+        });
       }
     });
     resizeObserver.observe(chartContainerRef.current);
@@ -144,14 +147,21 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
   }, [activePeriod, data]);
 
   return (
-    <div style={{ marginTop: "12px" }}>
+    <div
+      style={{
+        marginTop: '12px',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {/* 기간 필터 탭 */}
       <div
         style={{
-          display: "flex",
-          gap: "4px",
-          marginBottom: "12px",
-          flexWrap: "wrap",
+          display: 'flex',
+          gap: '4px',
+          marginBottom: '12px',
+          flexWrap: 'wrap',
         }}
       >
         {PERIODS.map((p) => (
@@ -159,21 +169,21 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
             key={p.label}
             onClick={() => setActivePeriod(p.label)}
             style={{
-              padding: "4px 10px",
-              borderRadius: "var(--radius-full)",
-              border: "none",
-              fontSize: "12px",
+              padding: '4px 10px',
+              borderRadius: 'var(--radius-full)',
+              border: 'none',
+              fontSize: '12px',
               fontWeight: activePeriod === p.label ? 700 : 500,
-              cursor: "pointer",
+              cursor: 'pointer',
               background:
                 activePeriod === p.label
-                  ? "var(--color-primary)"
-                  : "transparent",
+                  ? 'var(--color-primary)'
+                  : 'transparent',
               color:
                 activePeriod === p.label
-                  ? "#fff"
-                  : "var(--color-text-secondary)",
-              transition: "all 0.15s",
+                  ? '#fff'
+                  : 'var(--color-text-secondary)',
+              transition: 'all 0.15s',
             }}
           >
             {p.label}
@@ -184,15 +194,20 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
       {/* 차트 컨테이너 */}
       <div
         style={{
-          position: "relative",
-          background: "#ffffff",
-          borderRadius: "var(--radius-lg)",
-          border: "1px solid #e5e7eb",
-          overflow: "hidden",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+          position: 'relative',
+          background: '#ffffff',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid #e5e7eb',
+          overflow: 'hidden',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+          flex: 1,
+          minHeight: 0,
         }}
       >
-        <div ref={chartContainerRef} style={{ width: "100%" }} />
+        <div
+          ref={chartContainerRef}
+          style={{ width: '100%', height: '100%' }}
+        />
       </div>
     </div>
   );
