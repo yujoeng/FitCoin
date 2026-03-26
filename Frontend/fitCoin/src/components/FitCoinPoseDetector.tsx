@@ -165,31 +165,28 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
   const statusLabel = (STATE_LABELS as Record<string, string>)[status] ?? status;
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <Webcam ref={webcamRef} style={{ display: 'none' }} />
 
       {/* Canvas */}
       <div className="fc-canvas-wrap" style={{ 
+        flex: 1,
+        minHeight: 0,
         marginBottom: 10,
         width: '100%',
-        aspectRatio: '4/3',
-        overflow: 'hidden',
         borderRadius: 12,
         backgroundColor: '#000',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        position: 'relative'
+        position: 'relative',
+        overflow: 'hidden'
       }}>
         <canvas 
           ref={canvasRef} 
           width={640} 
           height={480} 
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover'
-          }} 
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
         />
         {error ? (
           <div className="fc-canvas-overlay" style={{
@@ -221,14 +218,14 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
             color: '#fff'
           }}>
             <Activity size={28} color="var(--color-primary)" className="fc-pulse" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-3)' }}>
               모델 로딩 중...
             </span>
           </div>
         ) : null}
       </div>
 
-      {/* Form Feedback */}
+      {/* Form Feedback: 피드백이 존재하는 운동(예: 스쿼트)에만 표시 */}
       {(exercise as unknown as Record<string, boolean>).hasFeedback && <FormFeedback feedbackKey={feedbackKey} />}
 
       {/* Stat pills */}
@@ -242,33 +239,6 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
           <RotateCcw size={13} color="var(--primary)" />
           <span>각도</span>
           <b>{angle}°</b>
-        </div>
-      </div>
-
-      {/* Count + Progress */}
-      <div className="fc-card-soft" style={{ padding: '14px 16px' }}>
-        <div className="fc-count-display">
-          <span className="fc-font-point" style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-primary)' }}>
-            {count}
-          </span>
-          <span style={{ fontSize: '1rem', color: 'var(--color-text-secondary)' }}>
-            &nbsp;/ {exercise.targetCount}
-          </span>
-        </div>
-        <div style={{
-          width: '100%',
-          height: '8px',
-          borderRadius: 'var(--radius-full)',
-          backgroundColor: 'rgba(44,62,31,0.08)',
-          marginTop: '10px'
-        }}>
-          <div style={{
-            width: `${progress}%`,
-            height: '100%',
-            borderRadius: 'var(--radius-full)',
-            backgroundColor: 'var(--color-primary)',
-            transition: 'width var(--transition-normal)'
-          }} />
         </div>
       </div>
     </div>
