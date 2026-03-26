@@ -246,62 +246,109 @@ export const ExchangePage = () => {
 
         {/* 4. 환전 입력 영역 */}
         <section style={{ marginBottom: '24px' }}>
-          <div style={{ marginBottom: '16px' }}>
-            <label
-              style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '8px',
-                color: 'var(--color-text-secondary)',
-              }}
-            >
-              환전할 코인
-            </label>
-            <input
-              type='text'
-              value={coinInput}
-              onChange={handleInputChange}
-              onKeyDown={(e) =>
-                e.key === 'Enter' &&
-                !e.nativeEvent.isComposing &&
-                !isLoading &&
-                handleExchange()
-              }
-              style={{
-                boxSizing: 'border-box',
-                width: '100%',
-                backgroundColor: '#ffffff',
-                border: '1px solid #e5e7eb',
-                outline: 'none',
-                borderRadius: '12px',
-                padding: '12px 16px',
-                fontSize: '16px',
-                textAlign: 'left',
-                color: 'var(--color-text-primary)',
-                fontFamily: 'var(--font-body)',
-              }}
-              placeholder='0'
-            />
-          </div>
+          {/* 입력 카드 */}
           <div
             style={{
-              textAlign: 'left',
-              fontSize: '14px',
-              marginBottom: '16px',
-              color: 'var(--color-text-primary)',
+              backgroundColor: 'white',
+              border: 'solid 0.5px lightgrey',
+              borderRadius: '16px',
+              padding: '16px',
+              marginBottom: '12px',
             }}
           >
-            = {expectedPoint.toLocaleString('ko-KR')} P
+            {/* 코인 아이콘 + 입력값 */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '8px',
+              }}
+            >
+              <img src='/icons/coin.svg' alt='코인' width={24} height={24} />
+              <input
+                type='text'
+                value={coinInput}
+                onChange={handleInputChange}
+                onKeyDown={(e) =>
+                  e.key === 'Enter' &&
+                  !e.nativeEvent.isComposing &&
+                  !isLoading &&
+                  handleExchange()
+                }
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  textAlign: 'right',
+                  color: 'var(--color-text-primary)',
+                  fontFamily: 'var(--font-body)',
+                  width: '100%',
+                }}
+                placeholder='0'
+              />
+            </div>
+
+            {/* 환산 포인트 */}
+            <div
+              style={{
+                textAlign: 'right',
+                fontSize: '14px',
+                color: 'var(--color-text-secondary)',
+                fontWeight: 600,
+                display: 'flex',
+                flexDirection: 'row',
+                gap: '4px',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+              }}
+            >
+              ={' '}
+              <img
+                src='/icons/point.svg'
+                alt='포인트'
+                width={16}
+                height={16}
+                style={{ verticalAlign: 'middle', marginRight: '2px' }}
+              />
+              {expectedPoint.toLocaleString('ko-KR')}
+            </div>
           </div>
 
+          {/* 환전 버튼 */}
+          <button
+            onClick={handleExchange}
+            disabled={!coinInput || parseInt(coinInput) <= 0}
+          >
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                backgroundColor: expectedPoint > 0 ? '#96b95b' : '#f3f4f6',
+                border: 'solid 0.5px lightgrey',
+                borderRadius: '12px',
+                padding: '6px 14px',
+                fontSize: '13px',
+                fontWeight: 600,
+                color:
+                  expectedPoint > 0 ? '#ffffff' : 'var(--color-text-secondary)',
+                cursor: expectedPoint > 0 ? 'pointer' : 'default',
+              }}
+            >
+              <img src='/icons/point.svg' alt='포인트' width={14} height={14} />
+              {expectedPoint.toLocaleString('ko-KR')} - 환전하기
+            </div>
+          </button>
           {errorMessage && (
             <p
               style={{
                 color: '#ef4444',
                 fontSize: '14px',
                 fontWeight: 600,
-                marginBottom: '16px',
+                marginTop: '12px',
                 textAlign: 'center',
               }}
             >
@@ -327,52 +374,6 @@ export const ExchangePage = () => {
           {/* 그래프를 감싸는 흰색 카드 영역 */}
           <ExchangeRateChart data={rateHistory} />
         </section>
-
-        {/* 하단 버튼 영역 */}
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '100%',
-            maxWidth: '412px',
-            backgroundColor: 'var(--color-bg)',
-          }}
-        >
-          {/* 탭바 등 여백을 고려한 mb-24 위치, 버튼 스타일 */}
-          <div
-            style={{
-              boxSizing: 'border-box',
-              padding: '0 20px',
-              marginBottom: '96px',
-              width: '100%',
-            }}
-          >
-            <button
-              onClick={handleExchange}
-              disabled={!coinInput || parseInt(coinInput) <= 0}
-              style={{
-                width: '100%',
-                padding: '14px 0',
-                backgroundColor:
-                  !coinInput || expectedPoint <= 0
-                    ? 'var(--color-primary-light)'
-                    : 'var(--color-primary)',
-                color: 'var(--color-text-inverse)',
-                borderRadius: '12px',
-                fontWeight: 'bold',
-                fontSize: '16px',
-                border: 'none',
-                cursor:
-                  !coinInput || expectedPoint <= 0 ? 'not-allowed' : 'pointer',
-                opacity: 1,
-              }}
-            >
-              환전하기
-            </button>
-          </div>
-        </div>
       </div>
     </>
   );
