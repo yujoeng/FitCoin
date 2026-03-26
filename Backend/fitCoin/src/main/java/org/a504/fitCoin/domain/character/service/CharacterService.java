@@ -225,7 +225,7 @@ public class CharacterService {
         );
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CharacterResponse getMyCharacter(Long userId) {
 
         // GROWING, AVAILABLE 상태 캐릭터 조회
