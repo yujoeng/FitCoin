@@ -43,6 +43,7 @@ interface FitCoinMissionPageProps {
   onStart: (mission: MissionCandidate) => void;
 }
 
+export default function FitCoinMissionPage({ candidates, dailyMissionCount, onStart }: FitCoinMissionPageProps) {
   const router = useRouter();
   const { userInfo } = useMyPage();
   const [mission, setMission] = useState<MissionCandidate | null>(null);
