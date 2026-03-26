@@ -1,10 +1,13 @@
 package org.a504.fitCoin.domain.user.dto.response;
 
+import org.a504.fitCoin.domain.room.entity.Furniture;
 import org.a504.fitCoin.domain.room.value.FurniturePosition;
 import org.a504.fitCoin.domain.room.value.PurchaseType;
 import org.a504.fitCoin.domain.user.entity.UserFurniture;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public record UserFurnitureResponse(
         List<FurnitureInfo> furnitures
@@ -15,18 +18,24 @@ public record UserFurnitureResponse(
             Long themeId,
             String furnitureName,
             String imageUrl,
-            PurchaseType acquireType
+            PurchaseType acquireType,
+            boolean owned
     ) {}
 
-    public static UserFurnitureResponse from(List<UserFurniture> inventories) {
-        List<FurnitureInfo> furnitures = inventories.stream()
-                .map(inventory -> new FurnitureInfo(
-                        inventory.getFurniture().getId(),
-                        inventory.getFurniture().getPosition(),
-                        inventory.getFurniture().getTheme().getId(),
-                        inventory.getFurniture().getName(),
-                        inventory.getFurniture().getUrl(),
-                        inventory.getFurniture().getType()
+    public static UserFurnitureResponse from(List<Furniture> allFurnitures, List<UserFurniture> inventories) {
+        Set<Long> ownedIds = inventories.stream()
+                .map(uf -> uf.getFurniture().getId())
+                .collect(Collectors.toSet());
+
+        List<FurnitureInfo> furnitures = allFurnitures.stream()
+                .map(f -> new FurnitureInfo(
+                        f.getId(),
+                        f.getPosition(),
+                        f.getTheme().getId(),
+                        f.getName(),
+                        f.getUrl(),
+                        f.getType(),
+                        ownedIds.contains(f.getId())  // 보유 여부
                 ))
                 .toList();
 
