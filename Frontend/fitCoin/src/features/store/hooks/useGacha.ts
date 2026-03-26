@@ -13,7 +13,11 @@ import {
     GachaResult,
 } from '@/features/store/types/types';
 
-const useGacha = () => {
+interface UseGachaProps {
+    onSuccess?: () => void;
+}
+
+const useGacha = ({ onSuccess }: UseGachaProps = {}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<GachaResult | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -38,6 +42,9 @@ const useGacha = () => {
 
             if (response.isSuccess && response.result) {
                 setResult(response.result);
+                if (onSuccess) {
+                    onSuccess();
+                }
             } else {
                 setError(response.message);
             }

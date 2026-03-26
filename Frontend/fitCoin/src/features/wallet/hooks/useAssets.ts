@@ -75,5 +75,6 @@ export const useAssets = () => {
     errorMessage,
     exchange,
     setErrorMessage,
+    fetchData,
   };
 };

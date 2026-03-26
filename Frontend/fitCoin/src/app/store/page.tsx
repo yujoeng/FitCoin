@@ -7,7 +7,7 @@ import { useAssets } from '@/features/wallet/hooks/useAssets';
 import { getCharacterMe } from '@/features/user/services/userApi';
 
 export default function StorePage() {
-    const { assets } = useAssets();
+    const { assets, fetchData } = useAssets();
     const points = assets?.point ?? 0;
     const coins = assets?.coin ?? 0;
 
@@ -36,6 +36,7 @@ export default function StorePage() {
             points={points}
             coins={coins}
             character={character}
+            onUpdateAssets={fetchData}
         />
     );
 }

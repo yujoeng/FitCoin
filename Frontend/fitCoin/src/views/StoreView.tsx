@@ -21,11 +21,12 @@ interface StoreViewProps {
     points: number;
     coins: number;
     character: UserCharacter | null;
+    onUpdateAssets?: () => void;
 }
 
-export default function StoreView({ points, coins, character }: StoreViewProps) {
+export default function StoreView({ points, coins, character, onUpdateAssets }: StoreViewProps) {
     const router = useRouter();
-    const { isLoading, result, error, executeGacha, clearResult } = useGacha();
+    const { isLoading, result, error, executeGacha, clearResult } = useGacha({ onSuccess: onUpdateAssets });
 
     // ─── 상점 아이템 목록 ───
     const [items, setItems] = useState<StoreItem[]>([]);
