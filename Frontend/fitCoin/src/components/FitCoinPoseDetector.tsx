@@ -49,6 +49,7 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
   const [angle, setAngle] = useState(0);
   const [status, setStatus] = useState<string>(exercise.initialState as string);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [feedbackKey, setFeedbackKey] = useState('no_pose');
 
   const statusRef = useRef<string>(exercise.initialState as string);
@@ -65,7 +66,10 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
     setCount((prev) => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
       countRef.current = next;
-      onCountChange?.(next);
+      // [문제 1 수정] 부모 컴포넌트(FitCoinExercisePage)의 state 업데이트가 현재 렌더링 사이클과 충돌하지 않도록 지연 실행
+      setTimeout(() => {
+        onCountChange?.(next);
+      }, 0);
       if (next >= exercise.targetCount && !completedRef.current) {
         completedRef.current = true;
         setTimeout(() => onComplete(), 600);
@@ -80,20 +84,31 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
     let camera: any = null;
     let pose: any = null;
 
+    let loadingTimeout: NodeJS.Timeout | null = null;
+
     const initMediapipe = async () => {
+      loadingTimeout = setTimeout(() => {
+        setError(true);
+      }, 10000);
+
       // 동적 import
       const { Pose, POSE_CONNECTIONS } = await import('@mediapipe/pose');
       const cam = await import('@mediapipe/camera_utils');
       const { drawConnectors, drawLandmarks } = await import('@mediapipe/drawing_utils');
 
       pose = new Pose({
-        locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+        locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`,
       });
       pose.setOptions({
-        modelComplexity: 1, smoothLandmarks: true, enableSegmentation: false,
+        selfieMode: true,
+        modelComplexity: 0, smoothLandmarks: true, enableSegmentation: false,
         minDetectionConfidence: 0.55, minTrackingConfidence: 0.55,
       });
       pose.onResults((results: any) => {
+        if (loadingTimeout) {
+          clearTimeout(loadingTimeout);
+          loadingTimeout = null;
+        }
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -140,6 +155,7 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
     initMediapipe();
 
     return () => { 
+      if (loadingTimeout) clearTimeout(loadingTimeout);
       if (camera) camera.stop(); 
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -170,20 +186,46 @@ export default function FitCoinPoseDetector({ exercise, detectFn, onComplete, on
           ref={canvasRef} 
           width={640} 
           height={480} 
-          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
         />
-        {loading && (
-          <div className="fc-canvas-overlay">
-            <Activity size={28} color="var(--primary)" className="fc-pulse" />
+        {error ? (
+          <div className="fc-canvas-overlay" style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            gap: 8,
+            color: '#fff'
+          }}>
+            <AlertTriangle size={28} color="var(--color-danger)" />
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, textAlign: 'center' }}>
+              모델 로딩에 실패했습니다.<br/>페이지를 새로고침 해주세요.
+            </span>
+          </div>
+        ) : loading ? (
+          <div className="fc-canvas-overlay" style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            gap: 8,
+            color: '#fff'
+          }}>
+            <Activity size={28} color="var(--color-primary)" className="fc-pulse" />
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-3)' }}>
               모델 로딩 중...
             </span>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Form Feedback: 피드백이 존재하는 운동(예: 스쿼트)에만 표시 */}
-      {(exercise as unknown as Record<string, boolean>).hasFeedback && <FormFeedback feedbackKey={feedbackKey} />}
 
       {/* Stat pills */}
       <div className="fc-stat-row">

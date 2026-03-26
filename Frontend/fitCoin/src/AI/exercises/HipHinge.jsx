@@ -1,4 +1,4 @@
-import { getAngle } from './fitcoinUtils';
+import { getAngle, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_HIP_HINGE = {
   id: 'hipHinge',
@@ -20,22 +20,25 @@ const HIP_HINGE_THRESHOLD = {
 // 숙일 때: 각도 < 115° → 'down'
 // 일어설 때: 각도 > 160° → 카운트
 export function detectHipHinge(landmarks, state, setCount, setState) {
+  if (!isVisible(landmarks[11]) || !isVisible(landmarks[12])) return 0;
+  if (!hasMovement(11, landmarks[11]) && !hasMovement(12, landmarks[12])) return 0;
+
   const leftAngle = getAngle(
-    landmarks[11], // LEFT_SHOULDER
-    landmarks[23], // LEFT_HIP
-    landmarks[25]  // LEFT_KNEE
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(24, landmarks[24]), // LEFT_HIP
+    smoothLandmark(26, landmarks[26])  // LEFT_KNEE
   );
   const rightAngle = getAngle(
-    landmarks[12], // RIGHT_SHOULDER
-    landmarks[24], // RIGHT_HIP
-    landmarks[26]  // RIGHT_KNEE
+    smoothLandmark(11, landmarks[11]), // RIGHT_SHOULDER
+    smoothLandmark(23, landmarks[23]), // RIGHT_HIP
+    smoothLandmark(25, landmarks[25])  // RIGHT_KNEE
   );
   const angle = (leftAngle + rightAngle) / 2;
 
-  if (angle < HIP_HINGE_THRESHOLD.DOWN_ANGLE && state === 'up') setState('down');
-  else if (angle > HIP_HINGE_THRESHOLD.UP_ANGLE && state === 'down') {
+  if (isStateHeld('hipHinge_down', angle < HIP_HINGE_THRESHOLD.DOWN_ANGLE, 4) && state === 'up') setState('down');
+  else if (isStateHeld('hipHinge_up', angle > HIP_HINGE_THRESHOLD.UP_ANGLE, 4) && state === 'down') {
     setState('up');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
   return Math.round(angle);
 }

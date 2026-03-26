@@ -65,7 +65,7 @@ export const STATE_LABELS = {
  */
 export const SQUAT_FEEDBACK = {
   // down 상태 진입 임계값 (무릎 각도 < 이 값 → down)
-  KNEE_DOWN_THRESHOLD: 100,
+  KNEE_DOWN_THRESHOLD: 90,
   // 엉덩이하방오류: 무릎을 충분히 굽히지 않음 (정상 p25=110 vs 엉덩이오류 p25=149)
   KNEE_NOT_DEEP_ENOUGH: 145,
   // 고관절오류: down 상태에서 고관절이 너무 펴짐 (정상 p25=95 vs 고관절오류 p25=130)
@@ -82,3 +82,123 @@ export const FEEDBACK_MESSAGES = {
   ready: { emoji: "🐾", text: "준비 자세", color: "neutral" },
   no_pose: { emoji: "📷", text: "포즈를 감지 중...", color: "neutral" },
 };
+
+// ─────────────────────────────────────────
+// [고도화] 랜드마크 스무딩 (노이즈 제거)
+// ─────────────────────────────────────────
+
+const _landmarkBuffer = {};
+const BUFFER_SIZE = 5;
+
+export function smoothLandmark(index, raw) {
+  if (!_landmarkBuffer[index]) _landmarkBuffer[index] = [];
+  const buf = _landmarkBuffer[index];
+  buf.push({ x: raw.x, y: raw.y, z: raw.z ?? 0 });
+  if (buf.length > BUFFER_SIZE) buf.shift();
+  const avg = buf.reduce(
+    (acc, cur) => ({ x: acc.x + cur.x, y: acc.y + cur.y, z: acc.z + cur.z }),
+    { x: 0, y: 0, z: 0 }
+  );
+  return { x: avg.x / buf.length, y: avg.y / buf.length, z: avg.z / buf.length };
+}
+
+export function resetSmoothingBuffer() {
+  Object.keys(_landmarkBuffer).forEach((k) => delete _landmarkBuffer[k]);
+}
+
+// ─────────────────────────────────────────
+// [고도화] 카운트 쿨다운 (중복 인식 방지)
+// ─────────────────────────────────────────
+
+let _lastCountTime = 0;
+let COUNT_COOLDOWN_MS = 800;
+
+export function tryIncreaseCount(setCount) {
+  const now = Date.now();
+  if (now - _lastCountTime < COUNT_COOLDOWN_MS) return false;
+  _lastCountTime = now;
+  setCount((p) => p + 1);
+  return true;
+}
+
+export function resetCooldown() {
+  _lastCountTime = 0;
+}
+
+export function resetDetectionState() {
+  resetSmoothingBuffer();
+  resetCooldown();
+  resetStateHold();
+}
+
+// ─────────────────────────────────────────
+// [고도화] 상태 유지 확인 (순간 인식 방지)
+// ─────────────────────────────────────────
+
+// 각 운동별로 현재 상태가 몇 프레임 동안 유지됐는지 저장
+const _stateHoldCount = {};
+
+/**
+ * 특정 조건이 연속으로 REQUIRED_FRAMES 이상 만족될 때만 true를 반환한다.
+ * 조건이 끊기면 카운터를 초기화한다.
+ *
+ * 사용 예시:
+ *   if (isStateHeld('squat_down', angle < 90, 5)) setState('down');
+ *
+ * @param {string} key - 운동별 고유 키 (예: 'squat_down', 'shoulderRaise_up')
+ * @param {boolean} condition - 매 프레임 평가할 조건
+ * @param {number} requiredFrames - 몇 프레임 연속으로 조건을 만족해야 하는지 (기본값 4)
+ * @returns {boolean} - requiredFrames 이상 연속 만족 시 true
+ */
+export function isStateHeld(key, condition, requiredFrames = 4) {
+  if (!condition) {
+    _stateHoldCount[key] = 0;
+    return false;
+  }
+  _stateHoldCount[key] = (_stateHoldCount[key] ?? 0) + 1;
+  return _stateHoldCount[key] >= requiredFrames;
+}
+
+/**
+ * 운동 전환 시 상태 유지 카운터도 초기화
+ * resetDetectionState() 내부에서 호출하도록 추가
+ */
+export function resetStateHold() {
+  Object.keys(_stateHoldCount).forEach((k) => delete _stateHoldCount[k]);
+}
+
+// ─────────────────────────────────────────
+// [고도화] 랜드마크 visibility 체크
+// ─────────────────────────────────────────
+
+const VISIBILITY_THRESHOLD = 0.3;
+
+export function isVisible(...landmarks) {
+  return landmarks.every(
+    (lm) => lm && (lm.visibility ?? 1) >= VISIBILITY_THRESHOLD
+  );
+}
+
+// ─────────────────────────────────────────
+// [추가] 움직임 감지 (정지 상태 필터링)
+// ─────────────────────────────────────────
+// hasMovement 전용 이전 좌표 저장소 (smoothLandmark 버퍼와 별도)
+const _prevLandmark = {};
+
+export function hasMovement(index, current, threshold = 0.005) {
+  const prev = _prevLandmark[index];
+  _prevLandmark[index] = { x: current.x, y: current.y };
+
+  // 첫 프레임은 비교 대상이 없으므로 움직임으로 간주
+  if (!prev) return true;
+
+  const dist = Math.sqrt((current.x - prev.x) ** 2 + (current.y - prev.y) ** 2);
+  return dist > threshold;
+}
+
+// ─────────────────────────────────────────
+// [추가] 쿨다운 시간 상수 외부 노출
+// ─────────────────────────────────────────
+export function setCooldownMs(ms) {
+  COUNT_COOLDOWN_MS = ms;
+}

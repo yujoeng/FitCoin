@@ -1,4 +1,4 @@
-import { getAngle } from './fitcoinUtils';
+import { smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_WRIST_STRETCH = {
   id: 'wristStretch',
@@ -12,30 +12,27 @@ export const FITCOIN_EXERCISE_WRIST_STRETCH = {
 };
 
 const WRIST_STRETCH_THRESHOLD = {
-  BENT_ANGLE: 150,
-  CENTER_ANGLE: 170,
+  UP_DIFF: 0.04,
+  DOWN_DIFF: 0.02,
 };
 
-// 팔꿈치(13), 손목(15), 검지 끝(19)  각도
-// 꺾임: 각도 < 150° → 'bent'
-// 펴짐: 각도 > 170° → 카운트
+// 손목(15,16), 검지 끝(19,20) Y축 차이로 위로 꺾임 감지
+// 위로 꺾임: finger.y < wrist.y - 0.04 → 'bent'
+// 펴짐: |finger.y - wrist.y| < 0.02 → 카운트
 export function detectWristStretch(landmarks, state, setCount, setState) {
-  const leftAngle = getAngle(
-    landmarks[13], // LEFT_ELBOW
-    landmarks[15], // LEFT_WRIST
-    landmarks[19]  // LEFT_INDEX
-  );
-  const rightAngle = getAngle(
-    landmarks[14], // RIGHT_ELBOW
-    landmarks[16], // RIGHT_WRIST
-    landmarks[20]  // RIGHT_INDEX
-  );
-  const angle = Math.min(leftAngle, rightAngle);
+  if (!isVisible(landmarks[15]) && !isVisible(landmarks[16])) return 0;
 
-  if (angle < WRIST_STRETCH_THRESHOLD.BENT_ANGLE && state === 'center') setState('bent');
-  else if (angle > WRIST_STRETCH_THRESHOLD.CENTER_ANGLE && state === 'bent') {
+  const moveIdx = isVisible(landmarks[16]) ? 16 : 15;
+  if (!hasMovement(moveIdx, landmarks[moveIdx])) return 0;
+
+  const wristY = smoothLandmark(moveIdx, landmarks[moveIdx]).y;
+  const fingerIdx = moveIdx === 16 ? 20 : 19;
+  const fingerY = smoothLandmark(fingerIdx, landmarks[fingerIdx]).y;
+
+  if (isStateHeld('wristStretch_bent', fingerY < wristY - WRIST_STRETCH_THRESHOLD.UP_DIFF, 4) && state === 'center') setState('bent');
+  else if (isStateHeld('wristStretch_center', Math.abs(fingerY - wristY) < WRIST_STRETCH_THRESHOLD.DOWN_DIFF, 4) && state === 'bent') {
     setState('center');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
-  return Math.round(angle);
+  return Math.round((wristY - fingerY) * 100);
 }

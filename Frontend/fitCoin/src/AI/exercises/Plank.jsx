@@ -1,4 +1,4 @@
-import { getAngle } from './fitcoinUtils';
+import { getAngle, smoothLandmark, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_PLANK = {
   id: 'plank',
@@ -12,8 +12,8 @@ export const FITCOIN_EXERCISE_PLANK = {
 };
 
 const PLANK_THRESHOLD = {
-  UP_ANGLE: 155,
-  DOWN_ANGLE: 140,
+  UP_ANGLE: 175,
+  DOWN_ANGLE: 160,
   HOLD_TIME_MS: 2000,
 };
 
@@ -23,13 +23,16 @@ let plankTimer = null;
 let plankHolding = false;
 
 export function detectPlank(landmarks, state, setCount, setState) {
+  if (!isVisible(landmarks[12]) || !isVisible(landmarks[24]) || !isVisible(landmarks[28])) return 0;
+  if (!hasMovement(24, landmarks[24])) return 0;
+
   const angle = getAngle(
-    landmarks[11], // LEFT_SHOULDER
-    landmarks[23], // LEFT_HIP
-    landmarks[27]  // LEFT_ANKLE
+    smoothLandmark(12, landmarks[12]), // 화면상 왼쪽 (실제 오른쪽 어깨)
+    smoothLandmark(24, landmarks[24]), // 화면상 왼쪽 (실제 오른쪽 골반)
+    smoothLandmark(28, landmarks[28])  // 화면상 왼쪽 (실제 오른쪽 발목)
   );
 
-  if (angle > PLANK_THRESHOLD.UP_ANGLE && state === 'down') {
+  if (isStateHeld('plank_up', angle > PLANK_THRESHOLD.UP_ANGLE, 4) && state === 'down') {
     setState('up');
     plankHolding = true;
     if (!plankTimer) {
@@ -42,7 +45,7 @@ export function detectPlank(landmarks, state, setCount, setState) {
         setState('down');
       }, PLANK_THRESHOLD.HOLD_TIME_MS); // 2초 유지해야 1카운트
     }
-  } else if (angle < PLANK_THRESHOLD.DOWN_ANGLE && state === 'up') {
+  } else if (isStateHeld('plank_down', angle < PLANK_THRESHOLD.DOWN_ANGLE, 4) && state === 'up') {
     setState('down');
     plankHolding = false;
     if (plankTimer) { clearTimeout(plankTimer); plankTimer = null; }

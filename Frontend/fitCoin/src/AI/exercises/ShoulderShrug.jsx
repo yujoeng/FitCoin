@@ -1,4 +1,4 @@
-import { getDistance } from './fitcoinUtils';
+import { getDistanceY, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_SHOULDER_SHRUG = {
   id: 'shoulderShrug',
@@ -12,28 +12,31 @@ export const FITCOIN_EXERCISE_SHOULDER_SHRUG = {
 };
 
 const SHOULDER_SHRUG_THRESHOLD = {
-  UP_DIST: 0.07,
-  DOWN_DIST: 0.13,
+  UP_DIST: 0.1,
+  DOWN_DIST: 0.15,
 };
 
-// 어깨(11)와 귀(7) 사이 거리 — 어깨가 올라가면 거리↓
-// 올릴 때: 거리 < 0.07 → 'up'
-// 내릴 때: 거리 > 0.13 → 카운트
+// 어깨(11,12)와 귀(7,8) 사이 Y축 거리 — 어깨가 올라가면 거리↓
+// 올릴 때: 거리 < 0.1 → 'up'
+// 내릴 때: 거리 > 0.15 → 카운트
 export function detectShoulderShrug(landmarks, state, setCount, setState) {
-  const leftDist = getDistance(
-    landmarks[11], // LEFT_SHOULDER
-    landmarks[7]   // LEFT_EAR
+  if (!isVisible(landmarks[11]) || !isVisible(landmarks[12]) || !isVisible(landmarks[7]) || !isVisible(landmarks[8])) return 0;
+  if (!hasMovement(11, landmarks[11]) && !hasMovement(12, landmarks[12])) return 0;
+
+  const leftDist = getDistanceY(
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(8, landmarks[8])    // LEFT_EAR
   );
-  const rightDist = getDistance(
-    landmarks[12], // RIGHT_SHOULDER
-    landmarks[8]   // RIGHT_EAR
+  const rightDist = getDistanceY(
+    smoothLandmark(11, landmarks[11]), // RIGHT_SHOULDER
+    smoothLandmark(7, landmarks[7])    // RIGHT_EAR
   );
   const dist = (leftDist + rightDist) / 2;
 
-  if (dist < SHOULDER_SHRUG_THRESHOLD.UP_DIST && state === 'down') setState('up');
-  else if (dist > SHOULDER_SHRUG_THRESHOLD.DOWN_DIST && state === 'up') {
+  if (isStateHeld('shoulderShrug_up', dist < SHOULDER_SHRUG_THRESHOLD.UP_DIST, 4) && state === 'down') setState('up');
+  else if (isStateHeld('shoulderShrug_down', dist > SHOULDER_SHRUG_THRESHOLD.DOWN_DIST, 4) && state === 'up') {
     setState('down');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
   return Math.round(dist * 100);
 }

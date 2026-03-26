@@ -1,4 +1,4 @@
-import { getDistanceY } from './fitcoinUtils';
+import { getDistanceY, smoothLandmark, tryIncreaseCount, isVisible, hasMovement, isStateHeld } from './fitcoinUtils';
 
 export const FITCOIN_EXERCISE_SIDE_STRETCH = {
   id: 'sideStretch',
@@ -12,7 +12,7 @@ export const FITCOIN_EXERCISE_SIDE_STRETCH = {
 };
 
 const SIDE_STRETCH_THRESHOLD = {
-  TILTED_DIFF: 0.05,
+  TILTED_DIFF: 0.035,
   CENTER_DIFF: 0.015,
 };
 
@@ -20,15 +20,18 @@ const SIDE_STRETCH_THRESHOLD = {
 // 몸 기울이면 어깨 높이 차이가 발생
 // |diff| > 0.05 → 'tilted', < 0.015 → 카운트
 export function detectSideStretch(landmarks, state, setCount, setState) {
+  if (!isVisible(landmarks[11]) || !isVisible(landmarks[12])) return 0;
+  if (!hasMovement(11, landmarks[11]) && !hasMovement(12, landmarks[12])) return 0;
+
   const diff = getDistanceY(
-    landmarks[11], // LEFT_SHOULDER
-    landmarks[12]  // RIGHT_SHOULDER
+    smoothLandmark(12, landmarks[12]), // LEFT_SHOULDER
+    smoothLandmark(11, landmarks[11])  // RIGHT_SHOULDER
   );
 
-  if (diff > SIDE_STRETCH_THRESHOLD.TILTED_DIFF && state === 'center') setState('tilted');
-  else if (diff < SIDE_STRETCH_THRESHOLD.CENTER_DIFF && state === 'tilted') {
+  if (isStateHeld('sideStretch_tilted', diff > SIDE_STRETCH_THRESHOLD.TILTED_DIFF, 4) && state === 'center') setState('tilted');
+  else if (isStateHeld('sideStretch_center', diff < SIDE_STRETCH_THRESHOLD.CENTER_DIFF, 4) && state === 'tilted') {
     setState('center');
-    setCount((p) => p + 1);
+    tryIncreaseCount(setCount);
   }
   return Math.round(diff * 100);
 }
