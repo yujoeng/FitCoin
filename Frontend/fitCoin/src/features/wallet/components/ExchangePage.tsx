@@ -181,17 +181,68 @@ export const ExchangePage = () => {
         </section>
 
         {/* 3. 환율 안내 */}
-        <div
-          style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            marginBottom: '24px',
-            color: 'var(--color-text-secondary)',
-          }}
-        >
-          현재 환율 : {exchangeRate?.rate?.toLocaleString('ko-KR') || '-'}P =
-          1코인
-        </div>
+        <section style={{ marginBottom: '24px' }}>
+          <div
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: 'var(--color-text-secondary)',
+              marginBottom: '6px',
+            }}
+          >
+            포인트 → 코인
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              color: 'var(--color-text-secondary)',
+              marginBottom: '6px',
+            }}
+          >
+            {/* 별조각 아이콘 + 수량 */}
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <img src='/icons/point.svg' alt='별조각' width={18} height={18} />
+              <strong>
+                {exchangeRate?.rate?.toLocaleString('ko-KR') || '-'}
+              </strong>
+            </span>
+
+            {/* 화살표 */}
+            <span style={{ color: 'var(--color-text-secondary)' }}>→</span>
+
+            {/* 코인 아이콘 + 수량 */}
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <img src='/icons/coin.svg' alt='코인' width={18} height={18} />1
+            </span>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '13px',
+              fontWeight: 600,
+              color: 'var(--color-text-secondary)',
+            }}
+          >
+            <span>최대</span>
+            <img src='/icons/coin.svg' alt='코인' width={16} height={16} />
+            <span>
+              {exchangeRate && assets?.point
+                ? Math.floor(assets.point / exchangeRate.rate).toLocaleString(
+                    'ko-KR',
+                  )
+                : 0}
+            </span>
+            <span>까지 환전 가능</span>
+          </div>
+        </section>
 
         {/* 4. 환전 입력 영역 */}
         <section style={{ marginBottom: '24px' }}>
