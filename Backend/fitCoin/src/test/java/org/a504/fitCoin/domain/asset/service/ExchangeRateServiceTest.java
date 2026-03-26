@@ -4,7 +4,7 @@ import org.a504.fitCoin.domain.asset.entity.Exchange;
 import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.ExchangeJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.ExchangeRateHistoryRepository;
-import org.a504.fitCoin.domain.asset.value.TransactionType;
+import org.a504.fitCoin.domain.asset.value.CoinReason;
 import org.a504.fitCoin.global.config.property.ExchangeProperties;
 import org.a504.fitCoin.global.util.MailClient;
 import org.junit.jupiter.api.AfterEach;
@@ -70,7 +70,7 @@ class ExchangeRateServiceTest {
     void calculate_어제EWMA없을때_initialEwma를_사용한다() {
         // given
         given(exchangeJpaRepository.findByBaseDate(any())).willReturn(Optional.empty());
-        given(coinLogJpaRepository.sumAddedCoinsByDate(any(), eq(TransactionType.EARN))).willReturn(100L);
+        given(coinLogJpaRepository.sumAddedCoinsByDate(any(), eq(CoinReason.EXCHANGE))).willReturn(100L);
         given(exchangeJpaRepository.findTopByOrderByBaseDateDesc()).willReturn(Optional.empty());
         given(exchangeJpaRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
 
@@ -87,7 +87,7 @@ class ExchangeRateServiceTest {
     void calculate_최근환율없을때_absFloor를_초기환율로_사용한다() {
         // given: 이전 환율 없음 → absFloor(100) 사용
         given(exchangeJpaRepository.findByBaseDate(any())).willReturn(Optional.empty());
-        given(coinLogJpaRepository.sumAddedCoinsByDate(any(), eq(TransactionType.EARN))).willReturn(100L);
+        given(coinLogJpaRepository.sumAddedCoinsByDate(any(), eq(CoinReason.EXCHANGE))).willReturn(100L);
         given(exchangeJpaRepository.findTopByOrderByBaseDateDesc()).willReturn(Optional.empty());
         given(exchangeJpaRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
 
@@ -117,7 +117,7 @@ class ExchangeRateServiceTest {
                 .build();
 
         given(exchangeJpaRepository.findByBaseDate(LocalDate.now().minusDays(1))).willReturn(Optional.of(yesterday));
-        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), TransactionType.EARN)).willReturn(100L);
+        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), CoinReason.EXCHANGE)).willReturn(100L);
         given(exchangeJpaRepository.findTopByOrderByBaseDateDesc()).willReturn(Optional.of(latest));
         given(exchangeJpaRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
 
@@ -146,7 +146,7 @@ class ExchangeRateServiceTest {
                 .build();
 
         given(exchangeJpaRepository.findByBaseDate(LocalDate.now().minusDays(1))).willReturn(Optional.of(yesterday));
-        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), TransactionType.EARN)).willReturn(100_000L);
+        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), CoinReason.EXCHANGE)).willReturn(100_000L);
         given(exchangeJpaRepository.findTopByOrderByBaseDateDesc()).willReturn(Optional.of(latest));
         given(exchangeJpaRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
 
@@ -175,7 +175,7 @@ class ExchangeRateServiceTest {
                 .build();
 
         given(exchangeJpaRepository.findByBaseDate(LocalDate.now().minusDays(1))).willReturn(Optional.of(yesterday));
-        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), TransactionType.EARN)).willReturn(0L);
+        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), CoinReason.EXCHANGE)).willReturn(0L);
         given(exchangeJpaRepository.findTopByOrderByBaseDateDesc()).willReturn(Optional.of(latest));
         given(exchangeJpaRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
 
@@ -204,7 +204,7 @@ class ExchangeRateServiceTest {
                 .build();
 
         given(exchangeJpaRepository.findByBaseDate(LocalDate.now().minusDays(1))).willReturn(Optional.of(yesterday));
-        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), TransactionType.EARN)).willReturn(0L);
+        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), CoinReason.EXCHANGE)).willReturn(0L);
         given(exchangeJpaRepository.findTopByOrderByBaseDateDesc()).willReturn(Optional.of(latest));
         given(exchangeJpaRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
 
@@ -233,7 +233,7 @@ class ExchangeRateServiceTest {
                 .build();
 
         given(exchangeJpaRepository.findByBaseDate(LocalDate.now().minusDays(1))).willReturn(Optional.of(yesterday));
-        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), TransactionType.EARN)).willReturn(200L);
+        given(coinLogJpaRepository.sumAddedCoinsByDate(LocalDate.now(), CoinReason.EXCHANGE)).willReturn(200L);
         given(exchangeJpaRepository.findTopByOrderByBaseDateDesc()).willReturn(Optional.of(latest));
         given(exchangeJpaRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
 

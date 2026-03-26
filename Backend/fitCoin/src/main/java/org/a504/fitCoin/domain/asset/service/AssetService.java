@@ -14,7 +14,8 @@ import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.ExchangeJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.ExchangeRateHistoryRepository;
 import org.a504.fitCoin.domain.asset.repository.PointLogJpaRepository;
-import org.a504.fitCoin.domain.asset.value.TransactionType;
+import org.a504.fitCoin.domain.asset.value.CoinReason;
+import org.a504.fitCoin.domain.asset.value.PointReason;
 import org.a504.fitCoin.domain.user.entity.User;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
 import org.a504.fitCoin.global.exception.CustomException;
@@ -106,9 +107,9 @@ public class AssetService {
         int exchangeCoin = exchangePoint / rate;
 
         user.deductPoint(exchangePoint);
-        PointLog savedPointLog = pointLogJpaRepository.save(PointLog.of(user, exchangePoint, TransactionType.USE));
+        PointLog savedPointLog = pointLogJpaRepository.save(PointLog.of(user, exchangePoint, PointReason.EXCHANGE));
         user.addCoin(exchangeCoin);
-        CoinLog savedCoinLog = coinLogJpaRepository.save(CoinLog.of(user, exchangeCoin, TransactionType.EARN));
+        CoinLog savedCoinLog = coinLogJpaRepository.save(CoinLog.of(user, exchangeCoin, CoinReason.EXCHANGE));
 
         return new ExchangeResponse(savedPointLog.getAmount(), savedCoinLog.getAmount(), rate);
     }

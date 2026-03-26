@@ -3,7 +3,7 @@ package org.a504.fitCoin.domain.character.service;
 import lombok.RequiredArgsConstructor;
 import org.a504.fitCoin.domain.asset.entity.CoinLog;
 import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
-import org.a504.fitCoin.domain.asset.value.TransactionType;
+import org.a504.fitCoin.domain.asset.value.CoinReason;
 import org.a504.fitCoin.domain.character.dto.response.AdoptCharacterResponse;
 import org.a504.fitCoin.domain.character.dto.response.CharacterDexResponse;
 import org.a504.fitCoin.domain.character.dto.response.CharacterResponse;
@@ -198,7 +198,7 @@ public class CharacterService {
 
         // 코인 차감
         user.deductCoin(REROLL_PRICE);
-        coinLogJpaRepository.save(CoinLog.of(user, REROLL_PRICE, TransactionType.USE));
+        coinLogJpaRepository.save(CoinLog.of(user, REROLL_PRICE, CoinReason.CHARACTER_REROLL));
 
         // 새 캐릭터 뽑기
         List<Characters> characters = characterJpaRepository.findAll();
