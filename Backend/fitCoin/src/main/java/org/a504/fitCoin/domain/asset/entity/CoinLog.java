@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.a504.fitCoin.domain.asset.value.TransactionType;
+import org.a504.fitCoin.domain.asset.value.CoinReason;
 import org.a504.fitCoin.domain.user.entity.User;
 
 import java.time.LocalDateTime;
@@ -27,16 +27,16 @@ public class CoinLog {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
-    private TransactionType type;
+    private CoinReason reason;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public static CoinLog of(User user, int amount, TransactionType type) {
+    public static CoinLog of(User user, int amount, CoinReason reason) {
         CoinLog log = new CoinLog();
         log.user = user;
         log.amount = amount;
-        log.type = type;
+        log.reason = reason;
         return log;
     }
 
