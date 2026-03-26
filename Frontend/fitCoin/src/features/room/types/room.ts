@@ -1,5 +1,11 @@
 /** 가구 종류 (API furnitureType) */
-export type FurnitureType = 'WALLPAPER' | 'FLOOR' | 'WINDOW' | 'LEFT' | 'RIGHT' | 'HIDDEN';
+export type FurnitureType =
+  | 'WALLPAPER'
+  | 'FLOOR'
+  | 'WINDOW'
+  | 'LEFT'
+  | 'RIGHT'
+  | 'HIDDEN';
 
 /** 획득 방법 */
 export type AcquireType = 'POINT' | 'COIN' | 'HIDDEN';
@@ -49,5 +55,5 @@ export interface RoomLayoutUpdateResponse {
 
 /** GET /rooms/inventory 응답 */
 export interface InventoryResponse {
-  furnitures: Omit<FurnitureItem, 'owned'>[];
+  furnitures: FurnitureItem[];
 }
