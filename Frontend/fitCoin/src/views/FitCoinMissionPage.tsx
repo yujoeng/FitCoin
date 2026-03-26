@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   RefreshCw, Play, Check, Activity, Info,
 } from 'lucide-react';
@@ -41,7 +41,13 @@ interface FitCoinMissionPageProps {
 
 export default function FitCoinMissionPage({ candidates, dailyMissionCount, onStart }: FitCoinMissionPageProps) {
   const { userInfo } = useMyPage();
-  const [mission, setMission] = useState<MissionCandidate>(() => candidates[Math.floor(Math.random() * candidates.length)]);
+  const [mission, setMission] = useState<MissionCandidate | null>(null);
+
+  useEffect(() => {
+    if (candidates.length > 0 && !mission) {
+      setMission(candidates[Math.floor(Math.random() * candidates.length)]);
+    }
+  }, [candidates]);
   const [spinning, setSpinning] = useState(false);
 
   const handleRefresh = () => {
@@ -49,11 +55,13 @@ export default function FitCoinMissionPage({ candidates, dailyMissionCount, onSt
     setTimeout(() => {
       let next: MissionCandidate;
       do { next = candidates[Math.floor(Math.random() * candidates.length)]; }
-      while (next.id === mission.id && candidates.length > 1);
+      while (mission && next.id === mission.id && candidates.length > 1);
       setMission(next);
       setSpinning(false);
     }, 380);
   };
+
+  if (!mission) return null;
 
   const isLocked = dailyMissionCount >= 3;
   const targetCount = getTargetCount(mission.count, userInfo?.exerciseLevel || 'BEGINNER');
