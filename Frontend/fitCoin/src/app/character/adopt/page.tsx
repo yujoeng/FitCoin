@@ -3,12 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { adoptCharacter, AdoptCharacterResponse } from '@/features/character/services/characterApi';
+import { rerollCharacter } from '@/features/store/services/storeApi';
 
 export default function CharacterAdoptPage() {
   const router = useRouter();
   const [character, setCharacter] = useState<AdoptCharacterResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [remainingCoin, setRemainingCoin] = useState<number | null>(null);
 
   const handleAdopt = async () => {
     if (isLoading) return;
@@ -19,6 +21,37 @@ export default function CharacterAdoptPage() {
     } catch (err: any) {
       console.error('캐릭터 입양 실패:', err);
       setError('이미 캐릭터를 보유하고 있습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReroll = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await rerollCharacter();
+      if (data.isSuccess && data.result) {
+        setCharacter({
+          characterId: data.result.character.characterId,
+          name: data.result.character.characterName,
+          imgUrl: data.result.character.imageUrl,
+        });
+        setRemainingCoin(data.result.remainingCoin);
+      } else {
+        setError('다시 시도해주세요.');
+      }
+    } catch (err: any) {
+      console.error('캐릭터 리롤 실패:', err);
+      const code = err?.response?.data?.code;
+      if (code === 'US4002') {
+        setError('코인이 부족합니다.');
+      } else if (code === 'CHARACTER-404') {
+        setError('현재 키우고 있는 캐릭터가 없습니다.');
+      } else {
+        setError('다시 시도해주세요.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -133,53 +166,38 @@ export default function CharacterAdoptPage() {
       {/* 버튼 영역 */}
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-        {/* 캐릭터 변경권 (툴팁 포함) */}
-        <div style={{ position: 'relative', width: '100%' }}>
-          <div style={{
-            position: 'absolute',
-            top: '-34px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: 'rgba(0,0,0,0.75)',
-            color: '#fff',
-            padding: '6px 12px',
-            borderRadius: '16px',
-            fontSize: '12px',
-            fontWeight: 500,
-            pointerEvents: 'none',
-            whiteSpace: 'nowrap',
-            zIndex: 10,
-          }}>
-            준비 중
-            <div style={{
-              position: 'absolute',
-              bottom: '-4px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 0,
-              height: 0,
-              borderLeft: '5px solid transparent',
-              borderRight: '5px solid transparent',
-              borderTop: '5px solid rgba(0,0,0,0.75)'
-            }} />
-          </div>
-          <button
-            disabled
-            style={{
-              width: '100%',
-              padding: '16px',
-              borderRadius: 'var(--radius-xl)',
-              backgroundColor: 'var(--color-bg-card)',
-              color: '#A0A0A0', // disabled text
-              fontWeight: 600,
-              fontSize: '16px',
-              border: '2px solid rgba(0,0,0,0.05)',
-              cursor: 'not-allowed',
-            }}
-          >
-            캐릭터 변경권 사용
-          </button>
-        </div>
+        {error && character && (
+          <p style={{ color: 'red', fontWeight: 600, textAlign: 'center', marginBottom: '-8px' }}>
+            {error}
+          </p>
+        )}
+
+        {remainingCoin !== null && (
+          <p style={{ textAlign: 'center', color: 'var(--color-primary)', fontWeight: 600, fontSize: '15px', marginBottom: '-8px' }}>
+            보유 코인: {remainingCoin}
+          </p>
+        )}
+
+        {/* 캐릭터 변경권 (리롤) */}
+        <button
+          onClick={handleReroll}
+          disabled={isLoading}
+          style={{
+            width: '100%',
+            padding: '16px',
+            borderRadius: 'var(--radius-xl)',
+            backgroundColor: 'var(--color-bg-card)',
+            color: 'var(--color-text-primary)',
+            fontWeight: 700,
+            fontSize: '16px',
+            border: '2px solid var(--color-primary)',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            opacity: isLoading ? 0.6 : 1,
+            transition: 'opacity 0.2s ease',
+          }}
+        >
+          캐릭터 변경하기
+        </button>
 
         {/* 확인 버튼 */}
         <button
