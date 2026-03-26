@@ -7,7 +7,7 @@ import org.a504.fitCoin.domain.asset.entity.Exchange;
 import org.a504.fitCoin.domain.asset.repository.CoinLogJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.ExchangeJpaRepository;
 import org.a504.fitCoin.domain.asset.repository.ExchangeRateHistoryRepository;
-import org.a504.fitCoin.domain.asset.value.TransactionType;
+import org.a504.fitCoin.domain.asset.value.CoinReason;
 import org.a504.fitCoin.global.config.property.ExchangeProperties;
 import org.a504.fitCoin.global.util.MailClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +47,7 @@ public class ExchangeRateService {
                 .orElse(properties.getInitialEwma());
 
         // 2. 오늘 환전 코인 수 집계
-        long todayCoins = coinLogJpaRepository.sumAddedCoinsByDate(today, TransactionType.EARN);
+        long todayCoins = coinLogJpaRepository.sumAddedCoinsByDate(today, CoinReason.EXCHANGE);
 
         // 3. 현재 환율 조회 (없으면 절대 하한)
         long prevRate = exchangeJpaRepository.findTopByOrderByBaseDateDesc()

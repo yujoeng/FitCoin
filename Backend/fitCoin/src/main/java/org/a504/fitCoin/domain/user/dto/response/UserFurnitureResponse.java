@@ -2,11 +2,11 @@ package org.a504.fitCoin.domain.user.dto.response;
 
 import org.a504.fitCoin.domain.room.value.FurniturePosition;
 import org.a504.fitCoin.domain.room.value.PurchaseType;
-import org.a504.fitCoin.domain.user.entity.Inventory;
+import org.a504.fitCoin.domain.user.entity.UserFurniture;
 
 import java.util.List;
 
-public record InventoryResponse(
+public record UserFurnitureResponse(
         List<FurnitureInfo> furnitures
 ) {
     public record FurnitureInfo(
@@ -18,7 +18,7 @@ public record InventoryResponse(
             PurchaseType acquireType
     ) {}
 
-    public static InventoryResponse from(List<Inventory> inventories) {
+    public static UserFurnitureResponse from(List<UserFurniture> inventories) {
         List<FurnitureInfo> furnitures = inventories.stream()
                 .map(inventory -> new FurnitureInfo(
                         inventory.getFurniture().getId(),
@@ -30,6 +30,6 @@ public record InventoryResponse(
                 ))
                 .toList();
 
-        return new InventoryResponse(furnitures);
+        return new UserFurnitureResponse(furnitures);
     }
 }

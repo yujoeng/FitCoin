@@ -7,10 +7,10 @@ import org.a504.fitCoin.domain.room.dto.response.RoomLayoutUpdateResponse;
 import org.a504.fitCoin.domain.room.entity.Furniture;
 import org.a504.fitCoin.domain.room.exception.RoomErrorStatus;
 import org.a504.fitCoin.domain.room.repository.FurnitureJpaRepository;
-import org.a504.fitCoin.domain.user.dto.response.InventoryResponse;
-import org.a504.fitCoin.domain.user.entity.Inventory;
+import org.a504.fitCoin.domain.user.dto.response.UserFurnitureResponse;
+import org.a504.fitCoin.domain.user.entity.UserFurniture;
 import org.a504.fitCoin.domain.user.entity.UserRoom;
-import org.a504.fitCoin.domain.user.repository.InventoryJpaRepository;
+import org.a504.fitCoin.domain.user.repository.UserFurnitureJpaRepository;
 import org.a504.fitCoin.domain.user.repository.UserRoomJpaRepository;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class RoomService {
 
     private final UserRoomJpaRepository userRoomJpaRepository;
     private final FurnitureJpaRepository furnitureJpaRepository;
-    private final InventoryJpaRepository inventoryJpaRepository;
+    private final UserFurnitureJpaRepository userFurnitureJpaRepository;
 
     @Transactional(readOnly = true)
     public RoomLayoutResponse getRoomLayout(Long userId) {
@@ -34,9 +34,9 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
-    public InventoryResponse getInventory(Long userId) {
-        List<Inventory> inventories = inventoryJpaRepository.findAllByUserIdWithFurniture(userId);
-        return InventoryResponse.from(inventories);
+    public UserFurnitureResponse getInventory(Long userId) {
+        List<UserFurniture> inventories = userFurnitureJpaRepository.findAllByUserIdWithFurniture(userId);
+        return UserFurnitureResponse.from(inventories);
     }
 
     @Transactional
@@ -65,7 +65,7 @@ public class RoomService {
         Furniture furniture = furnitureJpaRepository.findById(furnitureId)
                 .orElseThrow(() -> new CustomException(RoomErrorStatus.FURNITURE_NOT_FOUND));
 
-        if (!inventoryJpaRepository.existsByUserIdAndFurnitureId(userId, furnitureId)) {
+        if (!userFurnitureJpaRepository.existsByUserIdAndFurnitureId(userId, furnitureId)) {
             throw new CustomException(RoomErrorStatus.FURNITURE_NOT_OWNED);
         }
 
