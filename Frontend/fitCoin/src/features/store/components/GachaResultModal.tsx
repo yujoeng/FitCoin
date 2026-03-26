@@ -49,7 +49,7 @@ export default function GachaResultModal({
           {error ? (
             /* 에러 상태 */
             <>
-              <div style={{ position: 'relative', width: '80px', height: '80px' }}>
+              <div style={{ position: 'relative', width: '200px', height: '200px' }}>
                 <Image src="/fail.png" alt="fail" fill style={{ objectFit: 'contain' }} />
               </div>
               <p
@@ -76,7 +76,7 @@ export default function GachaResultModal({
           ) : result ? (
             /* 결과 상태 */
             <>
-              <div style={{ position: 'relative', width: '80px', height: '80px' }}>
+              <div style={{ position: 'relative', width: '200px', height: '200px' }}>
                 <Image src="/success.png" alt="success" fill style={{ objectFit: 'contain' }} />
               </div>
               <p
@@ -93,8 +93,8 @@ export default function GachaResultModal({
                 <div
                   style={{
                     position: 'relative',
-                    width: '140px',
-                    height: '140px',
+                    width: '180px',
+                    height: '180px',
                     borderRadius: '12px',
                     overflow: 'hidden',
                     backgroundColor: 'var(--color-bg)',
