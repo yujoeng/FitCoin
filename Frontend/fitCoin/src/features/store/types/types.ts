@@ -42,6 +42,7 @@ export interface GifticonGachaResult {
 
 export interface CharacterRerollResult {
     spentCoin: number;
+    remainingCoin: number;
     character: {
         characterId: number;
         characterName: string;

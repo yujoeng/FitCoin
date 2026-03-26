@@ -33,8 +33,8 @@ export const gachaGifticon = async (): Promise<ApiResponse<GifticonGachaResult>>
     return response.data;
 };
 
-// 캐릭터 리롤 — POST /shop/reroll/character
+// 캐릭터 리롤 — POST /character/reroll
 export const rerollCharacter = async (): Promise<ApiResponse<CharacterRerollResult>> => {
-    const response = await apiClient.post('/shop/reroll/character');
+    const response = await apiClient.post('/character/reroll');
     return response.data;
 };
