@@ -196,6 +196,7 @@ export default function FitCoinMissionPage({
                 fontSize: '0.88rem',
                 lineHeight: 1.6,
                 padding: '0 8px',
+                wordBreak: 'keep-all',
               }}
             >
               {mission.description}
