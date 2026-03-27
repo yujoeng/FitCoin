@@ -33,8 +33,7 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
 
   const allLineData = data
     .map((item) => ({
-      // UTC+9 보정: 9시간(32400초) 빼서 UTC 기준으로 맞춤
-      time: (Number(item.timestamp) - 32400) as any,
+      time: Number(item.timestamp) as any,
       value: item.rate,
     }))
     .sort((a, b) => a.time - b.time);
@@ -77,8 +76,8 @@ export default function ExchangeRateChart({ data }: ExchangeRateChartProps) {
         timeVisible: false,
         rightOffset: 5,
         tickMarkFormatter: (time: number) => {
-          const d = new Date((time + 32400) * 1000);
-          return `${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`;
+          const d = new Date(time * 1000);
+          return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
         },
       },
       handleScroll: true,
