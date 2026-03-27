@@ -25,3 +25,6 @@ dist-ssr
 *.code-workspace
 ../../Backend/
 ../../package-lock.json
+# PWA auto-generated files
+public/sw.js
+public/workbox-*.js
