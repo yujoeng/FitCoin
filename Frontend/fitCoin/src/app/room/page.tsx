@@ -55,7 +55,7 @@ export default function RoomPage() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
+        height: '100%',
         background: 'var(--color-bg)',
         overflow: 'hidden',
         position: 'relative',
