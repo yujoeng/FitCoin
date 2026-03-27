@@ -202,16 +202,19 @@ const DEMO_CONFIG: Record<string, DemoConfig> = {
   },
   overheadPress: {
     label: '오버헤드 프레스',
-    hint: '양팔을 머리 위로 뻗었다\n어깨 높이로 내려주세요',
+    hint: '양팔을 머리 위로 쭉 뻗었다가\n옆으로 내리며 팔꿈치 90° 자세로',
     animate: (parts, t) => {
       const phase = (Math.sin(t * 1.1) + 1) / 2;
       const wave  = phase * phase * (3 - 2 * phase);
-      const armAngle = -1.57 - wave * 1.28;
+      // wave=1(up):   위팔 수직 위 (rotation.z = ±π), 팔꿈치 펴짐(forearm.z=0)
+      // wave=0(down): 위팔 옆으로 수평 (rotation.z = ±π/2), 팔꿈치 90° 굽혀 손이 위 (forearm.z = ±π/2)
+      const upperArmZ = Math.PI / 2 + wave * (Math.PI / 2); // π/2→π (수평→수직위)
+      const forearmZ  = Math.PI / 2 - wave * (Math.PI / 2); // π/2→0 (굽힘→일직선)
       parts.torso.position.y = 1.12; parts.torso.rotation.x = 0; parts.torso.rotation.z = 0;
-      parts.leftArm.rotation.x  = armAngle;
-      parts.rightArm.rotation.x = armAngle;
-      parts.leftArm.rotation.z  = -0.25 + wave * 0.22;
-      parts.rightArm.rotation.z =  0.25 - wave * 0.22;
+      parts.leftArm.rotation.x  = 0; parts.rightArm.rotation.x  = 0;
+      parts.leftArm.rotation.z  = -upperArmZ; parts.rightArm.rotation.z  = upperArmZ;
+      if (parts.leftForearm)  { parts.leftForearm.rotation.x = 0; parts.leftForearm.rotation.z  = -forearmZ; }
+      if (parts.rightForearm) { parts.rightForearm.rotation.x = 0; parts.rightForearm.rotation.z =  forearmZ; }
       parts.leftUpper.rotation.x = 0; parts.rightUpper.rotation.x = 0;
       parts.leftLower.rotation.x = 0; parts.rightLower.rotation.x = 0;
     },

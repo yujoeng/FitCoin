@@ -4,7 +4,7 @@ export const FITCOIN_EXERCISE_OVERHEAD_PRESS = {
   id: 'overheadPress',
   name: '오버헤드 프레스',
   icon: 'ArrowUpToLine',
-  description: '양팔을 머리 위로 쭉 올렸다 어깨 높이로 내리세요 (아령 가능)',
+  description: '양팔을 머리 위로 쭉 올렸다 어깨 높이로 내리세요',
   targetCount: 10,
   camera: 'upper',
   initialState: 'down',

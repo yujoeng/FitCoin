@@ -4,7 +4,7 @@ export const FITCOIN_EXERCISE_SHOULDER_RAISE = {
   id: 'shoulderRaise',
   name: '숄더레이즈',
   icon: 'Dumbbell',
-  description: '팔을 옆으로 어깨 높이까지 들어올렸다 내리세요 (아령 가능)',
+  description: '팔을 옆으로 어깨 높이까지 들어올렸다 내리세요',
   targetCount: 10,
   camera: 'upper',
   initialState: 'down',
