@@ -22,14 +22,15 @@ function CircleButton({ imageSrc, onClick, label }: CircleButtonProps) {
     <button
       onClick={onClick}
       aria-label={label}
-      className='fc-pressable'
+      className='fc-pressable circle-button-glow'
       style={{
-        width: '55px',
+        width: '70px',
+        height: '70px',
         borderRadius: '50%',
-        background: 'rgba(255, 255, 255, 0.25)',
+        background: 'rgba(240, 247, 224, 0.85)',
         backdropFilter: 'blur(8px)',
-        border: '1.5px solid rgba(255, 255, 255, 0.7)',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        border: '3px solid rgba(139, 90, 43, 0.85)',
+        boxShadow: '0 0 8px rgba(240, 247, 224, 0.9), 0 0 16px rgba(96, 128, 56, 0.85)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

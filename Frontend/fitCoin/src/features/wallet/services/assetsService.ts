@@ -19,10 +19,13 @@ export const assetsService = {
     return response.data.result ?? response.data;
   },
 
-  async getExchangeRateHistory(): Promise<{
+  async getExchangeRateHistory(periodType?: string): Promise<{
     exchangeRates: ExchangeRateHistory[];
   }> {
-    const response = await apiClient.get("/assets/exchange-rate/history");
+    const endpoint = periodType
+      ? `/assets/exchange-rate/history?period=${periodType}`
+      : "/assets/exchange-rate/history";
+    const response = await apiClient.get(endpoint);
     const result = response.data.result;
     const exchangeRates: ExchangeRateHistory[] = Array.isArray(result)
       ? result
