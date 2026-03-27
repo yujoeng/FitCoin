@@ -4,6 +4,13 @@ import { FurnitureGachaResult, GifticonGachaResult, GachaResult } from '@/featur
 import Image from 'next/image';
 import BaseModal from '@/components/common/BaseModal';
 
+const GIFTICON_TYPE_LABEL: Record<string, string> = {
+  COFFEE: '커피',
+  ICECREAM: '아이스크림',
+  // TODO: 백엔드 기프티콘 타입 확정 후 추가
+};
+const getGifticonLabel = (type: string) => GIFTICON_TYPE_LABEL[type] ?? type;
+
 interface GachaResultModalProps {
   isOpen: boolean;
   result: GachaResult | null;
@@ -21,17 +28,19 @@ export default function GachaResultModal({
 
   const isFurniture = result !== null && 'acquiredFurniture' in result;
   const isCharacter = result !== null && 'character' in result;
+  const isGifticon = result !== null && 'acquiredGifticon' in result;
+  const isMiss = result !== null && !isFurniture && !isCharacter && !isGifticon;
 
   const itemName = isFurniture
     ? (result as FurnitureGachaResult).acquiredFurniture.furnitureName
-    : result !== null
-      ? (result as GifticonGachaResult).gifticon.gifticonName
+    : isGifticon
+      ? getGifticonLabel((result as GifticonGachaResult).acquiredGifticon.gifticonType)
       : null;
 
   const imageUrl = isFurniture
     ? (result as FurnitureGachaResult).acquiredFurniture.imageUrl
-    : result !== null
-      ? (result as GifticonGachaResult).gifticon.imageUrl
+    : isGifticon
+      ? (result as GifticonGachaResult).acquiredGifticon.imageUrl
       : null;
 
   return (
@@ -46,8 +55,8 @@ export default function GachaResultModal({
         }}
       >
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', width: '100%' }}>
-          {error ? (
-            /* 에러 상태 */
+          {error || isMiss ? (
+            /* 에러 또는 꽝 상태 */
             <>
               <div style={{ position: 'relative', width: '200px', height: '200px' }}>
                 <Image src="/fail.png" alt="fail" fill style={{ objectFit: 'contain' }} />
@@ -60,7 +69,7 @@ export default function GachaResultModal({
                   textAlign: 'center',
                 }}
               >
-                뽑기 실패
+                {isMiss ? '아쉽게도 꽝입니다...' : '뽑기 실패'}
               </p>
               <p
                 style={{
@@ -70,7 +79,7 @@ export default function GachaResultModal({
                   lineHeight: 1.5,
                 }}
               >
-                {error}
+                {isMiss ? '다음 기회에 다시 도전해보세요!' : error}
               </p>
             </>
           ) : result ? (
