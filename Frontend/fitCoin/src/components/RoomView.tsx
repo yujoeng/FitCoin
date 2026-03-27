@@ -19,10 +19,11 @@ const PLACEHOLDER_COLORS: Record<FurnitureSlot | 'character', string> = {
   character: '#E8D6F5',
 };
 
-const FALLBACK_WALLPAPER =
-  'https://j14a504.p.ssafy.io/minio/theme/poor%2Fwallpaper.png';
-const FALLBACK_FLOOR =
-  'https://j14a504.p.ssafy.io/minio/theme/poor%2Ffloor.png';
+const MINIO = process.env.NEXT_PUBLIC_MINIO_URL ?? '';
+
+const FALLBACK_WALLPAPER = `${MINIO}/theme/poor%2Fwallpaper.png`;
+const FALLBACK_FLOOR     = `${MINIO}/theme/poor%2Ffloor.png`;
+
 
 function SlotImage({
   src,
