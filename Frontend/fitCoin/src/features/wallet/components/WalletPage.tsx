@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAssets } from '../hooks/useAssets';
 import { useRouter } from 'next/navigation';
 import { Gifticon } from '../types/assets';
@@ -9,7 +9,7 @@ import PageHeader from '@/components/PageHeader';
 const GIFTICON_TYPE_LABEL: Record<string, string> = {
   COFFEE: '커피',
   ICECREAM: '아이스크림',
-  // TODO: 백엔드 기프티콘 타입 확정 후 추가
+  CHICKEN: '치킨',
 };
 const getGifticonLabel = (type: string) => GIFTICON_TYPE_LABEL[type] ?? type;
 
@@ -23,12 +23,20 @@ const formatDate = (dateStr: string) => {
   return `${yyyy}.${mm}.${dd}`;
 };
 
+type SortKey = 'latest' | 'oldest' | 'type';
+
+const SORT_OPTIONS: { label: string; value: SortKey }[] = [
+  { label: '최신순', value: 'latest' },
+  { label: '오래된순', value: 'oldest' },
+];
+
 export const WalletPage = () => {
   const router = useRouter();
   const { gifticons, isLoading } = useAssets();
   const [selectedGifticon, setSelectedGifticon] = useState<Gifticon | null>(
     null,
   );
+  const [sortKey, setSortKey] = useState<SortKey>('latest');
 
   const handleDownload = async (url: string) => {
     try {
@@ -47,16 +55,42 @@ export const WalletPage = () => {
     }
   };
 
+  const hasGifticons =
+    !isLoading && Array.isArray(gifticons) && gifticons.length > 0;
+
+  const sortedGifticons = useMemo(() => {
+    if (!Array.isArray(gifticons)) return [];
+    const arr = [...gifticons];
+    if (sortKey === 'latest')
+      return arr.sort(
+        (a, b) =>
+          new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime(),
+      );
+    if (sortKey === 'oldest')
+      return arr.sort(
+        (a, b) =>
+          new Date(a.issuedAt).getTime() - new Date(b.issuedAt).getTime(),
+      );
+    if (sortKey === 'type')
+      return arr.sort((a, b) =>
+        getGifticonLabel(a.gifticonType).localeCompare(
+          getGifticonLabel(b.gifticonType),
+        ),
+      );
+    return arr;
+  }, [gifticons, sortKey]);
+
   return (
     <div
       style={{
         position: 'relative',
-        minHeight: '100vh',
-        padding: 'var(--space-4)',
+        height: '100dvh',
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'var(--color-bg)',
         color: 'var(--color-text-primary)',
+        overflow: 'hidden',
+        padding: 'var(--space-4)',
       }}
     >
       {/* 로딩 표시 */}
@@ -64,10 +98,7 @@ export const WalletPage = () => {
         <div
           style={{
             position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
+            inset: 0,
             backgroundColor: 'rgba(0,0,0,0.2)',
             display: 'flex',
             justifyContent: 'center',
@@ -94,107 +125,194 @@ export const WalletPage = () => {
         onBack={() => router.push('/home')}
       />
 
-      {/* 목록 */}
-      {!isLoading &&
-      (!gifticons || !Array.isArray(gifticons) || gifticons.length === 0) ? (
+      {/* 고정 상단 영역 */}
+      <div
+        style={{
+          flexShrink: 0,
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid var(--color-border)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          padding: 'var(--space-3)',
+          marginTop: 'var(--space-4)',
+          borderRadius: '16px',
+        }}
+      >
+        {/* 요약 + 정렬 */}
         <div
           style={{
-            flex: 1,
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
-            color: 'var(--color-text-secondary)',
-            fontSize: '16px',
-            fontWeight: 'bold',
+            justifyContent: 'space-between',
+            marginTop: '4px',
           }}
         >
-          보유한 기프티콘이 없습니다
-        </div>
-      ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '16px',
-          }}
-        >
-          {(Array.isArray(gifticons) ? gifticons : []).map((g) => (
-            <div
-              key={g.gifticonId}
-              onClick={() => setSelectedGifticon(g)}
-              style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-                cursor: 'pointer',
-                border: '1px solid #e5e7eb',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
+          {/* 총 보유 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '24px' }}>🎁</span>
+            <div>
               <div
                 style={{
-                  width: '100%',
-                  aspectRatio: '1 / 1',
-                  backgroundColor: '#f3f4f6',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  overflow: 'hidden',
+                  fontSize: '11px',
+                  color: 'var(--color-text-secondary)',
+                  fontWeight: 600,
                 }}
               >
-                {g.imageUrl ? (
-                  <AppImage
-                    src={g.imageUrl}
-                    alt='gifticon'
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                ) : (
-                  <span
-                    style={{
-                      color: 'var(--color-text-secondary)',
-                      fontSize: '12px',
-                    }}
-                  >
-                    이미지 없음
-                  </span>
-                )}
+                보유 중인 기프티콘
               </div>
               <div
                 style={{
-                  padding: '12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  color: 'var(--color-primary)',
+                  lineHeight: 1.2,
                 }}
               >
-                <span
-                  style={{
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    color: 'var(--color-text-primary)',
-                  }}
-                >
-                  {getGifticonLabel(g.gifticonType)}
-                </span>
-                <span
-                  style={{
-                    fontSize: '12px',
-                    color: 'var(--color-text-secondary)',
-                  }}
-                >
-                  {formatDate(g.issuedAt)}
-                </span>
+                {hasGifticons ? (gifticons as Gifticon[]).length : 0}장
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* 정렬 선택 */}
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {SORT_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setSortKey(opt.value)}
+                style={{
+                  padding: '5px 10px',
+                  borderRadius: 'var(--radius-full)',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: sortKey === opt.value ? 700 : 500,
+                  cursor: 'pointer',
+                  backgroundColor:
+                    sortKey === opt.value
+                      ? 'var(--color-primary)'
+                      : 'var(--color-primary-light)',
+                  color:
+                    sortKey === opt.value
+                      ? '#ffffff'
+                      : 'var(--color-text-secondary)',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* 스크롤 목록 */}
+      <div
+        className='fc-hide-scrollbar'
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: 'var(--space-3) 0',
+        }}
+      >
+        {!isLoading &&
+        (!gifticons || !Array.isArray(gifticons) || gifticons.length === 0) ? (
+          <div
+            style={{
+              height: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              color: 'var(--color-text-secondary)',
+              fontSize: '16px',
+              fontWeight: 'bold',
+            }}
+          >
+            보유한 기프티콘이 없습니다
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '8px',
+            }}
+          >
+            {sortedGifticons.map((g) => (
+              <div
+                key={g.gifticonId}
+                onClick={() => setSelectedGifticon(g)}
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                  cursor: 'pointer',
+                  border: '1px solid #e5e7eb',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <div
+                  style={{
+                    width: '100%',
+                    aspectRatio: '1 / 1',
+                    backgroundColor: '#f3f4f6',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {g.imageUrl ? (
+                    <AppImage
+                      src={g.imageUrl}
+                      alt='gifticon'
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : (
+                    <span
+                      style={{
+                        color: 'var(--color-text-secondary)',
+                        fontSize: '12px',
+                      }}
+                    >
+                      이미지 없음
+                    </span>
+                  )}
+                </div>
+                <div
+                  style={{
+                    padding: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      color: 'var(--color-text-primary)',
+                    }}
+                  >
+                    {getGifticonLabel(g.gifticonType)}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '12px',
+                      color: 'var(--color-text-secondary)',
+                    }}
+                  >
+                    {formatDate(g.issuedAt)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* 모달 */}
       <BaseModal
