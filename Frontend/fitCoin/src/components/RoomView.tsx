@@ -19,6 +19,11 @@ const PLACEHOLDER_COLORS: Record<FurnitureSlot | 'character', string> = {
   character: '#E8D6F5',
 };
 
+const FALLBACK_WALLPAPER =
+  'https://j14a504.p.ssafy.io/minio/theme/poor%2Fwallpaper.png';
+const FALLBACK_FLOOR =
+  'https://j14a504.p.ssafy.io/minio/theme/poor%2Ffloor.png';
+
 function SlotImage({
   src,
   alt,
@@ -96,7 +101,7 @@ export default function RoomView({
         }}
       >
         <SlotImage
-          src={wallpaper?.imageUrl ?? ''}
+          src={wallpaper?.imageUrl ?? FALLBACK_WALLPAPER}
           alt='벽지'
           slotKey='wallpaper'
           objectFit='cover'
@@ -104,22 +109,20 @@ export default function RoomView({
       </div>
 
       {/* 레이어 2: 바닥 */}
-      {floor?.imageUrl && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 'var(--room-floor-height)',
-            zIndex: 1,
-            backgroundImage: `url('${floor.imageUrl}')`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            backgroundSize: '100% 100%',
-          }}
-        />
-      )}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 'var(--room-floor-height)',
+          zIndex: 1,
+          backgroundImage: `url('${floor?.imageUrl ?? FALLBACK_FLOOR}')`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundSize: '100% 100%',
+        }}
+      />
 
       {/* 레이어 2.5: 창문 */}
       <div
