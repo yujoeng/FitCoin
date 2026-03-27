@@ -52,7 +52,7 @@ export const WalletPage = () => {
       style={{
         position: 'relative',
         minHeight: '100vh',
-        padding: '24px 20px 96px 20px',
+        padding: 'var(--space-4)',
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'var(--color-bg)',

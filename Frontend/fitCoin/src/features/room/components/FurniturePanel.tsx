@@ -17,7 +17,7 @@ const TABS: { label: string; value: FurnitureType }[] = [
   { label: '창문', value: 'WINDOW' },
   { label: '아이템1', value: 'LEFT' },
   { label: '아이템2', value: 'RIGHT' },
-  { label: '장식', value: 'HIDDEN' },
+  { label: '??', value: 'HIDDEN' },
 ];
 
 export default function FurniturePanel({

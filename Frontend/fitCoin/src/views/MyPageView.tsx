@@ -614,7 +614,7 @@ function StreakCalendar({
             color: 'var(--color-text-secondary)',
           }}
         >
-          연속 학습{' '}
+          연속{' '}
           <span style={{ color: 'var(--color-bg-dark)' }}>
             {currentStreak}일
           </span>

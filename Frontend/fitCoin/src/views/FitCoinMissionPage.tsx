@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  RefreshCw, Play, Check, Activity, Info,
-} from 'lucide-react';
+import { RefreshCw, Play, Check, Activity, Info } from 'lucide-react';
 import type { MissionCandidate } from '@/types';
 import { FITCOIN_EXERCISES } from '@/data/exercises';
 import { useMyPage } from '@/features/user/hooks/useMyPage';
@@ -43,7 +41,11 @@ interface FitCoinMissionPageProps {
   onStart: (mission: MissionCandidate) => void;
 }
 
-export default function FitCoinMissionPage({ candidates, dailyMissionCount, onStart }: FitCoinMissionPageProps) {
+export default function FitCoinMissionPage({
+  candidates,
+  dailyMissionCount,
+  onStart,
+}: FitCoinMissionPageProps) {
   const router = useRouter();
   const { userInfo } = useMyPage();
   const [mission, setMission] = useState<MissionCandidate | null>(null);
@@ -59,8 +61,9 @@ export default function FitCoinMissionPage({ candidates, dailyMissionCount, onSt
     setSpinning(true);
     setTimeout(() => {
       let next: MissionCandidate;
-      do { next = candidates[Math.floor(Math.random() * candidates.length)]; }
-      while (mission && next.id === mission.id && candidates.length > 1);
+      do {
+        next = candidates[Math.floor(Math.random() * candidates.length)];
+      } while (mission && next.id === mission.id && candidates.length > 1);
       setMission(next);
       setSpinning(false);
     }, 380);
@@ -69,10 +72,13 @@ export default function FitCoinMissionPage({ candidates, dailyMissionCount, onSt
   if (!mission) return null;
 
   const isLocked = dailyMissionCount >= 3;
-  const targetCount = getTargetCount(mission.count, userInfo?.exerciseLevel || 'BEGINNER');
+  const targetCount = getTargetCount(
+    mission.count,
+    userInfo?.exerciseLevel || 'BEGINNER',
+  );
 
   return (
-    <div className='fc-anim-fade' style={{ padding: '16px 16px 0' }}>
+    <div className='fc-anim-fade' style={{ padding: 'var(--space-4)' }}>
       {/* ── Daily Progress ── */}
       <div style={{ marginBottom: 16 }}>
         <PageHeader title='오늘의 달성' onBack={() => router.push('/home')} />
