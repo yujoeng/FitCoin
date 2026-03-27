@@ -1,3 +1,5 @@
+'use client';
+
 import type { RoomConfig, UserCharacter, FurnitureSlot } from '@/types/home';
 import AppImage from '@/shared/components/AppImage';
 
