@@ -5,21 +5,31 @@ import AppImage from '@/shared/components/AppImage';
 interface CharacterGraduateModalProps {
   isOpen: boolean;
   gifticonImageUrl: string | null;
+  characterImageUrl: string | null;
   onConfirm: () => void;
 }
 
 export default function CharacterGraduateModal({
   isOpen,
   gifticonImageUrl,
+  characterImageUrl,
   onConfirm,
 }: CharacterGraduateModalProps) {
   return (
     <BaseModal isOpen={isOpen} zIndex={100}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', maxWidth: '412px' }}>
         <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>
-          🎉 졸업을 축하해요!
+          졸업을 축하해요!
         </h2>
-        
+
+        {characterImageUrl && (
+          <AppImage
+            src={characterImageUrl}
+            alt="졸업 캐릭터"
+            style={{ width: '120px', height: '120px', objectFit: 'contain' }}
+          />
+        )}
+
         {gifticonImageUrl ? (
           <AppImage
             src={gifticonImageUrl}
@@ -31,7 +41,7 @@ export default function CharacterGraduateModal({
             기프티콘이 지갑에 저장되었어요
           </p>
         )}
-        
+
         <button
           className="fc-btn-primary"
           onClick={onConfirm}

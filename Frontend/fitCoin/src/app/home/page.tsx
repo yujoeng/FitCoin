@@ -193,6 +193,7 @@ export default function HomePage() {
       <CharacterGraduateModal
         isOpen={isGraduateModalOpen}
         gifticonImageUrl={gifticonImageUrl}
+        characterImageUrl={homeState.character?.imageSrc || null}
         onConfirm={handleGraduateConfirm}
       />
 
