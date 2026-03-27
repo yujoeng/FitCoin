@@ -4,6 +4,13 @@ import { FurnitureGachaResult, GifticonGachaResult, GachaResult } from '@/featur
 import Image from 'next/image';
 import BaseModal from '@/components/common/BaseModal';
 
+const GIFTICON_TYPE_LABEL: Record<string, string> = {
+  COFFEE: '커피',
+  ICECREAM: '아이스크림',
+  // TODO: 백엔드 기프티콘 타입 확정 후 추가
+};
+const getGifticonLabel = (type: string) => GIFTICON_TYPE_LABEL[type] ?? type;
+
 interface GachaResultModalProps {
   isOpen: boolean;
   result: GachaResult | null;
@@ -21,17 +28,18 @@ export default function GachaResultModal({
 
   const isFurniture = result !== null && 'acquiredFurniture' in result;
   const isCharacter = result !== null && 'character' in result;
+  const isGifticon = result !== null && 'acquiredGifticon' in result;
 
   const itemName = isFurniture
     ? (result as FurnitureGachaResult).acquiredFurniture.furnitureName
-    : result !== null
-      ? (result as GifticonGachaResult).gifticon.gifticonName
+    : isGifticon
+      ? getGifticonLabel((result as GifticonGachaResult).acquiredGifticon.gifticonType)
       : null;
 
   const imageUrl = isFurniture
     ? (result as FurnitureGachaResult).acquiredFurniture.imageUrl
-    : result !== null
-      ? (result as GifticonGachaResult).gifticon.imageUrl
+    : isGifticon
+      ? (result as GifticonGachaResult).acquiredGifticon.imageUrl
       : null;
 
   return (

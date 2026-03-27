@@ -31,13 +31,14 @@ export interface FurnitureGachaResult {
 
 export interface GifticonItem {
     gifticonId: number;
-    gifticonName: string;
+    gifticonType: string;
     imageUrl: string;
 }
 
 export interface GifticonGachaResult {
     spentCoin: number;
-    gifticon: GifticonItem;
+    remainingCoin?: number;
+    acquiredGifticon: GifticonItem;
 }
 
 export interface CharacterRerollResult {
