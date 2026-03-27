@@ -1,3 +1,5 @@
+'use client';
+
 import type { RoomConfig, UserCharacter, FurnitureSlot } from '@/types/home';
 import AppImage from '@/shared/components/AppImage';
 
@@ -19,10 +21,11 @@ const PLACEHOLDER_COLORS: Record<FurnitureSlot | 'character', string> = {
   character: '#E8D6F5',
 };
 
-const FALLBACK_WALLPAPER =
-  'https://j14a504.p.ssafy.io/minio/theme/poor%2Fwallpaper.png';
-const FALLBACK_FLOOR =
-  'https://j14a504.p.ssafy.io/minio/theme/poor%2Ffloor.png';
+const MINIO = process.env.NEXT_PUBLIC_MINIO_URL ?? '';
+
+const FALLBACK_WALLPAPER = `${MINIO}/theme/poor%2Fwallpaper.png`;
+const FALLBACK_FLOOR     = `${MINIO}/theme/poor%2Ffloor.png`;
+
 
 function SlotImage({
   src,
@@ -201,11 +204,16 @@ export default function RoomView({
           zIndex: 3,
         }}
       >
-        <SlotImage
-          src={character?.imageSrc ?? ''}
-          alt={character?.name ?? '캐릭터'}
-          slotKey='character'
-        />
+        <div
+          className='fc-float'
+          style={{ width: '100%', height: '100%', position: 'relative' }}
+        >
+          <SlotImage
+            src={character?.imageSrc ?? ''}
+            alt={character?.name ?? '캐릭터'}
+            slotKey='character'
+          />
+        </div>
       </div>
 
       {!hideEditButton && (

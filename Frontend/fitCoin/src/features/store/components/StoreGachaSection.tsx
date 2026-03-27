@@ -80,6 +80,7 @@ export default function StoreGachaSection({
           justifyContent: 'center',
           flexWrap: 'nowrap',
           overflowX: 'auto',
+          paddingTop: '8px',
           paddingBottom: '4px',
         }}
       >

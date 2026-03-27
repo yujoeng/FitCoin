@@ -11,13 +11,11 @@ import {
 export const assetsService = {
   async getAssets(): Promise<Assets> {
     const response = await apiClient.get("/assets/me");
-    // [확인 필요] 백엔드 응답이 { isSuccess, result, ... } 구조인지 명세 확인 필요
     return response.data.result ?? response.data;
   },
 
   async getExchangeRate(): Promise<ExchangeRate> {
     const response = await apiClient.get("/assets/exchange-rate");
-    // [확인 필요] 단일 객체 리턴인지 result 분리 래핑 구조인지 명세 확인 필요
     return response.data.result ?? response.data;
   },
 
@@ -29,7 +27,6 @@ export const assetsService = {
       : "/assets/exchange-rate/history";
     const response = await apiClient.get(endpoint);
     const result = response.data.result;
-    // 배열 직접 내려오는 구조 대응
     const exchangeRates: ExchangeRateHistory[] = Array.isArray(result)
       ? result
       : (result?.exchangeRates ?? []);
@@ -42,7 +39,6 @@ export const assetsService = {
         point,
         rate,
       });
-      // [확인 필요] ExchangeResult가 result 객체 내부에 있는지 단독 리턴인지 확인
       return response.data.result ?? response.data;
     } catch (error: any) {
       const errorData = error.response?.data || {};
@@ -61,20 +57,16 @@ export const assetsService = {
       const response = await apiClient.get("/wallet");
       const data = response.data.result ?? response.data;
 
-      // data가 이미 배열인 경우
       if (Array.isArray(data)) {
         return { gifticons: data };
       }
-
-      // data가 { gifticons: [...] } 형태인 경우
       if (data && Array.isArray(data.gifticons)) {
         return { gifticons: data.gifticons };
       }
-
-      // 기본적으로 빈 배열 반환하여 런타임 에러 방지
       return { gifticons: [] };
     } catch (error) {
       throw new Error("기프티콘 목록을 불러오지 못했습니다.");
     }
   },
 };
+
