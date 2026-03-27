@@ -71,13 +71,11 @@ export const ExchangePage = () => {
 
   return (
     <>
-      <PageHeader title='환전소' onBack={() => router.push('/home')} />
-
       <div
         style={{
           position: 'relative',
           height: 'calc(100dvh - 56px - 64px - var(--safe-bottom))',
-          padding: '16px 20px',
+          padding: 'var(--space-4)',
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: 'var(--color-bg)',
@@ -85,6 +83,7 @@ export const ExchangePage = () => {
           overflow: 'hidden',
         }}
       >
+        <PageHeader title='환전소' onBack={() => router.push('/home')} />
         <ExchangeSuccessModal
           isOpen={successCoin !== null}
           receivedCoin={successCoin ?? 0}

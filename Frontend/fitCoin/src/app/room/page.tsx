@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
-import useRoom, { convertLayoutToRoomConfig, toRequestKey } from '@/features/room/hooks/useRoom';
+import useRoom, {
+  convertLayoutToRoomConfig,
+  toRequestKey,
+} from '@/features/room/hooks/useRoom';
 import FurniturePanel from '@/features/room/components/FurniturePanel';
 import RoomView from '@/components/RoomView';
 import { FurnitureType } from '@/features/room/types/room';
@@ -63,7 +66,7 @@ export default function RoomPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '8px 16px 8px 4px',
+          padding: 'var(--space-4)',
           flexShrink: 0,
           maxWidth: '430px',
           width: '100%',
@@ -71,12 +74,14 @@ export default function RoomPage() {
           zIndex: 10,
         }}
       >
-        <PageHeader title="방 꾸미기" onBack={() => router.push('/home')} />
+        <PageHeader title='방 꾸미기' onBack={() => router.push('/home')} />
         <button
           onClick={handleSave}
           disabled={isSaving}
           style={{
-            background: isSaving ? 'var(--color-text-disabled)' : 'var(--color-primary)',
+            background: isSaving
+              ? 'var(--color-text-disabled)'
+              : 'var(--color-primary)',
             color: '#fff',
             fontWeight: 700,
             padding: '8px 16px',
@@ -100,11 +105,18 @@ export default function RoomPage() {
           overflow: 'hidden',
         }}
       >
-        <div style={{ width: '100%', height: '100%', maxWidth: '400px', maxHeight: '500px' }}>
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            maxWidth: '400px',
+            maxHeight: '500px',
+          }}
+        >
           <RoomView
             roomConfig={convertLayoutToRoomConfig(previewLayout)}
             character={null}
-            onEditRoom={() => { }}
+            onEditRoom={() => {}}
             hideEditButton={true}
           />
         </div>
@@ -166,8 +178,8 @@ export default function RoomPage() {
               fontSize: 'var(--text-md)',
               fontWeight: 700,
               textAlign: 'center',
-              animation: isToastExiting 
-                ? 'fc-popOut 0.3s ease-in forwards' 
+              animation: isToastExiting
+                ? 'fc-popOut 0.3s ease-in forwards'
                 : 'fc-popIn 0.3s ease-out',
               pointerEvents: 'auto',
             }}
