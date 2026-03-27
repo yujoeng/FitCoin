@@ -198,11 +198,16 @@ export default function RoomView({
           zIndex: 3,
         }}
       >
-        <SlotImage
-          src={character?.imageSrc ?? ''}
-          alt={character?.name ?? '캐릭터'}
-          slotKey='character'
-        />
+        <div
+          className='fc-float'
+          style={{ width: '100%', height: '100%', position: 'relative' }}
+        >
+          <SlotImage
+            src={character?.imageSrc ?? ''}
+            alt={character?.name ?? '캐릭터'}
+            slotKey='character'
+          />
+        </div>
       </div>
 
       {!hideEditButton && (
