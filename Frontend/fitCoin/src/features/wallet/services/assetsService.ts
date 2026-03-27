@@ -10,38 +10,24 @@ import {
 
 export const assetsService = {
   async getAssets(): Promise<Assets> {
-    if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
-      return { point: 2947, coin: 0 };
-    }
     const response = await apiClient.get("/assets/me");
     // [확인 필요] 백엔드 응답이 { isSuccess, result, ... } 구조인지 명세 확인 필요
     return response.data.result ?? response.data;
   },
 
   async getExchangeRate(): Promise<ExchangeRate> {
-    if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
-      return { date: "2026-03-17", rate: 10000 };
-    }
     const response = await apiClient.get("/assets/exchange-rate");
     // [확인 필요] 단일 객체 리턴인지 result 분리 래핑 구조인지 명세 확인 필요
     return response.data.result ?? response.data;
   },
 
-  async getExchangeRateHistory(): Promise<{
+  async getExchangeRateHistory(periodType?: string): Promise<{
     exchangeRates: ExchangeRateHistory[];
   }> {
-    // TODO: MOCK 데이터 제거 시 함께 제거
-    if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
-      return {
-        exchangeRates: [
-          { timestamp: "1735686000", rate: 10000 },
-          { timestamp: "1738364400", rate: 11000 },
-          { timestamp: "1740783600", rate: 12000 },
-          { timestamp: "1743462000", rate: 10000 },
-        ],
-      };
-    }
-    const response = await apiClient.get("/assets/exchange-rate/history");
+    const endpoint = periodType
+      ? `/assets/exchange-rate/history?period=${periodType}`
+      : "/assets/exchange-rate/history";
+    const response = await apiClient.get(endpoint);
     const result = response.data.result;
     // 배열 직접 내려오는 구조 대응
     const exchangeRates: ExchangeRateHistory[] = Array.isArray(result)
@@ -51,13 +37,6 @@ export const assetsService = {
   },
 
   async exchange(point: number, rate: number): Promise<ExchangeResult> {
-    if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
-      return {
-        usedPoint: point,
-        receivedCoin: Math.floor(point / 10),
-        exchangeRate: 10,
-      };
-    }
     try {
       const response = await apiClient.post("/assets/exchange", {
         point,
