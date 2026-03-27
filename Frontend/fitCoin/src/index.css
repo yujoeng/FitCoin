@@ -282,9 +282,11 @@ select {
   0% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-8px);
   }
+
   100% {
     transform: translateY(0px);
   }
@@ -622,6 +624,7 @@ select {
 .ad-playing .fc-tabbar {
   display: none !important;
 }
+
 /* ──────────────────────────────────────────
    11. 홈 화면 CircleButton 글로우 효과
 ────────────────────────────────────────── */
@@ -639,4 +642,15 @@ select {
 
 .circle-button-glow {
   animation: glow 2s ease-in-out infinite;
+}
+
+.circle-button-glow:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.95) !important;
+  transition: transform 0.15s ease;
+}
+
+.circle-button-glow:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.95) !important;
 }
