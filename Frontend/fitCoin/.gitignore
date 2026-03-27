@@ -28,4 +28,3 @@ dist-ssr
 # PWA auto-generated files
 public/sw.js
 public/workbox-*.js
-*.pem
