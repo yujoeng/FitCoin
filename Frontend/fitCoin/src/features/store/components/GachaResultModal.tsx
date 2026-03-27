@@ -29,6 +29,7 @@ export default function GachaResultModal({
   const isFurniture = result !== null && 'acquiredFurniture' in result;
   const isCharacter = result !== null && 'character' in result;
   const isGifticon = result !== null && 'acquiredGifticon' in result;
+  const isMiss = result !== null && !isFurniture && !isCharacter && !isGifticon;
 
   const itemName = isFurniture
     ? (result as FurnitureGachaResult).acquiredFurniture.furnitureName
@@ -54,8 +55,8 @@ export default function GachaResultModal({
         }}
       >
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', width: '100%' }}>
-          {error ? (
-            /* 에러 상태 */
+          {error || isMiss ? (
+            /* 에러 또는 꽝 상태 */
             <>
               <div style={{ position: 'relative', width: '200px', height: '200px' }}>
                 <Image src="/fail.png" alt="fail" fill style={{ objectFit: 'contain' }} />
@@ -68,7 +69,7 @@ export default function GachaResultModal({
                   textAlign: 'center',
                 }}
               >
-                뽑기 실패
+                {isMiss ? '아쉽게도 꽝입니다...' : '뽑기 실패'}
               </p>
               <p
                 style={{
@@ -78,7 +79,7 @@ export default function GachaResultModal({
                   lineHeight: 1.5,
                 }}
               >
-                {error}
+                {isMiss ? '다음 기회에 다시 도전해보세요!' : error}
               </p>
             </>
           ) : result ? (
