@@ -8,10 +8,11 @@ import ExerciseDemoModal from '@/components/ExerciseDemoModal';
 import { mergeWithExercise } from '@/features/mission/missionUtils';
 import { FITCOIN_EXERCISES } from '@/data/exercises';
 import { useMyPage } from '@/features/user/hooks/useMyPage';
+import { assetsService } from '@/features/wallet/services/assetsService';
 import {
   loadDailyState, saveDailyState,
   loadStreak, updateStreak,
-  loadTotalPoints, addPoints,
+  loadTotalPoints,
   addHistoryEntry,
 } from '@/utils/fitcoinStorage';
 import MissionResultModal from '@/components/MissionResultModal';
@@ -86,11 +87,12 @@ function MissionPageContent() {
       saveDailyState(newDaily);
       setDailyState(newDaily);
 
-      // 3. 서버 응답 포인트 사용
+      // 3. 서버 응답 포인트 사용 및 실제 자산 동기화
       const earned = result.rewardPoint;
-      const newTotal = addPoints(earned);
       setEarnedPoint(earned);
-      setTotalPoints(newTotal);
+      
+      const assetsData = await assetsService.getAssets();
+      setTotalPoints(assetsData.point);
 
       // 4. 첫 번째 미션이면 스트릭 업데이트
       if (result.streakIncreased) setStreak(updateStreak());
