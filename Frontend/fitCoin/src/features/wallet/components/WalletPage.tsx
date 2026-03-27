@@ -238,11 +238,13 @@ export const WalletPage = () => {
             <div
               style={{
                 width: '100%',
+                maxHeight: '260px',
                 aspectRatio: '1 / 1',
                 backgroundColor: '#f3f4f6',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
+                overflow: 'hidden',
               }}
             >
               {selectedGifticon.imageUrl ? (
