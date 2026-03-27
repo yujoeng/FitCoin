@@ -77,6 +77,9 @@ function MissionPageContent() {
       // 1. 서버 미션 완료 API 호출
       const result = await completeMission();
 
+      // 1-1. 최신 미션 진행도(availability) 동기화 (새로고침 없이 FINISHED 반영)
+      await fetchAvailability();
+
       // 2. 로컬 dailyState 업데이트
       const newCount = dailyState.missionCount + 1;
       const newDaily: DailyState = { missionCount: newCount };
