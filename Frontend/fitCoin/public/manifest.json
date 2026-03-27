@@ -1,0 +1,21 @@
+{
+  "name": "FitCoin",
+  "short_name": "FitCoin",
+  "description": "운동하고 코인 모으자, FitCoin",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8E7",
+  "theme_color": "#96B95B",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
