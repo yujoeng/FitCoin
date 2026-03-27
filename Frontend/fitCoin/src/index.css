@@ -12,7 +12,6 @@
    7. 로고 유틸 클래스
    ================================================================ */
 
-
 /* ──────────────────────────────────────────
    1. 폰트 임포트
    - Pretendard: 본문/UI 전반 (한국어 최적화 고딕)
@@ -22,44 +21,43 @@
 ────────────────────────────────────────── */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css');
 
-
 /* ──────────────────────────────────────────
    2. CSS 변수 — 디자인 토큰
    사용법: color: var(--color-primary);
 ────────────────────────────────────────── */
 :root {
   /* ── 컬러 ── */
-  --color-primary: #96B95B;
+  --color-primary: #96b95b;
   /* 메인 그린 — 버튼, 강조 */
-  --color-primary-dark: #7CA348;
+  --color-primary-dark: #7ca348;
   /* 호버/액티브 상태 */
-  --color-primary-light: #F0F7E0;
+  --color-primary-light: #f0f7e0;
   /* 연한 그린 배경 */
 
-  --color-bg: #FFF8E7;
+  --color-bg: #fff8e7;
   /* 전체 앱 배경 (크림) */
-  --color-bg-card: #FFFFFF;
+  --color-bg-card: #ffffff;
   /* 카드 배경 */
   --color-bg-dark: rgba(44, 62, 31, 0.88);
   /* 스트릭 바 등 어두운 배경 */
 
-  --color-text-primary: #2C3E1F;
+  --color-text-primary: #2c3e1f;
   /* 본문 텍스트 */
-  --color-text-secondary: #5C6B4F;
+  --color-text-secondary: #5c6b4f;
   /* 보조 텍스트 */
-  --color-text-disabled: #9AA08A;
+  --color-text-disabled: #9aa08a;
   /* 비활성 텍스트 */
-  --color-text-inverse: #FFFFFF;
+  --color-text-inverse: #ffffff;
   /* 어두운 배경 위 텍스트 */
 
   --color-danger: #d4183d;
   /* 에러, 경고, 근손실 */
-  --color-danger-light: #FDE8EE;
+  --color-danger-light: #fde8ee;
   /* 연한 빨강 배경 */
 
-  --color-coin: #F5C842;
+  --color-coin: #f5c842;
   /* 코인 골드 */
-  --color-point: #96B95B;
+  --color-point: #96b95b;
   /* 포인트 = primary */
 
   --color-border: rgba(150, 185, 91, 0.2);
@@ -68,8 +66,9 @@
   /* 강조 테두리 */
 
   /* ── 폰트 ── */
-  --font-body: 'Pretendard Variable', 'Pretendard', -apple-system,
-    BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  --font-body:
+    'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', sans-serif;
   /* 포인트 숫자, 강조 텍스트 */
 
   /* ── 폰트 크기 ── */
@@ -134,7 +133,6 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
-
 
 /* ──────────────────────────────────────────
    3. 기본 리셋
@@ -203,7 +201,6 @@ select {
   font-family: var(--font-body);
 }
 
-
 /* ──────────────────────────────────────────
    4. 타이포그래피 유틸 클래스
    사용법: <p className="fc-text-body">3,500</p>
@@ -234,7 +231,6 @@ select {
 .fc-text-green {
   color: var(--color-primary);
 }
-
 
 /* ──────────────────────────────────────────
    5. PWA / 모바일 최적화
@@ -277,10 +273,26 @@ select {
   user-select: none;
 }
 
-
 /* ──────────────────────────────────────────
    6. 공통 애니메이션
 ────────────────────────────────────────── */
+
+/* 둥실둥실 */
+@keyframes fc-float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.fc-float {
+  animation: fc-float 3s ease-in-out infinite;
+}
 
 /* 페이드인 */
 @keyframes fc-fadeIn {
@@ -362,7 +374,6 @@ select {
   transform: scale(0.95);
 }
 
-
 /* ──────────────────────────────────────────
    7. 로고 유틸 클래스
    
@@ -417,7 +428,7 @@ select {
 .fc-badge-gold {
   background-color: rgba(245, 200, 66, 0.15);
   /* 코인 골드 계열 */
-  color: #D4A017;
+  color: #d4a017;
   /* 짙은 골드 */
 }
 
