@@ -39,6 +39,7 @@ export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false);
   const [isGraduateModalOpen, setIsGraduateModalOpen] = useState(false);
   const [gifticonImageUrl, setGifticonImageUrl] = useState<string | null>(null);
+  const [graduatedImageUrl, setGraduatedImageUrl] = useState<string | null>(null);
 
   const refetchAssets = useCallback(async () => {
     try {
@@ -117,7 +118,9 @@ export default function HomePage() {
 
   const handleGraduate = async () => {
     try {
-      await graduateCharacter();
+      const graduateRes = await graduateCharacter();
+      setGraduatedImageUrl(graduateRes.result?.graduatedImageUrl ?? null);
+
       try {
         const walletRes = await getWallet();
         if (walletRes.isSuccess && walletRes.result?.gifticons?.length > 0) {
@@ -193,7 +196,11 @@ export default function HomePage() {
       <CharacterGraduateModal
         isOpen={isGraduateModalOpen}
         gifticonImageUrl={gifticonImageUrl}
+<<<<<<< Updated upstream
         characterImageUrl={homeState.character?.imageSrc || null}
+=======
+        characterImageUrl={graduatedImageUrl}
+>>>>>>> Stashed changes
         onConfirm={handleGraduateConfirm}
       />
 
