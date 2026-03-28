@@ -196,11 +196,7 @@ export default function HomePage() {
       <CharacterGraduateModal
         isOpen={isGraduateModalOpen}
         gifticonImageUrl={gifticonImageUrl}
-<<<<<<< Updated upstream
-        characterImageUrl={homeState.character?.imageSrc || null}
-=======
         characterImageUrl={graduatedImageUrl}
->>>>>>> Stashed changes
         onConfirm={handleGraduateConfirm}
       />
 
