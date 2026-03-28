@@ -39,11 +39,15 @@ export async function getCharacterDex(): Promise<CharacterDexApiItem[]> {
   return response.data.result;
 }
 
+export interface GraduateCharacterResponse {
+  graduatedImageUrl: string;
+}
+
 /**
  * 캐릭터 졸업
  * POST /characters/graduate
  */
-export async function graduateCharacter(): Promise<ApiResponse<null>> {
-  const response = await apiClient.patch<ApiResponse<null>>("/characters/graduate");
+export async function graduateCharacter(): Promise<ApiResponse<GraduateCharacterResponse>> {
+  const response = await apiClient.patch<ApiResponse<GraduateCharacterResponse>>("/characters/graduate");
   return response.data;
 }
