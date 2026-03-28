@@ -7,6 +7,7 @@ import org.a504.fitCoin.domain.asset.value.CoinReason;
 import org.a504.fitCoin.domain.character.dto.response.AdoptCharacterResponse;
 import org.a504.fitCoin.domain.character.dto.response.CharacterDexResponse;
 import org.a504.fitCoin.domain.character.dto.response.CharacterResponse;
+import org.a504.fitCoin.domain.character.dto.response.GraduateCharacterResponse;
 import org.a504.fitCoin.domain.character.dto.response.RerollCharacterResponse;
 import org.a504.fitCoin.domain.character.entity.CharacterDetail;
 import org.a504.fitCoin.domain.character.entity.Characters;
@@ -250,7 +251,7 @@ public class CharacterService {
     }
 
     @Transactional
-    public void graduateCharacter(Long userId) {
+    public GraduateCharacterResponse graduateCharacter(Long userId) {
 
         // 유저 조회
         User user = userJpaRepository.findById(userId)
@@ -261,11 +262,13 @@ public class CharacterService {
                 .findByUserIdAndStatus(userId, UserCharacterStatus.AVAILABLE)
                 .orElseThrow(() -> new CustomException(CharacterErrorStatus.CHARACTER_NOT_GRADUATABLE));
 
+        Long characterId = userCharacter.getCharacters().getId();
+
         // 캐릭터 졸업 처리
         userCharacter.graduate();
 
         // 발급 가능한 기프티콘 목록 조회
-        List<Gifticon> gifticons = gifticonJpaRepository.findAll()                  ;
+        List<Gifticon> gifticons = gifticonJpaRepository.findAll();
         if (gifticons.isEmpty()) {
             throw new CustomException(CharacterErrorStatus.GIFTICON_NOT_FOUND);
         }
@@ -279,6 +282,14 @@ public class CharacterService {
                 .gifticon(picked)
                 .build();
         userGifticonJpaRepository.save(userGifticon);
+
+        // GRADUATED 이미지 URL 조회
+        String graduatedImgUrl = characterDetailJpaRepository
+                .findByCharactersIdAndStatus(characterId, CharacterStatus.GRADUATED)
+                .map(CharacterDetail::getUrl)
+                .orElse(null);
+
+        return GraduateCharacterResponse.of(graduatedImgUrl);
     }
 
     @Transactional(readOnly = true)
