@@ -1,10 +1,7 @@
 package org.a504.fitCoin.domain.user.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.a504.fitCoin.domain.character.entity.Characters;
 import org.a504.fitCoin.domain.user.value.UserCharacterStatus;
 
@@ -30,9 +27,11 @@ public class UserCharacter {
     @JoinColumn(name = "character_id", nullable = false)
     private Characters characters;
 
+    @Setter
     @Column(name = "exp", nullable = false, columnDefinition = "INT DEFAULT 0")
     private int exp;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserCharacterStatus status = UserCharacterStatus.GROWING;;
@@ -43,6 +42,7 @@ public class UserCharacter {
     @Column(name = "graduation_date")
     private LocalDateTime graduationDate;
 
+    @Setter
     @Column(name = "last_updated_date")
     private LocalDate lastUpdatedDate;
 
@@ -54,21 +54,6 @@ public class UserCharacter {
         this.status = UserCharacterStatus.GROWING;  // 입양 시 "키우는 중" 상태
         this.adoptionDate = LocalDateTime.now();    // 입양일 자동 설정
         this.lastUpdatedDate = LocalDate.now();     // 마지막 경험치 업데이트일 자동 설정
-    }
-
-    // 경험치 +1 (최대치 도달 시 AVAILABLE로 변경)
-    public void addExp() {
-        if (this.status != UserCharacterStatus.GROWING) return;
-        this.exp = Math.min(this.exp + 1, MAX_EXP);
-        if (this.exp >= MAX_EXP) {
-            this.status = UserCharacterStatus.AVAILABLE;
-        }
-    }
-
-    // 경험치 -1 (최소 0)
-    public void subtractExp() {
-        if (this.status != UserCharacterStatus.GROWING) return;
-        this.exp = Math.max(this.exp - 1, 0);
     }
 
     // lastUpdatedDate 오늘로 갱신
