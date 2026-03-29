@@ -15,6 +15,7 @@ import org.a504.fitCoin.domain.character.exception.CharacterErrorStatus;
 import org.a504.fitCoin.domain.character.repository.CharacterDetailJpaRepository;
 import org.a504.fitCoin.domain.character.repository.CharacterJpaRepository;
 import org.a504.fitCoin.domain.character.value.CharacterStatus;
+import org.a504.fitCoin.domain.mission.repository.MissionLogRepository;
 import org.a504.fitCoin.domain.streak.entity.Streak;
 import org.a504.fitCoin.domain.streak.repository.StreakJpaRepository;
 import org.a504.fitCoin.domain.user.entity.User;
@@ -31,6 +32,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -41,6 +44,7 @@ import java.util.stream.Collectors;
 public class CharacterService {
 
     private static final int REROLL_PRICE = 1;
+    private static final int MAX_EXP      = 10;
 
     private final CharacterJpaRepository characterJpaRepository;
     private final CharacterDetailJpaRepository characterDetailJpaRepository;
@@ -50,78 +54,80 @@ public class CharacterService {
     private final UserGifticonJpaRepository userGifticonJpaRepository;
     private final StreakJpaRepository streakJpaRepository;
     private final CoinLogJpaRepository coinLogJpaRepository;
+    private final MissionLogRepository missionLogRepository;
 
-    @Transactional
-    public void addExp(User user) {
-        // 활성 캐릭터 조회 (GRADUATED 제외)
-        UserCharacter userCharacter = userCharacterJpaRepository
-                .findByUserIdAndStatusNot(user.getId(), UserCharacterStatus.GRADUATED)
-                .orElse(null);
+    private void recalculateExp(Long userId, UserCharacter userCharacter) {
+        int                 exp    = 0;
+        UserCharacterStatus status = userCharacter.getStatus();
 
-        // 활성 캐릭터 없으면 패스
-        if (userCharacter == null) return;
+        if (status != UserCharacterStatus.GROWING) return;
 
-        // 밀린 패널티 정산
-        applyPendingPenalty(user.getId(), userCharacter);
+        LocalDate today        = LocalDate.now();
+        LocalDate adoptionDate = userCharacter.getAdoptionDate().toLocalDate();
 
-        // 오늘 출석 확정 → 경험치 +1
-        userCharacter.addExp();
-
-        // lastUpdatedDate 오늘로 갱신
-        userCharacter.updateLastUpdatedDate();
-    }
-
-    // 밀린 날짜 패널티 정산 공통 메서드
-    // 월별로 DB 1번 접근 + 비트 마스킹으로 출석/미출석 일수 한 번에 계산
-    private void applyPendingPenalty(Long userId, UserCharacter userCharacter) {
-        LocalDate lastUpdated = userCharacter.getLastUpdatedDate();
-        LocalDate yesterday   = LocalDate.now().minusDays(1);
-
-        // lastUpdatedDate가 없거나 오늘이면 정산할 게 없음
-        if (lastUpdated == null || !lastUpdated.isBefore(LocalDate.now())) return;
-
-        // 정산 시작일: lastUpdatedDate 다음날
-        LocalDate from = lastUpdated.plusDays(1);
-
-        // 정산 기간에 걸친 월 범위 조회
-        LocalDate fromMonth = from.withDayOfMonth(1);
-        LocalDate toMonth   = yesterday.withDayOfMonth(1);
+        // 입양일~오늘 월 범위 streak 조회
+        LocalDate fromMonth = adoptionDate.withDayOfMonth(1);
+        LocalDate toMonth   = today.withDayOfMonth(1);
 
         List<Streak> streaks = streakJpaRepository.findByUserIdAndMonthBetween(userId, fromMonth, toMonth);
-        Map<LocalDate, Streak> streakMap = streaks.stream()
-                .collect(Collectors.toMap(Streak::getYearAndMonth, s -> s));
+        Map<LocalDate, Streak> streakMap = new HashMap<>(streaks.stream()
+                .collect(Collectors.toMap(Streak::getYearAndMonth, s -> s)));
 
-        // 월별로 순회하며 비트 마스킹으로 한 번에 계산
-        LocalDate cursorMonth = fromMonth;
-        while (!cursorMonth.isAfter(toMonth)) {
-            int startDay = cursorMonth.equals(fromMonth) ? from.getDayOfMonth() : 1;
-            int endDay   = cursorMonth.equals(toMonth)
-                    ? yesterday.getDayOfMonth()
-                    : cursorMonth.withDayOfMonth(cursorMonth.lengthOfMonth()).getDayOfMonth();
+        LocalDate cursor = adoptionDate;
+        while (!cursor.isAfter(today) && status == UserCharacterStatus.GROWING) {
+            LocalDate monthKey = cursor.withDayOfMonth(1);
 
             // 해당 월 데이터 없으면 추가 조회
-            if (!streakMap.containsKey(cursorMonth)) {
-                LocalDate monthKey = cursorMonth;
-                streakJpaRepository.findByUserIdAndYearAndMonth(userId, monthKey)
-                        .ifPresent(s -> streakMap.put(monthKey, s));
+            if (!streakMap.containsKey(monthKey)) {
+                LocalDate key = monthKey;
+                streakJpaRepository.findByUserIdAndYearAndMonth(userId, key)
+                        .ifPresent(s -> streakMap.put(key, s));
             }
 
-            Streak streak = streakMap.get(cursorMonth);
-            int data      = streak != null ? streak.getData() : 0;
+            Streak  streak  = streakMap.get(monthKey);
+            boolean checked = streak != null && streak.isChecked(cursor.getDayOfMonth());
 
-            // startDay ~ endDay 범위 비트 마스크
-            // 예: startDay=3, endDay=5 → mask = 0b00111000 >> 2 = bit2~bit4 ON
-            int mask        = ((1 << endDay) - 1) & ~((1 << (startDay - 1)) - 1);
-            int checkedDays = Integer.bitCount(data & mask);
-            int totalDays   = endDay - startDay + 1;
-            int missedDays  = totalDays - checkedDays;
+            // ── 입양일 특수 처리 ──
+            if (cursor.equals(adoptionDate)) {
+                if (checked) {
+                    LocalDateTime startOfDay    = cursor.atStartOfDay();
+                    LocalDateTime endOfDay      = startOfDay.plusDays(1);
+                    LocalDateTime firstMissionAt = missionLogRepository
+                            .findFirstMissionTimeByUserIdAndDate(userId, startOfDay, endOfDay);
 
-            // 출석일 수만큼 +1, 미출석일 수만큼 -1 (경험치 범위 내에서)
-            for (int i = 0; i < checkedDays; i++) userCharacter.addExp();
-            for (int i = 0; i < missedDays; i++) userCharacter.subtractExp();
+                    // 입양 시각 이후 미션 수행 시에만 +1
+                    if (firstMissionAt != null &&
+                            firstMissionAt.isAfter(userCharacter.getAdoptionDate())) {
+                        exp = Math.min(exp + 1, MAX_EXP);
+                        if (exp >= MAX_EXP) status = UserCharacterStatus.AVAILABLE;
+                    }
+                }
+                cursor = cursor.plusDays(1);
+                continue;
+            }
 
-            cursorMonth = cursorMonth.plusMonths(1);
+            // ── 오늘: 미출석이어도 -1 없음 ──
+            if (cursor.equals(today)) {
+                if (checked) {
+                    exp = Math.min(exp + 1, MAX_EXP);
+                    if (exp >= MAX_EXP) status = UserCharacterStatus.AVAILABLE;
+                }
+                break;
+            }
+
+            // ── 일반 날짜 ──
+            if (checked) {
+                exp = Math.min(exp + 1, MAX_EXP);
+                if (exp >= MAX_EXP) status = UserCharacterStatus.AVAILABLE;
+            } else {
+                exp = Math.max(exp - 1, 0);
+            }
+
+            cursor = cursor.plusDays(1);
         }
+
+        userCharacter.setExp(exp);
+        userCharacter.setStatus(status);
     }
 
     @Transactional
@@ -236,7 +242,7 @@ public class CharacterService {
 
         // Lazy 패널티 정산 (lastUpdatedDate가 오늘이 아닌 경우)
         if (!LocalDate.now().equals(userCharacter.getLastUpdatedDate())) {
-            applyPendingPenalty(userId, userCharacter);
+            recalculateExp(userId, userCharacter);
             userCharacter.updateLastUpdatedDate();
         }
 

@@ -27,9 +27,11 @@ public class UserCharacter {
     @JoinColumn(name = "character_id", nullable = false)
     private Characters characters;
 
+    @Setter
     @Column(name = "exp", nullable = false, columnDefinition = "INT DEFAULT 0")
     private int exp;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserCharacterStatus status = UserCharacterStatus.GROWING;;
