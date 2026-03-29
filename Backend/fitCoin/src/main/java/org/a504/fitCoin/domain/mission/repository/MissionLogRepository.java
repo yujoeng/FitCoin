@@ -17,4 +17,15 @@ public interface MissionLogRepository extends JpaRepository<MissionLog, Long> {
             @Param("startOfDay") LocalDateTime startOfDay,
             @Param("endOfDay") LocalDateTime endOfDay
     );
+
+    // 특정 날짜의 첫 번째 미션 완료 시각 조회 (입양일 경험치 분기용)
+    @Query("SELECT MIN(ml.createdAt) FROM MissionLog ml " +
+            "WHERE ml.user.id = :userId " +
+            "AND ml.createdAt >= :startOfDay " +
+            "AND ml.createdAt < :endOfDay")
+    LocalDateTime findFirstMissionTimeByUserIdAndDate(
+            @Param("userId") Long userId,
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay
+    );
 }
