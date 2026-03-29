@@ -11,13 +11,16 @@ import org.a504.fitCoin.domain.mission.repository.MissionRedisRepository;
 import org.a504.fitCoin.domain.mission.repository.MissionRepository;
 import org.a504.fitCoin.domain.streak.service.StreakService;
 import org.a504.fitCoin.domain.user.entity.User;
+import org.a504.fitCoin.domain.user.repository.UserCharacterJpaRepository;
 import org.a504.fitCoin.domain.user.repository.UserJpaRepository;
+import org.a504.fitCoin.domain.user.value.UserCharacterStatus;
 import org.a504.fitCoin.global.exception.CustomException;
 import org.a504.fitCoin.global.response.status.ErrorStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,8 +40,8 @@ public class MissionService {
     private final MissionRepository    missionRepository;
     private final MissionRedisRepository  missionRedisRepository;
     private final UserJpaRepository userJpaRepository;
+    private final UserCharacterJpaRepository userCharacterJpaRepository;
     private final StreakService streakService;
-    private final CharacterService characterService;
 
     @Transactional
     public MissionStartResponse startMission(Long userId, MissionStartRequest request) {
@@ -107,17 +110,16 @@ public class MissionService {
         // 10. 포인트 지급
         user.addPoint(rewardPoint);
 
-        // 11. 스트릭 증가 (첫 번째 미션만)
+        // 11. 첫 번째 미션일 경우의 처리: 스트릭 체크 + lastUpdatedDate를 어제로 세팅(재계산 트리거)
         if (isFirstMission) {
             streakService.checkStreak(user);
+
+            userCharacterJpaRepository
+                    .findByUserIdAndStatus(userId, UserCharacterStatus.GROWING)
+                    .ifPresent(uc -> uc.setLastUpdatedDate(LocalDate.now().minusDays(1)));
         }
 
-        // 12. 캐릭터 경험치 +1 (첫 번째 미션만)
-        if(isFirstMission){
-            characterService.addExp(user);
-        }
-
-        // 13. 일일 완료 횟수 +1
+        // 12. 일일 완료 횟수 +1
         missionRedisRepository.incrementDailyCount(userId);
 
         return MissionCompleteResponse.builder()
