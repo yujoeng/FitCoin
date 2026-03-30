@@ -9,7 +9,6 @@ interface ExpProgressBarProps {
 }
 
 export default function ExpProgressBar({ exp, maxExp, isGraduatable, onGraduate }: ExpProgressBarProps) {
-  const expPercent = maxExp > 0 ? (exp / maxExp) * 100 : 0;
 
   return (
     <div
@@ -87,15 +86,6 @@ export default function ExpProgressBar({ exp, maxExp, isGraduatable, onGraduate 
           <Trophy
             size={18}
             color={exp >= maxExp ? 'var(--color-primary)' : 'var(--color-text-disabled)'} />
-          <div
-            style={{
-              height: '100%',
-              width: `${expPercent}%`,
-              borderRadius: 'var(--radius-full)',
-              background: 'linear-gradient(90deg, var(--color-primary), var(--color-primary-dark))',
-              transition: 'width var(--transition-slow)',
-            }}
-          />
         </div>
         {isGraduatable && (
           <button
